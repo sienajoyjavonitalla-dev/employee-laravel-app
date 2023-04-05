@@ -1,6 +1,6 @@
 <?php
 
 return [
-    'site_title'        => 'Legacy Seller :: Admin',
-    'dashboard_title'    => 'Admin Panel'
+    'site_title'        => 'UPRISE RIGGING LTD.',
+    'dashboard_title'    => 'Dashboard'
 ];
