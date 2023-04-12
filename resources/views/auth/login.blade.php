@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8 cntr">
             <div class="card" style="width: 75%;">
-                <div class="card-header secondary-bg-color cntr" style="height: 80px; font-size: 25px;">{{ __('LOGIN TO WEBSITE') }}</div>
+                <div class="card-header secondary-bg-color cntr" style="height: 80px; font-size: 25px;">{{ __('UPRISE LOGIN') }}</div>
 
                 <div class="card-body primary-bg-color" style="height: 300px;">
                     <form method="POST" action="{{ route('login') }}">
