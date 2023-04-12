@@ -7,23 +7,12 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Uprise') }}</title>
+    <title>Uprise</title>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.0/js/toastr.js"></script>
-
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
-
-    <!-- Styles -->
-    <link href="{{ asset('css/app.css?v=').time() }}" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.0/css/toastr.css" rel="stylesheet" />
-
-    
-</head>
-<script>
+    <script>
         $(document).ready(function() {
             toastr.options.timeOut = 10000;
             @if (Session::has('error'))
@@ -34,4 +23,24 @@
         });
 
     </script>
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+
+    <!-- Styles -->
+    <link href="{{ asset('css/app.css?v=').time() }}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.0/css/toastr.css" rel="stylesheet" />
+
+    
+</head>
+<body>
+    <div id="app">
+        @guest
+        <main class="">
+            @yield('content')
+        </main>
+        @endguest
+
+    </div>
+</body>
 </html>
