@@ -35,15 +35,14 @@ class JobsController extends Controller
 
         ]);
 
-        Jobs::create($request->all());
+        $jobs = Jobs::create($request->all());
 
-        // return redirect()->route('jobs.index')->with('success','Jobs created successfully');
-        // return response()->json(['success'=>true, 'message' => 'Successfull!']);
-        
-        // return redirect()->back()->with('alert', 'Successfully added Job!');
-
-        return response()->json([
-            'alert' => 'success'
-        ]);
+        // session()->flash('message', 'Job is added successfully!');
+        if ($jobs) {
+            return back()->with('success', 'Success! Job created');
+        }
+        else {
+            return back()->with('failed', 'Failed! Job not created');
+        }
     }
 }

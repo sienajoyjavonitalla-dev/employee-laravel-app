@@ -12,10 +12,13 @@ class Jobs extends Model
     protected $fillable = [
         'title',
         'client_id',
+        'employee_id',
+        'status',
+        'po_number',
         'description',
         'start_date_time',
         'end_date_time',
-        'job_address',
+        'address',
         'updated_at',
         'deleted_at',
     ];
