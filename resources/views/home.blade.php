@@ -1,5 +1,4 @@
 @extends('layouts.app')
-@extends('adminlte::page')
 
 
 @section('title', 'Dashboard')
@@ -7,7 +6,18 @@
 @section('content_header')
 <h1>Dashboard</h1>
 @stop
+@section('scripts')
+    <script type="text/javascript">
+        $(document).ready(function() {
+            @if (Session::has('error'))
+                toastr.error('{{ Session::get('error') }}');
+            @elseif(Session::has('success'))
+                toastr.success('{{ Session::get('success') }}');
+            @endif
+        });
 
+    </script>
+@endsection
 @section('content')
 @if(session()->has('message'))
 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -95,4 +105,5 @@
     </form>
 </div>
 </div>
+
 @stop
