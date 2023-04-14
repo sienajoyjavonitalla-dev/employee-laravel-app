@@ -4,45 +4,74 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Jobs;
+use DataTables;
 
 class JobsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $games = Jobs::all();
-        return view('jobs.index', ['jobs' => $jobs]);
+        if ($request->ajax()) {
+
+            $data = Jobs::latest()->get();
+
+            return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row){
+                        $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editJob">Edit</a>';
+                        $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteJob">Delete</a>';
+
+                        return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+        }
+        return view('jobs.index');
+
     }
 
     public function show(Jobs $id)
     {
-        return view('jobs.show', ['Jobs' => $id]);
+        return view('jobs.index', ['Jobs' => $id]);
     }
 
     public function create()
     {
-        return view('jobs.create');
+        return view('jobs.create', ['jobs' => new Jobs()]);
     }
 
     public function store(Request $request)
-
     {
+        $status = "open";
+        if($request->employee_id) 
+            $status = "assigned";
 
-        $this->validate($request, [
+        Jobs::updateOrCreate([
+            'id' => $request->id
+        ],
+        [
+            'title' => $request->title,
+            'client_id' => $request->client_id,
+            'employee_id' => $request->employee_id,
+            'status' => $status,
+            'po_number' => $request->po_number,
+            'description' => $request->description,
+            'address' => $request->address,
+            'start_date_time' => $request->start_date_time,
+            'end_date_time' => $request->end_date_time
+        ]);        
+        return response()->json(['success'=>'Job saved successfully.']);
+    }
 
-            'title' => 'required',
+    public function edit($id)
+    {
+        $jobs = Jobs::find($id);
+        return response()->json($jobs);
+    }
 
-            'client_id' => 'required',
+    public function destroy($id)
+    {
+        Jobs::find($id)->delete();
 
-        ]);
-
-        $jobs = Jobs::create($request->all());
-
-        // session()->flash('message', 'Job is added successfully!');
-        if ($jobs) {
-            return back()->with('success', 'Success! Job created');
-        }
-        else {
-            return back()->with('failed', 'Failed! Job not created');
-        }
+        return response()->json(['success'=>'Job deleted successfully.']);
     }
 }
