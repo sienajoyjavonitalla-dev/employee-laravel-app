@@ -1,32 +1,6 @@
 @extends('layouts.app')
 
-
-@section('title', 'Dashboard')
-
-@section('content_header')
-<h1>Dashboard</h1>
-@stop
-@section('scripts')
-    <script type="text/javascript">
-        $(document).ready(function() {
-            @if (Session::has('error'))
-                toastr.error('{{ Session::get('error') }}');
-            @elseif(Session::has('success'))
-                toastr.success('{{ Session::get('success') }}');
-            @endif
-        });
-
-    </script>
-@endsection
 @section('content')
-@if(session()->has('message'))
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-  <strong><i class="fa fa-check-circle mr-1"></i>Success!</strong> {{session('message')}}.
-  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-  </button>
-</div>
-@endif
 <div class="row">
 <div class="col-lg-6 align-items-center border m-2 rounded-4 p-4">
     <h5 class="text-center">JOBS</h5>
@@ -40,18 +14,19 @@
                 <p class="p-2 col-sm-6"> Address: {{$job->address}}</p>
                 <p class="col-sm-6 justify-content-end d-flex">#{{$job->po_number}}</p>
             </div>
-
+            <a href="/jobs/edit/{{$job->id}}">edit</a>
         </div>
     @endforeach
 </div>
 <div class="col-lg-5 align-items-center border m-2 rounded-4 p-4">
-    <h5 class="text-center">ADD JOB</h5>
+    <!-- <h5 class="text-center">ADD JOB</h5>
     <form method="post" action="/jobs" enctype="multipart/form-data">
         {{ csrf_field() }}
+        
         <div class="form-group row">
             <label for="clientid" class="col-sm-3 col-form-label">Client</label>
             <div class="col-sm-9">
-                <input name="client_id" type="text" class="form-control" id="clientid">
+                <input name="client_id" type="text" class="form-control" id="clientid" >
             </div>
         </div>
         <div class="form-group row">
@@ -90,19 +65,14 @@
                 <input name="address" type="text" class="form-control" id="address">
             </div>
         </div>
-        <!-- <div class="form-group row">
-            <label for="gameimageid" class="col-sm-3 col-form-label">Game Image</label>
-            <div class="col-sm-9">
-                <input name="image" type="file" id="gameimageid" class="custom-file-input">
-                <span style="margin-left: 15px; width: 480px;" class="custom-file-control"></span>
-            </div>
-        </div> -->
+        
+        </div>
         <div class="form-group row">
             <div class="offset-sm-3 col-sm-9">
                 <button type="submit" class="btn btn-primary">Submit</button>
             </div>
         </div>
-    </form>
+    </form> -->
 </div>
 </div>
 
