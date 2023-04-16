@@ -5,7 +5,7 @@
     <div class="col-lg-12 align-items-center p-4">
         <div class="container">
 
-        <a class="btn btn-success mb-4" href="javascript:void(0)" id="createNewUser">Create New User</a>
+        <hr>
 
         <table class="table table-bordered table-hover data-table">
             <thead class="thead-light">
