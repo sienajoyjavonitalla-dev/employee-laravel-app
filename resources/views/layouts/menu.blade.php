@@ -62,7 +62,7 @@
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
 
                 <li class="nav-item">
-                    <a href="#" class="nav-link  {{ request()->is('users') ? 'active' : '' }}">
+                    <a href="#" class="nav-link  {{ request()->is('myaccount') ? 'active' : '' }}">
                         <i class="fa fa-user-circle fa-2x text-light"></i>
                         <p class="sidebar-my-account-name">{{Auth::user()->name}}</p>
                     </a>
