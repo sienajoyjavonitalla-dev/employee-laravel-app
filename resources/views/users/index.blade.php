@@ -12,7 +12,8 @@
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
-                    <th width="280px">Action</th>
+                    <th>Role</th>
+                    <!-- <th width="280px">Action</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -47,9 +48,16 @@
                         </div>
                     </div>
 
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
+                    <div class="form-group">
+                        <label for="role" class="col-sm-6 control-label">Role</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="role" name="role" value="" maxlength="50" required="">
+                        </div>
                     </div>
+
+                    <!-- <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
+                    </div> -->
                 </form>
             </div>
         </div>
@@ -75,7 +83,8 @@
         columns: [
             {data: 'name', name: 'name'},
             {data: 'email', name: 'email'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
+            {data: 'roles', name: 'roles'},
+            // {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
             { "width": "15%", "targets": [0,1,2] }
@@ -105,7 +114,7 @@
           $('#user_id').val(data.id);
           $('#name').val(data.name);
           $('#email').val(data.email);
-
+          $('#role').val(data.roles);
       })
 
     });
