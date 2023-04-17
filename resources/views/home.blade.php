@@ -12,7 +12,7 @@
             </div>
             <div class="row">
                 <p class="p-2 col-sm-6"> Address: {{$job->address}}</p>
-                <p class="col-sm-6 justify-content-end d-flex">#{{$job->po_number}}</p>
+                <p class="col-sm-6 justify-content-end d-flex">PO# {{$job->po_number}}</p>
             </div>
             <!-- <a href="/jobs/edit/{{$job->id}}">edit</a> -->
         </div>
