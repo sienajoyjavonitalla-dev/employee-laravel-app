@@ -2,99 +2,86 @@
 <aside style="min-height: 130%;" class="main-sidebar main-sidebar-custom sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="index3.html" class="brand-link">
-    <img src="favicon.ico" alt="uprise Logo" class="brand-image img-circle">
-    <span class="brand-text font-weight-light">Uprise Rigging Ltd.</span>
+        <img src="favicon.ico" alt="uprise Logo" class="brand-image img-circle">
+        <span class="brand-text font-weight-light">Uprise Rigging Ltd.</span>
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
-    <!-- Sidebar user panel (optional) -->
-    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-        <!-- <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image"> -->
-        <i class="fa fa-user-circle fa-2x text-light"></i>
-        </div>
-        <div class="info">
-        <a href="#" class="d-block text-lowercase">{{Auth::user()->name}}</a>
-        </div>
-    </div>
 
-    <!-- Sidebar Menu -->
-    <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-        <!-- Add icons to the links using the .nav-icon class
-            with font-awesome or any other icon font library -->
-        <!-- <li class="nav-item has-treeview menu-open">
-            <a href="#" class="nav-link active">
-            <i class="nav-icon fas fa-tachometer-alt"></i>
-            <p>
-                Starter Pages
-                <i class="right fas fa-angle-left"></i>
-            </p>
-            </a>
-            <ul class="nav nav-treeview">
-            <li class="nav-item">
-                <a href="#" class="nav-link active">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Active Page</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Inactive Page</p>
-                </a>
-            </li>
+        <!-- Sidebar user panel (optional) -->
+        <!-- <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+
+            <div class="image">
+                <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                <i class="fa fa-user-circle fa-2x text-light"></i>
+            </div>
+
+            <div class="info">
+                <a href="#" class="d-block text-lowercase">{{Auth::user()->name}}</a>
+            </div>
+
+        </div> -->
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2 sidebar-main-items">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+
+                <li class="nav-item">
+                    <a href="/home" class="nav-link  {{ request()->is('home') ? 'active' : '' }}">
+                        <i class="fas fa-home nav-icon"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/jobs" class="nav-link  {{ request()->is('jobs') ? 'active' : '' }}">
+                        <i class="fas fa-briefcase nav-icon"></i>
+                        <p>Jobs</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/invoices" class="nav-link  {{ request()->is('invoices') ? 'active' : '' }}">
+                        <i class="fas fa-print nav-icon"></i>
+                        <p>Invoices</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/users" class="nav-link  {{ request()->is('users') ? 'active' : '' }}">
+                        <i class="fas fa-users nav-icon"></i>
+                        <p>Users</p>
+                    </a>
+                </li>
             </ul>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>
-                Simple Link
-                <span class="right badge badge-danger">New</span>
-            </p>
-            </a>
-        </li> -->
-        <li class="nav-item">
-            <a href="/home" class="nav-link  {{ request()->is('home') ? 'active' : '' }}">
-            <i class="fas fa-home nav-icon"></i>
-            <p>Dashboard</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/jobs" class="nav-link  {{ request()->is('jobs') ? 'active' : '' }}">
-            <i class="fas fa-briefcase nav-icon"></i>
-            <p>Jobs</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/invoices" class="nav-link  {{ request()->is('invoices') ? 'active' : '' }}">
-            <i class="fas fa-print nav-icon"></i>
-            <p>Invoices</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/users" class="nav-link  {{ request()->is('users') ? 'active' : '' }}">
-            <i class="fas fa-users nav-icon"></i>
-            <p>Users</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('logout') }}" class="nav-link"
-                onclick="event.preventDefault();
-                            document.getElementById('logout-form').submit();">
-                <i class="nav-icon fas fa-power-off"></i>
-                <p>{{ __('Logout') }}</p>
-            </a>
+        </nav>
 
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                @csrf
-            </form>
-        </li>
-        </ul>
-    </nav>
-    <!-- /.sidebar-menu -->
+        <link href="{{ asset('css/sidebar-menu.css?v=').time() }}" rel="stylesheet">
+
+        <!-- Sidebar Menu Logout Section-->
+        <nav class="mt-2 logout-section">
+
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+
+                <li class="nav-item">
+                    <a href="#" class="nav-link  {{ request()->is('myaccount') ? 'active' : '' }}">
+                        <i class="fa fa-user-circle fa-2x text-light"></i>
+                        <p class="sidebar-my-account-name">{{Auth::user()->name}}</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ route('logout') }}" class="nav-link" onclick="event.preventDefault();
+                                    document.getElementById('logout-form').submit();">
+                        <i class="nav-icon fas fa-power-off"></i>
+                        <p>{{ __('Logout') }}</p>
+                    </a>
+
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                </li>
+            </ul>
+        </nav>
+
     </div>
     <!-- /.sidebar -->
 </aside>

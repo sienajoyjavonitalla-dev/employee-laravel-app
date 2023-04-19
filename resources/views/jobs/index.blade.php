@@ -12,7 +12,7 @@
                 <tr>
                     <th>Client</th>
                     <th>Assigned</th>
-                    <th>Title</th>
+                    <th>Job Title</th>
                     <th>Status</th>
                     <th>PO#</th>
                     <th>Address</th>
@@ -54,7 +54,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="title" class="col-sm-6 control-label">Title</label>
+                        <label for="title" class="col-sm-6 control-label">Job Title</label>
                         <div class="col-sm-12">
                             <input type="text" class="form-control" id="title" name="title" value="" required="">
                         </div>
@@ -96,8 +96,7 @@
                     </div>
                     
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save Changes
-                        </button>
+                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
                     </div>
                 </form>
             </div>
@@ -133,7 +132,7 @@
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "15%", "targets": [2, 6,7] }
+            { "width": "20%", "targets": [1,2] }
         ],
         order: [[6, 'asc']]
     });
