@@ -132,7 +132,7 @@
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "20%", "targets": [1,2] }
+            { "width": "15%", "targets": [2, 6, 7] }
         ],
         order: [[6, 'asc']]
     });
@@ -153,12 +153,12 @@
         console.log('edit');
       $.get("{{ route('jobs.index') }}" +'/' + job_id +'/edit', function (data) {
           $('#modelHeading').html("Edit Job");
-          $('#saveBtn').val("edit-user");
+          $('#saveBtn').val("edit-job");
           $('#ajaxModel').modal('show');
 
           $('#job_id').val(data.id);
           $('#client_id').val(data.client_id);
-          $('#employee_id').val(data.client_id);
+          $('#employee_id').val(data.employee_id);
           $('#title').val(data.title);
           $('#po_number').val(data.po_number);
           $('#description').val(data.description);
@@ -203,23 +203,25 @@
 
         var job_id = $(this).data("id");
 
-        confirm("Are You sure want to delete !");
+        var response = confirm("Are You sure want to delete?");
 
-        $.ajax({
-            type: "DELETE",
-            url: "{{ route('jobs.store') }}"+'/'+job_id,
+        if (response == true) {
+            $.ajax({
+                type: "DELETE",
+                url: "{{ route('jobs.store') }}"+'/'+job_id,
 
-            success: function (data) {
-                table.draw();
-                toastr.success('Deleted successfully!');
+                success: function (data) {
+                    table.draw();
+                    toastr.success('Deleted successfully!');
 
-            },
-            error: function (data) {
-                console.log('Error:', data);
-                toastr.error('Error!');
+                },
+                error: function (data) {
+                    console.log('Error:', data);
+                    toastr.error('Error!');
 
-            }
-        });
+                }
+            });
+        }
     });
   });
 

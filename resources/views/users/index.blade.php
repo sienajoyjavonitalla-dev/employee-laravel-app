@@ -4,8 +4,7 @@
 <div class="row">
     <div class="col-lg-12 align-items-center p-4">
         <div class="container">
-
-        <hr>
+        <a class="btn btn-success mb-4" href="javascript:void(0)" id="createNewUser"> Create New User</a>
 
         <table class="table table-bordered table-hover data-table">
             <thead class="thead-light">
@@ -13,7 +12,7 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Role</th>
-                    <!-- <th width="280px">Action</th> -->
+                    <th width="280px">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,15 +48,22 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="role" class="col-sm-6 control-label">Role</label>
+                        <label for="password" class="col-sm-6 control-label">Password</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="role" name="role" value="" maxlength="50" required="">
+                            <input type="text" class="form-control" id="password" name="password" value="" maxlength="50" >
                         </div>
                     </div>
 
-                    <!-- <div class="col-sm-offset-2 col-sm-10">
+                    <div class="form-group">
+                        <label for="roles" class="col-sm-6 control-label">Role</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="roles" name="roles" value="" maxlength="50" required="">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-offset-2 col-sm-10">
                         <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
-                    </div> -->
+                    </div>
                 </form>
             </div>
         </div>
@@ -84,7 +90,7 @@
             {data: 'name', name: 'name'},
             {data: 'email', name: 'email'},
             {data: 'roles', name: 'roles'},
-            // {data: 'action', name: 'action', orderable: false, searchable: false},
+            {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
             { "width": "15%", "targets": [0,1,2] }
@@ -114,7 +120,7 @@
           $('#user_id').val(data.id);
           $('#name').val(data.name);
           $('#email').val(data.email);
-          $('#role').val(data.roles);
+          $('#roles').val(data.roles);
       })
 
     });
@@ -152,23 +158,25 @@
 
         var user_id = $(this).data("id");
 
-        confirm("Are You sure want to delete !");
+        var response = confirm("Are You sure want to delete !");
 
-        $.ajax({
-            type: "DELETE",
-            url: "{{ route('users.store') }}"+'/'+user_id,
+        if(response == true) {
+            $.ajax({
+                type: "DELETE",
+                url: "{{ route('users.store') }}"+'/'+user_id,
 
-            success: function (data) {
-                table.draw();
-                toastr.success('Deleted successfully!');
+                success: function (data) {
+                    table.draw();
+                    toastr.success('Deleted successfully!');
 
-            },
-            error: function (data) {
-                console.log('Error:', data);
-                toastr.error('Error!');
+                },
+                error: function (data) {
+                    console.log('Error:', data);
+                    toastr.error('Error!');
 
-            }
-        });
+                }
+            });
+        }
     });
   });
 

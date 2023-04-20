@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use DataTables;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
@@ -41,13 +42,27 @@ class UsersController extends Controller
 
     public function store(Request $request)
     {
-        User::updateOrCreate([
-            'id' => $request->id
-        ],
-        [
-            'name' => $request->name,
-            'email' => $request->email
-        ]);        
+        if($request->user_id) {
+            
+            $user = User::where('id', $request->user_id)->first();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->roles = $request->roles;
+            if($request->password != null) {
+                $user->password = Hash::make($request->password);
+            }
+            $user->save();
+        } else {
+            User::create(
+            [
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'roles' => $request->roles
+
+            ]);   
+        }
+             
         return response()->json(['success'=>'User saved successfully.']);
     }
 

@@ -44,9 +44,8 @@ class JobsController extends Controller
         $status = "open";
         if($request->employee_id) 
             $status = "assigned";
-
         Jobs::updateOrCreate([
-            'id' => $request->id
+            'id' => $request->job_id
         ],
         [
             'title' => $request->title,
@@ -58,7 +57,8 @@ class JobsController extends Controller
             'address' => $request->address,
             'start_date_time' => $request->start_date_time,
             'end_date_time' => $request->end_date_time
-        ]);        
+        ]);
+
         return response()->json(['success'=>'Job saved successfully.']);
     }
 
