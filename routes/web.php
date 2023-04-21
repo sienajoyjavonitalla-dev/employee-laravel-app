@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\LogTimeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,3 +22,5 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::resource('jobs', JobsController::class);
 Route::resource('users', UsersController::class);
+Route::resource('timelogs', LogTimeController::class);
+Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
