@@ -33,6 +33,18 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="/timeclock" class="nav-link  {{ request()->is('timeclock') ? 'active' : '' }}">
+                        <i class="fas fa-clock nav-icon"></i>
+                        <p>Timeclock</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/timelogs" class="nav-link  {{ request()->is('timelogs') ? 'active' : '' }}">
+                        <i class="fas fa-user-clock nav-icon"></i>
+                        <p>Time Logs</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/jobs" class="nav-link  {{ request()->is('jobs') ? 'active' : '' }}">
                         <i class="fas fa-briefcase nav-icon"></i>
                         <p>Jobs</p>
