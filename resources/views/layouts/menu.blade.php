@@ -1,7 +1,7 @@
 <!-- Main Sidebar Container -->
 <aside style="min-height: 100%;" class="main-sidebar main-sidebar-custom sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="index3.html" class="brand-link">
+    <a href="/home" class="brand-link">
         <img src="favicon.ico" alt="uprise Logo" class="brand-image img-circle">
         <span class="brand-text font-weight-light">Uprise Rigging Ltd.</span>
     </a>
