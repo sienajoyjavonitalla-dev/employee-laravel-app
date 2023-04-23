@@ -62,6 +62,12 @@
                         <p>Users</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="/clients" class="nav-link  {{ request()->is('clients') ? 'active' : '' }}">
+                        <i class="fas fa-address-book nav-icon"></i>
+                        <p>Clients</p>
+                    </a>
+                </li>
             </ul>
         </nav>
 
