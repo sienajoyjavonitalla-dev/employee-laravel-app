@@ -24,3 +24,6 @@ Route::resource('jobs', JobsController::class);
 Route::resource('users', UsersController::class);
 Route::resource('timelogs', LogTimeController::class);
 Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
+Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
+Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out')->name('clock-in-out');
+

@@ -7,9 +7,10 @@
         <h1 id='ct7' class="d-flex justify-content-center p-5" style="font-size: 5rem;"></h1>
         <h3>{{date("Y.m.d")}}</h3>
         @if((isset($clock_in) && $clock_in->end_time) || !isset($clock_in))
-            <button class="btn btn-success btn-lg"> CLOCK IN </button>
+            <button class="btn btn-success btn-lg" id="clock-in"> CLOCK IN </button>
         @elseif(isset($clock_in) && $clock_in->end_time == null)
-            <button class="btn btn-danger btn-lg"> CLOCK OUT </button>
+            <h5>Last Clock In {{$clock_in->start_time}}</h5>
+            <button class="btn btn-danger btn-lg" id="clock-out"> CLOCK OUT </button>
         @endif
     </div>
 </div>
@@ -49,6 +50,68 @@
         mytime=setTimeout('display_ct7()',refresh)
     }
     display_c7();
+    $(function () {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $('#clock-in').click(function (e) {
+
+            var dataToSend = {
+                'type': 'in',
+                '_token': '{{ csrf_token() }}'
+            };
+
+            $.ajax({
+                url: "clock_in_out",
+                type: "POST",
+                dataType: 'json',
+                data: dataToSend,
+                success: function (data) {
+                    if(data.success) {
+                        toastr.success(data.success, 'SUCCESS');
+                        window.location.reload();        
+                    } else {
+                        toastr.error(data.error, 'ERROR');
+                    }
+                },
+                error: function (data) {
+                    console.log('Error:', data);
+                    toastr.error('Error Saving!');
+
+                }
+            });
+        })
+
+        $('#clock-out').click(function (e) {
+
+            var dataToSend = {
+                'type': 'out',
+                '_token': '{{ csrf_token() }}'
+            };
+
+            $.ajax({
+                url: "clock_in_out",
+                type: "POST",
+                dataType: 'json',
+                data: dataToSend,
+                success: function (data) {
+                    if(data.success) {
+                        toastr.success(data.success, 'SUCCESS');
+                        window.location.reload();        
+                    } else {
+                        toastr.error(data.error, 'ERROR');
+                    }
+                },
+                error: function (data) {
+                    console.log('Error:', data);
+                    toastr.error('Error Saving!');
+
+                }
+            });
+        })
+    });
 </script>
 
 @stop

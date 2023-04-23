@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DataTables;
 use App\Models\TimeLog;
+use App\Models\Jobs;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class LogTimeController extends Controller
 {
@@ -69,6 +71,32 @@ class LogTimeController extends Controller
             'timesheet' => $filename
 
         ]);
+
+        return response()->json(['success'=>'Log saved successfully.']);
+    }
+
+    public function clock_in_out(Request $request)
+    {
+        if($request->type == 'in') {
+            
+            $found_job = Jobs::where('employee_id', Auth::user()->id)->whereDate('start_date_time', '<=', Carbon::now()->toDateString())->whereDate('end_date_time', '>=', Carbon::now()->toDateString())->first();
+
+            if($found_job) {
+                $tl = new TimeLog();
+                $tl->job_id = $found_job->id;
+                $tl->assigned_id = Auth::user()->id;
+                $tl->date = Carbon::now()->toDateString();
+                $tl->start_time = Carbon::now()->toTimeString();
+                $tl->save(); 
+            } else {
+                return response()->json(['error'=>'No job assigned for you at the moment. Contact admin.']);
+            }
+            
+        } else {
+            $found_tl = TimeLog::where('assigned_id', Auth::user()->id)->whereNull('end_time')->first();
+            $found_tl->end_time = Carbon::now()->toTimeString();
+            $found_tl->save();
+        }
 
         return response()->json(['success'=>'Log saved successfully.']);
     }
