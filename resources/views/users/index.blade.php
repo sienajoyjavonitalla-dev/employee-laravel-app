@@ -93,7 +93,7 @@
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "15%", "targets": [0,1,2] }
+            { "width": "25%", "targets": [0,1,2,3] }
         ],
         order: [[1, 'asc']]
     });

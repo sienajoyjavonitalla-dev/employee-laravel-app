@@ -84,14 +84,14 @@
                     <div class="form-group">
                         <label for="start_date_time" class="col-sm-6 control-label">Start Date & Time</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="start_date_time" name="start_date_time" value="" required="">
+                            <input type="date" class="form-control" id="start_date_time" name="start_date_time" value="" required="">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="end_date_time" class="col-sm-6 control-label">End Date & Time</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="end_date_time" name="end_date_time" value="" required="">
+                            <input type="date" class="form-control" id="end_date_time" name="end_date_time" value="" required="">
                         </div>
                     </div>
                     
