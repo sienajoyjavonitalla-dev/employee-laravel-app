@@ -4,7 +4,7 @@ use App\Http\Controllers\ClientsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\UsersController;
-use App\Http\Controllers\LogTimeController;
+use App\Http\Controllers\InvoiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +25,8 @@ Route::resource('jobs', JobsController::class);
 Route::resource('users', UsersController::class);
 Route::resource('timelogs', LogTimeController::class);
 Route::resource('clients', ClientsController::class);
+// Route::resource('invoices', InvoiceController::class);
+Route::get('invoices', 'App\Http\Controllers\InvoiceController@index')->name('invoices.index');
 Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
 Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
 Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out')->name('clock-in-out');

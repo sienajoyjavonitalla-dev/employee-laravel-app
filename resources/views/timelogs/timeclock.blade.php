@@ -6,10 +6,11 @@
         <h5 class="text-center">TIMECLOCK</h5>
         <h1 id='ct7' class="d-flex justify-content-center p-5" style="font-size: 5rem;"></h1>
         <h3>{{date("Y.m.d")}}</h3>
+        <hr/>
         @if((isset($clock_in) && $clock_in->end_time) || !isset($clock_in))
             <button class="btn btn-success btn-lg" id="clock-in"> CLOCK IN </button>
         @elseif(isset($clock_in) && $clock_in->end_time == null)
-            <h5>Last Clock In {{$clock_in->start_time}}</h5>
+            <h6>Last Clock In {{date('h:i:s a', strtotime($clock_in->start_time))}}. {{$clock_in->date}}</h6>
             <button class="btn btn-danger btn-lg" id="clock-out"> CLOCK OUT </button>
         @endif
     </div>
@@ -21,7 +22,11 @@
 <script type="text/javascript">
 
     function display_ct7() {
-        var x = new Date()
+        // var x = new Date().toLocaleString("en-US", {timeZone: "Australia/Sydney"});
+        var date = new Date();
+        var x = new Date(date.toLocaleString('en-US', {
+            timeZone: "Australia/Sydney"
+        }));
         var ampm = x.getHours( ) >= 12 ? ' PM' : ' AM';
         hours = x.getHours( ) % 12;
         hours = hours ? hours : 12;
