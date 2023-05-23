@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Jobs;
+use App\Models\Appointment;
 use DataTables;
 
 class JobsController extends Controller
@@ -47,8 +48,10 @@ class JobsController extends Controller
     public function store(Request $request)
     {
         $status = "open";
+
         if($request->employee_id) 
             $status = "assigned";
+
         Jobs::updateOrCreate([
             'id' => $request->job_id
         ],
@@ -63,6 +66,27 @@ class JobsController extends Controller
             'start_date_time' => $request->start_date_time,
             'end_date_time' => $request->end_date_time
         ]);
+
+        $appointment = Appointment::where([
+            'job_id' => $request->job_id,
+            'client_id' => $request->client_id,
+            'user_id' => $request->employee_id,
+        ])->get();
+
+        Appointment::updateOrCreate(
+            [
+                'id' => $request->job_id
+            ],
+            [
+                'start_time' => $request->start_date_time,
+                'finish_time' => $request->end_date_time,
+                'title' => $request->title,
+                // 'comments' => null,
+                'job_id' => $request->job_id,
+                'client_id' => $request->client_id,
+                'user_id' => $request->employee_id,
+            ]
+        );
 
         return response()->json(['success'=>'Job saved successfully.']);
     }
