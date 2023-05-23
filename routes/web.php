@@ -26,6 +26,7 @@ Route::resource('users', UsersController::class);
 Route::resource('timelogs', LogTimeController::class);
 Route::resource('clients', ClientsController::class);
 
-Route::get('invoices', 'App\Http\Controllers\InvoiceController@index')->name('invoices.index');
-Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
-Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out')->name('clock-in-out');
+Route::get('/invoices', 'App\Http\Controllers\InvoiceController@index')->name('invoices.index');
+Route::get('/timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
+Route::post('/clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out')->name('clock-in-out');
+Route::get('/calendar', 'App\Http\Controllers\CalendarController@index')->name('calendar');
