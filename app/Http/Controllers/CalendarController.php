@@ -20,9 +20,12 @@ class CalendarController extends Controller
  
         foreach ($appointments as $appointment) {
             $events[] = [
-                'title' => $appointment->client_id . ' ('.$appointment->user_id.')',
+                'title' => $appointment->title,
+                'comments' => $appointment->comments,
                 'start' => $appointment->start_time,
                 'end' => $appointment->finish_time,
+                'allDay' => 'true',
+                'display' => 'block'
             ];
         }
  

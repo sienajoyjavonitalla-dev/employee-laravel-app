@@ -12,12 +12,12 @@
             document.addEventListener('DOMContentLoaded', function () {
 
                 var calendarEl = document.getElementById('calendar');
+                var events = @json($events);screenTop
 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     initialView: 'dayGridMonth',
-                    slotMinTime: '8:00:00',
-                    slotMaxTime: ':00:00',
-                    events: @json($events),
+                    allDay: 'true',
+                    events: events,
                     height: "auto",
                 });
 

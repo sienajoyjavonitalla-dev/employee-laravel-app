@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Jobs;
 use App\Models\Appointment;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 
 class JobsController extends Controller
 {
@@ -52,41 +53,62 @@ class JobsController extends Controller
         if($request->employee_id) 
             $status = "assigned";
 
-        Jobs::updateOrCreate([
-            'id' => $request->job_id
-        ],
-        [
-            'title' => $request->title,
-            'client_id' => $request->client_id,
-            'employee_id' => $request->employee_id,
-            'status' => $status,
-            'po_number' => $request->po_number,
-            'description' => $request->description,
-            'address' => $request->address,
-            'start_date_time' => $request->start_date_time,
-            'end_date_time' => $request->end_date_time
-        ]);
+        DB::transaction(function() use ($request, $status) {
 
-        $appointment = Appointment::where([
-            'job_id' => $request->job_id,
-            'client_id' => $request->client_id,
-            'user_id' => $request->employee_id,
-        ])->get();
+            $job = Jobs::find($request->job_id);
 
-        Appointment::updateOrCreate(
-            [
-                'id' => $request->job_id
-            ],
-            [
-                'start_time' => $request->start_date_time,
-                'finish_time' => $request->end_date_time,
-                'title' => $request->title,
-                // 'comments' => null,
-                'job_id' => $request->job_id,
-                'client_id' => $request->client_id,
-                'user_id' => $request->employee_id,
-            ]
-        );
+            if($job)
+            {
+                Jobs::where('id', $job->id)
+                    ->update([
+                        'title' => $request->title,
+                        'client_id' => $request->client_id,
+                        'employee_id' => $request->employee_id,
+                        'status' => $status,
+                        'po_number' => $request->po_number,
+                        'description' => $request->description,
+                        'address' => $request->address,
+                        'start_date_time' => $request->start_date_time,
+                        'end_date_time' => $request->end_date_time
+                    ]);
+
+                Appointment::where('job_id', $request->job_id)
+                    ->where('client_id', $request->client_id,)
+                    ->where('user_id', $request->employee_id,)
+                    ->update([
+                        'start_time' => $request->start_date_time,
+                        'finish_time' => $request->start_date_time,
+                        'title' => $request->title,
+                        'job_id' => $request->job_id,
+                        'client_id' => $request->client_id,
+                        'user_id' => $request->employee_id
+                    ]);
+            }
+            else
+            {
+                $job = Jobs::create([
+                    'title' => $request->title,
+                    'client_id' => $request->client_id,
+                    'employee_id' => $request->employee_id,
+                    'status' => $status,
+                    'po_number' => $request->po_number,
+                    'description' => $request->description,
+                    'address' => $request->address,
+                    'start_date_time' => $request->start_date_time,
+                    'end_date_time' => $request->end_date_time 
+                ]);
+
+                Appointment::create([
+                    'start_time' => $request->start_date_time,
+                    'finish_time' => $request->start_date_time,
+                    'title' => $request->title,
+                    'job_id' => $job->id,
+                    'client_id' => $request->client_id,
+                    'user_id' => $request->employee_id
+                ]);
+            }
+
+        },2);        
 
         return response()->json(['success'=>'Job saved successfully.']);
     }
@@ -99,7 +121,13 @@ class JobsController extends Controller
 
     public function destroy($id)
     {
-        Jobs::find($id)->delete();
+
+        DB::transaction(function() use($id) {
+
+            Jobs::find($id)->delete();
+            Appointment::where('job_id', $id)->delete();
+
+        },2);        
 
         return response()->json(['success'=>'Job deleted successfully.']);
     }
