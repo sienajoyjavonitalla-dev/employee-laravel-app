@@ -55,38 +55,11 @@ class JobsController extends Controller
 
         DB::transaction(function() use ($request, $status) {
 
-            $job = Jobs::find($request->job_id);
-
-            if($job)
-            {
-                Jobs::where('id', $job->id)
-                    ->update([
-                        'title' => $request->title,
-                        'client_id' => $request->client_id,
-                        'employee_id' => $request->employee_id,
-                        'status' => $status,
-                        'po_number' => $request->po_number,
-                        'description' => $request->description,
-                        'address' => $request->address,
-                        'start_date_time' => $request->start_date_time,
-                        'end_date_time' => $request->end_date_time
-                    ]);
-
-                Appointment::where('job_id', $request->job_id)
-                    ->where('client_id', $request->client_id,)
-                    ->where('user_id', $request->employee_id,)
-                    ->update([
-                        'start_time' => $request->start_date_time,
-                        'finish_time' => $request->start_date_time,
-                        'title' => $request->title,
-                        'job_id' => $request->job_id,
-                        'client_id' => $request->client_id,
-                        'user_id' => $request->employee_id
-                    ]);
-            }
-            else
-            {
-                $job = Jobs::create([
+            $job = Jobs::updateOrCreate(
+                [
+                    'id' => $request->job_id
+                ],
+                [
                     'title' => $request->title,
                     'client_id' => $request->client_id,
                     'employee_id' => $request->employee_id,
@@ -95,20 +68,25 @@ class JobsController extends Controller
                     'description' => $request->description,
                     'address' => $request->address,
                     'start_date_time' => $request->start_date_time,
-                    'end_date_time' => $request->end_date_time 
-                ]);
+                    'end_date_time' => $request->end_date_time
+                ]
+            );
 
-                Appointment::create([
+            Appointment::updateOrCreate(
+                [
+                    'job_id' => $job->id
+                ],
+                [
                     'start_time' => $request->start_date_time,
                     'finish_time' => $request->start_date_time,
                     'title' => $request->title,
                     'job_id' => $job->id,
                     'client_id' => $request->client_id,
                     'user_id' => $request->employee_id
-                ]);
-            }
+                ]
+            );
 
-        },2);        
+        },2);
 
         return response()->json(['success'=>'Job saved successfully.']);
     }
