@@ -6,6 +6,7 @@ use App\Http\Controllers\JobsController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\LogTimeController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -21,11 +22,14 @@ Route::redirect('/', '/login');
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::resource('jobs', JobsController::class);
-Route::resource('users', UsersController::class);
-Route::resource('timelogs', LogTimeController::class);
-Route::resource('clients', ClientsController::class);
-
+Route::resource('jobs', App\Http\Controllers\JobsController::class);
+Route::resource('users', App\Http\Controllers\UsersController::class);
+Route::resource('timelogs', App\Http\Controllers\LogTimeController::class);
+Route::resource('clients', App\Http\Controllers\ClientsController::class);
+// Route::resource('invoices', InvoiceController::class);
 Route::get('invoices', 'App\Http\Controllers\InvoiceController@index')->name('invoices.index');
+Route::get('invoices/pdf', 'App\Http\Controllers\InvoiceController@pdf')->name('invoices.pdf');
+Route::get('generatePDF', 'App\Http\Controllers\InvoiceController@generatePDF')->name('invoices.generate.pdf');
 Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
 Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out')->name('clock-in-out');
+

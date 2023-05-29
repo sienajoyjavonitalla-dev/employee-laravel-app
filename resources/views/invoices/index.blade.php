@@ -40,8 +40,11 @@
                 </select>
             </div>
         </div>
-        <button class="w-auto mb-4 mt-4 btn btn-success filter">Filter</button>
-        
+        <button class="w-auto mb-4 mt-4 btn btn-success filter"><i class="fas fa-search"></i> Filter</button>
+        <!-- <a href="{{ url('invoices/pdf') }}" class="btn btn-danger invoice"><i class="fas fa-print"></i> Generate Invoice</a> -->
+        <!-- <button class="w-auto mb-4 mt-4 btn btn-danger generate"><i class="fas fa-print"></i> Generate Invoice</button> -->
+        <a href="{{ route('invoices.generate.pdf',['download'=>'pdf']) }}" class="btn btn-primary"><i class="fas fa-print"></i> Generate Invoice</a>
+
         <table class="table table-bordered table-hover data-table">
             <thead class="thead-light">
                 <tr>
@@ -134,6 +137,42 @@
             toastr.error('Both Date is required!');
         }
     });
+
+    $('.generate').click(function (e) {
+        var from_date = ($('input[name="daterange"]').data('daterangepicker').startDate.format('YYYY-MM-DD'));
+        var to_date = ($('input[name="daterange"]').data('daterangepicker').endDate.format('YYYY-MM-DD'));
+        var client = $('#client').val();
+        var po_number = $('#po_number').val();
+        var assigned = $('#assigned').val();
+
+        var dataToSend = {
+            'from_date': from_date,
+            'to_date': to_date,
+            'client': client,
+            'po_number': po_number,
+            'assigned': assigned
+        };
+
+        $.ajax({
+            url: "generatePDF",
+            type: "GET",
+            dataType: 'json',
+            data: dataToSend,
+            success: function (data) {
+                if(data.success) {
+                    toastr.success(data.success, 'SUCCESS');
+                    window.location.reload();        
+                } else {
+                    toastr.error(data.error, 'ERROR');
+                }
+            },
+            error: function (data) {
+                console.log('Error:', data);
+                toastr.error('Error Saving!');
+
+            }
+        });
+    })
   });
 
 </script>

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Jobs;
 use DataTables;
+use App\Models\Client;
+use App\Models\User;
 
 class JobsController extends Controller
 {
@@ -21,6 +23,14 @@ class JobsController extends Controller
 
             return Datatables::of($data)
                     ->addIndexColumn()
+                    ->addColumn('client', function($row){
+                        $client = Client::where('id', $row->client_id)->first();
+                        return $client->client_name;
+                    })
+                    ->addColumn('assigned', function($row){
+                        $user = User::where('id', $row->employee_id)->first();
+                        return $user->name;
+                    })
                     ->addColumn('action', function($row){
                         $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editJob">Edit</a>';
                         $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteJob">Delete</a>';
@@ -30,7 +40,11 @@ class JobsController extends Controller
                     ->rawColumns(['action'])
                     ->make(true);
         }
-        return view('jobs.index');
+
+        $clients = Client::pluck('client_name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full timer'])->pluck('name', 'id');
+
+        return view('jobs.index', compact('clients', 'assigned'));
 
     }
 
@@ -60,8 +74,8 @@ class JobsController extends Controller
             'po_number' => $request->po_number,
             'description' => $request->description,
             'address' => $request->address,
-            'start_date_time' => $request->start_date_time,
-            'end_date_time' => $request->end_date_time
+            'start_date_time' => date_format(date_create($request->start_date_time),"Y-m-d"),
+            'end_date_time' => date_format(date_create($request->end_date_time),"Y-m-d")
         ]);
 
         return response()->json(['success'=>'Job saved successfully.']);
