@@ -18,7 +18,7 @@
                     <th>Address</th>
                     <th>Start</th>
                     <th>End</th>
-                    <th width="280px">Action</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,14 +42,30 @@
                     <div class="form-group">
                         <label for="client_id" class="col-sm-6 control-label">Client</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="client_id" name="client_id" value="" maxlength="50" required="">
+                            <select class="form-control" name="client_id" id="client_id" required="">
+                                <option value="">-- Select --</option>
+                                @foreach ($clients as $key => $value)
+                                    <option value="{{ $key }}"> 
+                                        {{ $value }} 
+                                    </option>
+                                @endforeach    
+                            </select>
+                            <!-- <input type="text" class="form-control" id="client_id" name="client_id" value="" maxlength="50" required=""> -->
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="employee_id" class="col-sm-6 control-label">Assign to</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="employee_id" name="employee_id" value="" maxlength="50" required="">
+                            <select class="form-control" name="employee_id" id="employee_id" required="">
+                                <option value="">-- Select --</option>
+                                @foreach ($assigned as $key => $value)
+                                    <option value="{{ $key }}"> 
+                                        {{ $value }} 
+                                    </option>
+                                @endforeach    
+                            </select>
+                            <!-- <input type="text" class="form-control" id="employee_id" name="employee_id" value="" maxlength="50" required=""> -->
                         </div>
                     </div>
 
@@ -121,8 +137,8 @@
         ajax: "{{ route('jobs.index') }}",
 
         columns: [
-            {data: 'client_id', name: 'client_id'},
-            {data: 'employee_id', name: 'employee_id'},
+            {data: 'client', name: 'client'},
+            {data: 'assigned', name: 'assigned'},
             {data: 'title', name: 'title'},
             {data: 'status', name: 'status'},
             {data: 'po_number', name: 'po_number'},
@@ -132,7 +148,9 @@
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "15%", "targets": [2, 6, 7] }
+            { "width": "15%", "targets": [2, 8] },
+            { "width": "20%", "targets": [0, 1] }
+
         ],
         order: [[6, 'asc']]
     });

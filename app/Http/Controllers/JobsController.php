@@ -7,6 +7,8 @@ use App\Models\Jobs;
 use App\Models\Appointment;
 use DataTables;
 use Illuminate\Support\Facades\DB;
+use App\Models\Client;
+use App\Models\User;
 
 class JobsController extends Controller
 {
@@ -23,6 +25,14 @@ class JobsController extends Controller
 
             return Datatables::of($data)
                     ->addIndexColumn()
+                    ->addColumn('client', function($row){
+                        $client = Client::where('id', $row->client_id)->first();
+                        return $client->client_name;
+                    })
+                    ->addColumn('assigned', function($row){
+                        $user = User::where('id', $row->employee_id)->first();
+                        return $user->name;
+                    })
                     ->addColumn('action', function($row){
                         $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editJob">Edit</a>';
                         $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteJob">Delete</a>';
@@ -32,7 +42,11 @@ class JobsController extends Controller
                     ->rawColumns(['action'])
                     ->make(true);
         }
-        return view('jobs.index');
+
+        $clients = Client::pluck('client_name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full timer'])->pluck('name', 'id');
+
+        return view('jobs.index', compact('clients', 'assigned'));
 
     }
 

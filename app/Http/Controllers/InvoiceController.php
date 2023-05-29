@@ -9,7 +9,8 @@ use App\Models\User;
 use App\Models\TimeLog;
 use DataTables;
 use Carbon\Carbon;
-
+use PDF;
+use DB;
 class InvoiceController extends Controller
 {
     public function __construct()
@@ -21,14 +22,8 @@ class InvoiceController extends Controller
     {
         if ($request->ajax()) {
 
-            //testvariables
-            $assigned=1;
-            $job_id=3;
-            // $data = TimeLog::where('assigned_id', $request->assigned)->where('job_id', $request->job_id);
-            $data = TimeLog::leftJoin('jobs', 'job_id', '=', 'jobs.id')
-                ->leftJoin('clients', 'jobs.client_id', '=', 'clients.id')
-                ->where('assigned_id', $assigned)
-                ->where('job_id', $job_id);
+            $data = DB::table('time_logs as tl')->leftJoin('jobs as jobs', 'job_id', '=', 'jobs.id')
+                ->leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id');
 
             if ($request->filled('from_date') && $request->filled('to_date')) {
                 $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
@@ -47,9 +42,9 @@ class InvoiceController extends Controller
                 $data = $data->where('assigned_id', $request->assigned);
             }
 
-            $data = $data->selectRaw('jobs.id, jobs.title, jobs.po_number, assigned_id, job_id, start_time, end_time, date, client_id, client_name, rate_per_hour, ot_rate_per_hour');
+            $data = $data->selectRaw('jobs.id, title, po_number, assigned_id, job_id, start_time, end_time, date, client_id, client_name, rate_per_hour, ot_rate_per_hour');
             // if((string)$request->to_date == '2023-04-20')
-            // dd($data->get());
+            // dd($data->toSql());
             return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('employee', function($row){
@@ -108,5 +103,87 @@ class InvoiceController extends Controller
 
         return view('invoices.index', compact('clients', 'assigned'));
 
+    }
+    public function generatePDF(Request $request)
+    {
+        // if(!$request->client || !$request->po_number) {
+        //     return response()->json(['error'=>'Enter Client or PO number .']);
+        // }
+        $data = DB::table('time_logs as tl')->leftJoin('jobs as jobs', 'job_id', '=', 'jobs.id')
+                ->leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id')
+                ->leftJoin('users as u', 'jobs.employee_id', '=', 'u.id');
+
+        if ($request->from_date && $request->to_date) {
+            $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
+        }
+
+        if ($request->client) {
+            $data = $data->where('client_id', $request->client);
+        }
+
+        if ($request->po_number) {
+            $data = $data->where('po_number', $request->po_number);
+        }
+
+        if ($request->assigned) {
+            $data = $data->where('assigned_id', $request->assigned);
+        }
+
+        $data = $data->selectRaw('name, travel_allowance, date, jobs.id, title, po_number, clients.address, assigned_id, job_id, start_time, end_time, date, client_id, client_name, company_name, rate_per_hour, ot_rate_per_hour, TIMESTAMPDIFF(HOUR, start_time, end_time)');
+        // $this->convert_customer_data_to_html($data);
+        $data = $data->get();
+        $first = $data->first();
+        $po_number = $first->po_number;
+        $dataArr = array(
+            'first' => $first,
+            'data' => $data,
+        );
+        // dd($data);
+        //uncomment later
+        view()->share('dataArr',$dataArr);       
+        $pdf = PDF::loadView('invoices.pdf_view');
+        return $pdf->download('pdf_view.pdf');
+
+
+        // return view('invoices.pdf_view', compact('dataArr'));
+
+    }
+
+    public function pdf()
+    {
+        $pdf = \App::make('dompdf.wrapper');
+        $pdf->loadHTML($this->convert_customer_data_to_html($req));
+        return $pdf->stream();
+    }
+
+    public function convert_customer_data_to_html($data)
+    {
+    //  $customer_data = $this->get_customer_data();
+
+    $output = '
+        <h3 align="center">Customer Data</h3>
+        <table width="100%" style="border-collapse: collapse; border: 0px;">
+        <tr>
+            <th style="border: 1px solid; padding:12px;" width="20%">Name</th>
+            <th style="border: 1px solid; padding:12px;" width="30%">Address</th>
+            <th style="border: 1px solid; padding:12px;" width="15%">City</th>
+            <th style="border: 1px solid; padding:12px;" width="15%">Postal Code</th>
+            <th style="border: 1px solid; padding:12px;" width="20%">Country</th>
+        </tr>
+     ';  
+     foreach($data as $d)
+     {
+      $output .= '
+      <tr>
+       <td style="border: 1px solid; padding:12px;">'.$customer->CustomerName.'</td>
+       <td style="border: 1px solid; padding:12px;">'.$customer->Address.'</td>
+       <td style="border: 1px solid; padding:12px;">'.$customer->City.'</td>
+       <td style="border: 1px solid; padding:12px;">'.$customer->PostalCode.'</td>
+       <td style="border: 1px solid; padding:12px;">'.$customer->Country.'</td>
+      </tr>
+      ';
+     }
+     $output .= '</table>';
+     return $output;
     }
 }
