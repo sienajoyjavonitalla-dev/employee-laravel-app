@@ -4,7 +4,7 @@ use App\Http\Controllers\ClientsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\UsersController;
-use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LogTimeController;
 
 
 /*
