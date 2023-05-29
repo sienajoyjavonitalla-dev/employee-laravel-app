@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Jobs;
+use App\Models\Appointment;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 use App\Models\Client;
 use App\Models\User;
 
@@ -61,22 +63,44 @@ class JobsController extends Controller
     public function store(Request $request)
     {
         $status = "open";
+
         if($request->employee_id) 
             $status = "assigned";
-        Jobs::updateOrCreate([
-            'id' => $request->job_id
-        ],
-        [
-            'title' => $request->title,
-            'client_id' => $request->client_id,
-            'employee_id' => $request->employee_id,
-            'status' => $status,
-            'po_number' => $request->po_number,
-            'description' => $request->description,
-            'address' => $request->address,
-            'start_date_time' => date_format(date_create($request->start_date_time),"Y-m-d"),
-            'end_date_time' => date_format(date_create($request->end_date_time),"Y-m-d")
-        ]);
+
+        DB::transaction(function() use ($request, $status) {
+
+            $job = Jobs::updateOrCreate(
+                [
+                    'id' => $request->job_id
+                ],
+                [
+                    'title' => $request->title,
+                    'client_id' => $request->client_id,
+                    'employee_id' => $request->employee_id,
+                    'status' => $status,
+                    'po_number' => $request->po_number,
+                    'description' => $request->description,
+                    'address' => $request->address,
+                    'start_date_time' => $request->start_date_time,
+                    'end_date_time' => $request->end_date_time
+                ]
+            );
+
+            Appointment::updateOrCreate(
+                [
+                    'job_id' => $job->id
+                ],
+                [
+                    'start_time' => $request->start_date_time,
+                    'finish_time' => $request->start_date_time,
+                    'title' => $request->title,
+                    'job_id' => $job->id,
+                    'client_id' => $request->client_id,
+                    'user_id' => $request->employee_id
+                ]
+            );
+
+        },2);
 
         return response()->json(['success'=>'Job saved successfully.']);
     }
@@ -89,7 +113,13 @@ class JobsController extends Controller
 
     public function destroy($id)
     {
-        Jobs::find($id)->delete();
+
+        DB::transaction(function() use($id) {
+
+            Jobs::find($id)->delete();
+            Appointment::where('job_id', $id)->delete();
+
+        },2);        
 
         return response()->json(['success'=>'Job deleted successfully.']);
     }

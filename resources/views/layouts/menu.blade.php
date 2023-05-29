@@ -45,6 +45,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="/calendar" class="nav-link  {{ request()->is('calendar') ? 'active' : '' }}">
+                        <i class="fas fa-solid fa-calendar  nav-icon"></i>
+                        <p>Calendar</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/jobs" class="nav-link  {{ request()->is('jobs') ? 'active' : '' }}">
                         <i class="fas fa-briefcase nav-icon"></i>
                         <p>Jobs</p>

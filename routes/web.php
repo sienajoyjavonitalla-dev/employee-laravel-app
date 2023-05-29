@@ -32,4 +32,4 @@ Route::get('invoices/pdf', 'App\Http\Controllers\InvoiceController@pdf')->name('
 Route::get('generatePDF', 'App\Http\Controllers\InvoiceController@generatePDF')->name('invoices.generate.pdf');
 Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
 Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out')->name('clock-in-out');
-
+Route::get('calendar', 'App\Http\Controllers\CalendarController@index')->name('calendar');
