@@ -10,11 +10,13 @@
         <table class="table table-bordered table-hover data-table">
             <thead class="thead-light">
                 <tr>
-                    <th>Client Name</th>
+                    <th>Company Name</th>
+                    <th>ABN</th>
+                    <th>Staff Name</th>
                     <th>Address</th>
                     <th>Rate</th>
                     <th>OT Rate</th>
-                    <th>ABN</th>
+                    <th>Travel Allowance</th>
                     <th width="280px">Action</th>
                 </tr>
             </thead>
@@ -35,16 +37,27 @@
                 <form id="clientForm" name="clientForm" class="form-horizontal">
 
                    <input type="hidden" name="client_id" id="client_id">
-
+                   <div class="form-group">
+                        <label for="client_name" class="col-sm-6 control-label">Company Name</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="company_name" name="company_name" value="" maxlength="50" required="">
+                        </div>
+                    </div>
                     <div class="form-group">
-                        <label for="client_name" class="col-sm-6 control-label">Name</label>
+                        <label for="abn" class="col-sm-6 control-label">ABN</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="abn" name="abn" value="" required="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="client_name" class="col-sm-6 control-label">Staff Name</label>
                         <div class="col-sm-12">
                             <input type="text" class="form-control" id="client_name" name="client_name" value="" maxlength="50" required="">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="address" class="col-sm-6 control-label">Address</label>
+                        <label for="address" class="col-sm-6 control-label">Company Address</label>
                         <div class="col-sm-12">
                             <input type="text" class="form-control" id="address" name="address" value="" maxlength="50" required="">
                         </div>
@@ -63,14 +76,12 @@
                             <input type="text" class="form-control" id="ot_rate_per_hour" name="ot_rate_per_hour" value="" required="">
                         </div>
                     </div>
-
                     <div class="form-group">
-                        <label for="abn" class="col-sm-6 control-label">ABN</label>
+                        <label for="ot_rate_per_hour" class="col-sm-6 control-label">Travel Allowance</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="abn" name="abn" value="" required="">
+                            <input type="text" class="form-control" id="travel_allowance" name="travel_allowance" value="" required="">
                         </div>
                     </div>
-
                     <div class="col-sm-offset-2 col-sm-10">
                         <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
                     </div>
@@ -97,11 +108,13 @@
         ajax: "{{ route('clients.index') }}",
 
         columns: [
+            {data: 'company_name', name: 'company_name'},
+            {data: 'abn', name: 'abn'},
             {data: 'client_name', name: 'client_name'},
             {data: 'address', name: 'address'},
             {data: 'rate_per_hour', name: 'rate_per_hour'},
             {data: 'ot_rate_per_hour', name: 'ot_rate_per_hour'},
-            {data: 'abn', name: 'abn'},
+            {data: 'travel_allowance', name: 'travel_allowance'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
@@ -136,6 +149,9 @@
           $('#rate_per_hour').val(data.rate_per_hour);
           $('#ot_rate_per_hour').val(data.ot_rate_per_hour);
           $('#abn').val(data.abn);
+          $('#company_name').val(data.company_name);
+          $('#travel_allowance').val(data.travel_allowance);
+
       })
 
     });

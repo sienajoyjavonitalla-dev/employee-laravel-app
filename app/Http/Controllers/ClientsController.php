@@ -54,7 +54,10 @@ class ClientsController extends Controller
             'address' => $request->address,
             'rate_per_hour' => $request->rate_per_hour,
             'ot_rate_per_hour' => $request->ot_rate_per_hour,
-            'abn' => $request->abn
+            'abn' => $request->abn,
+            'company_name' => $request->company_name,
+            'travel_allowance' => $request->travel_allowance
+
         ]);
 
         return response()->json(['success'=>'Client saved successfully.']);

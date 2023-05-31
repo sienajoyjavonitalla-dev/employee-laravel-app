@@ -11,6 +11,8 @@ class Client extends Model
         'address',
         'rate_per_hour',
         'ot_rate_per_hour',
-        'abn'
+        'abn',
+        'company_name',
+        'travel_allowance'
     ];
 }

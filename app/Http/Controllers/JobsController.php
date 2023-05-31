@@ -44,7 +44,7 @@ class JobsController extends Controller
         }
 
         $clients = Client::pluck('client_name', 'id');
-        $assigned = User::whereIn('roles', ['subcontractor', 'full timer'])->pluck('name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
 
         return view('jobs.index', compact('clients', 'assigned'));
 

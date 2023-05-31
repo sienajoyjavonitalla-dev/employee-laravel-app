@@ -99,7 +99,7 @@ class InvoiceController extends Controller
                     ->make(true);
         }
         $clients = Client::pluck('client_name', 'id');
-        $assigned = User::whereIn('roles', ['subcontractor', 'full timer'])->pluck('name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
 
         return view('invoices.index', compact('clients', 'assigned'));
 

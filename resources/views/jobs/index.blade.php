@@ -91,7 +91,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="address" class="col-sm-6 control-label">Address</label>
+                        <label for="address" class="col-sm-6 control-label">Site Address</label>
                         <div class="col-sm-12">
                             <textarea id="address" name="address" class="form-control"></textarea>
                         </div>

@@ -57,7 +57,13 @@
                     <div class="form-group">
                         <label for="roles" class="col-sm-6 control-label">Role</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="roles" name="roles" value="" maxlength="50" required="">
+                            <select  class="form-control" name="roles" id="roles" required="">
+                                <option value="">-- Select --</option>
+                                    <option value="subcontractor"> Subcontractor</option>
+                                    <option value="full-timer"> Full Timer</option>
+                                    <option value="admin"> Admin</option>
+                            </select>
+                            <!-- <input type="text" class="form-control" id="roles" name="roles" value="" maxlength="50" required=""> -->
                         </div>
                     </div>
 
