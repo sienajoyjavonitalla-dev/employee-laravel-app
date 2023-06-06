@@ -57,6 +57,15 @@ body {
 	position: absolute;
     left: 0;
 }
+.notes-box {
+    position: absolute;
+    left: 0;
+    width: 200px;
+    text-align: left;
+}
+.box1 h4 {
+    text-align: left;
+}
 
 </style>
 
@@ -72,22 +81,22 @@ body {
   </head>
   <body>
     <div class='box'>
-    <div class='box1'>
-    <img src="uprise_rigging.png" alt="uprise Logo" class="brand-image img-circle">
-</div>
-    <div class='box2'>
-</div>
-    <div class='box3'>
-    <span class='flex-right'><h3 class='m-0'>Uprise Rigging Pty Ltd</h3></span>
-    <h5 class='flex-right weight-normal'>
-        Yan Yean Rd, Doreen VIC3754<br/>
-        Phone: 0426964330<br/>
-        admin@upriserigging.com<br/>
-        www.upriserigging.com<br/>
-        ABN: 79 647 093 310<br/>
-    </h5>
+        <div class='box1'>
+            <img src="uprise_rigging.png" alt="uprise Logo" class="brand-image img-circle">
+        </div>
+        <div class='box2'>
+        </div>
+        <div class='box3'>
+            <span class='flex-right'><h3 class='m-0'>Uprise Rigging Pty Ltd</h3></span>
+            <h5 class='flex-right weight-normal'>
+                Yan Yean Rd, Doreen VIC3754<br/>
+                Phone: 0426964330<br/>
+                admin@upriserigging.com<br/>
+                www.upriserigging.com<br/>
+                ABN: 79 647 093 310<br/>
+            </h5>
+        </div>
     </div>
-</div>
     <div>
         <h4>Tax Invoice</h4>
         <table id="invoice">
@@ -135,6 +144,9 @@ body {
                     $start_time = new Carbon\Carbon($data->start_time);
                     $end_time =new Carbon\Carbon($data->end_time);
                     $total_hr = $start_time->diffInHours($end_time);
+                        if($data->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
                         if($total_hr > 4) {
                             $ot_pay=0;
                             $pay = $total_hr * $data->rate_per_hour;
@@ -147,6 +159,7 @@ body {
                             $pay = 4 * $data->rate_per_hour;
                             $total_amount = $pay;
                         }
+                        
                         $subtotal += $total_amount;
                 @endphp
             <tr>
@@ -174,12 +187,17 @@ body {
             $sub_ta = $subtotal + ($dataArr['data']->count() * $dataArr['first']->travel_allowance);
             $tax = $sub_ta *.1;
         @endphp   
-        <span class="box" >         
-            <div><span class='title'>Subtotal</span> <span>{{$sub_ta}}</span></div> 
-            <div><span class='title'>Tax</span> <span>{{$tax}}</span></div>
-            <div><span class='title'>Total Amount</span> <span>{{$sub_ta + $tax}}</span></div>
-            <div><span class='title'>Balance Due</span> <span>{{$sub_ta+ $tax}}</span></div>
-        </span>
+        <div class="box" > 
+            <div class='notes-box'>
+                <div><h4 class='title'>Notes: </h4><span> {{$dataArr['first']->job_address}}</span></div> 
+            </div>
+            <div class='box3'>        
+                <div><span class='title'>Subtotal</span> <span>{{$sub_ta}}</span></div> 
+                <div><span class='title'>Tax</span> <span>{{$tax}}</span></div>
+                <div><span class='title'>Total Amount</span> <span>{{$sub_ta + $tax}}</span></div>
+                <div><span class='title'>Balance Due</span> <span>{{$sub_ta+ $tax}}</span></div>
+            </div>
+        </div>
     </span> 
   </body>
 </html>

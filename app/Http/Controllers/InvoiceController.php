@@ -42,7 +42,7 @@ class InvoiceController extends Controller
                 $data = $data->where('assigned_id', $request->assigned);
             }
 
-            $data = $data->selectRaw('jobs.id, title, po_number, assigned_id, job_id, start_time, end_time, date, client_id, client_name, rate_per_hour, ot_rate_per_hour');
+            $data = $data->selectRaw('jobs.id, title, po_number, assigned_id, job_id, start_time, end_time, date, client_id, client_name, rate_per_hour, ot_rate_per_hour, lunch_break');
             // if((string)$request->to_date == '2023-04-20')
             // dd($data->toSql());
             return Datatables::of($data)
@@ -57,6 +57,9 @@ class InvoiceController extends Controller
                         $start_time = new Carbon($row->start_time);
                         $end_time =new Carbon($row->end_time);
                         $total_hr = $start_time->diffInHours($end_time);
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
                         return $total_hr;
                     })
                     ->addColumn('pay', function($row){
@@ -65,8 +68,19 @@ class InvoiceController extends Controller
                         $end_time =new Carbon($row->end_time);
                         $total_hr = $start_time->diffInHours($end_time);
                         $pay = 0;
-                        if($total_hr >= 8)
-                            $pay = 8 * $row->rate_per_hour;
+                        
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
+                        
+                        if($total_hr > 4 && $total_hr <= 8 ) {
+                            $ot_pay=0;
+                            $pay = $total_hr * $row->rate_per_hour;
+                        } else if($total_hr <= 4) {
+                            $pay = 4 * $row->rate_per_hour;
+                        }
+
+                        
                         return $pay;
                     })
                     ->addColumn('ot_pay', function($row){
@@ -74,27 +88,35 @@ class InvoiceController extends Controller
                         $start_time = new Carbon($row->start_time);
                         $end_time =new Carbon($row->end_time);
                         $total_hr = $start_time->diffInHours($end_time);
-                        $pay = 0;
-                        if($total_hr > 8) {
-                            $ot_hours= $total_hr - 8;
-                            $pay = $ot_hours * $row->ot_rate_per_hour;
-                        }
-                        return $pay;
-                    })
-                    ->addColumn('total', function($row){
-                        $total_hr = 0;
-                        $start_time = new Carbon($row->start_time);
-                        $end_time =new Carbon($row->end_time);
-                        $total_hr = $start_time->diffInHours($end_time);
-                        $pay = 0;
                         $ot_pay = 0;
-
-                        if($total_hr >= 8) {
-                            $pay = 8 * $row->rate_per_hour;
+                        if($total_hr > 8) {
                             $ot_hours= $total_hr - 8;
                             $ot_pay = $ot_hours * $row->ot_rate_per_hour;
                         }
-                        return $pay + $ot_pay;
+                        return $ot_pay;
+                    })
+                    ->addColumn('total', function($row){
+                        $total_hr = 0;
+                    $start_time = new Carbon($row->start_time);
+                    $end_time =new Carbon($row->end_time);
+                    $total_hr = $start_time->diffInHours($end_time);
+                    if($row->lunch_break) {
+                        $total_hr = $total_hr - .5;
+                    }    
+                    if($total_hr > 4) {
+                            $ot_pay=0;
+                            $pay = $total_hr * $row->rate_per_hour;
+                            if($total_hr > 8) {
+                                $ot_hours= $total_hr - 8;
+                                $ot_pay = $ot_hours * $row->ot_rate_per_hour;
+                            }
+                            $total_amount = $ot_pay + $pay;
+                        } else if($total_hr <= 4) {
+                            $pay = 4 * $row->rate_per_hour;
+                            $total_amount = $pay;
+                        }
+                        
+                        return $total_amount;
                     })
                     ->make(true);
         }
@@ -129,7 +151,7 @@ class InvoiceController extends Controller
             $data = $data->where('assigned_id', $request->assigned);
         }
 
-        $data = $data->selectRaw('name, travel_allowance, date, jobs.id, title, po_number, clients.address, assigned_id, job_id, start_time, end_time, date, client_id, client_name, company_name, rate_per_hour, ot_rate_per_hour, TIMESTAMPDIFF(HOUR, start_time, end_time)');
+        $data = $data->selectRaw('name, travel_allowance, date, jobs.id, title, po_number, clients.address, assigned_id, job_id, start_time, end_time, date, client_id, client_name, company_name, lunch_break, rate_per_hour, ot_rate_per_hour, TIMESTAMPDIFF(HOUR, start_time, end_time), jobs.address as job_address');
         // $this->convert_customer_data_to_html($data);
         $data = $data->get();
         $first = $data->first();

@@ -9,6 +9,7 @@
             <thead class="thead-light">
                 <tr>
                     <th>Job ID</th>
+                    <th>PO #</th>
                     <th>Assigned</th>
                     <th>Lunch Break</th>
                     <th>Start Time</th>
@@ -109,8 +110,9 @@
 
         columns: [
             {data: 'job_id', name: 'job_id'},
-            {data: 'assigned_id', name: 'assigned_id'},
-            {data: 'lunch_break', name: 'title'},
+            {data: 'po_num', name: 'po_num'},
+            {data: 'assigned_to', name: 'assigned_to'},
+            {data: 'with_lunch', name: 'with_lunch'},
             {data: 'start_time', name: 'start_time'},
             {data: 'end_time', name: 'end_time'},
             {data: 'date', name: 'date'},
@@ -118,7 +120,9 @@
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            // { "width": "15%", "targets": [2, 6, 7] }
+            { "width": "20%", "targets": [2] },
+            { "width": "10%", "targets": [4,5] }
+
         ],
         order: [[6, 'asc']]
     });

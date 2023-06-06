@@ -10,6 +10,7 @@
         <table class="table table-bordered table-hover data-table">
             <thead class="thead-light">
                 <tr>
+                    <th>Job ID</th>
                     <th>Client</th>
                     <th>Assigned</th>
                     <th>Job Title</th>
@@ -137,6 +138,7 @@
         ajax: "{{ route('jobs.index') }}",
 
         columns: [
+            {data: 'id', name: 'id'},
             {data: 'client', name: 'client'},
             {data: 'assigned', name: 'assigned'},
             {data: 'title', name: 'title'},
@@ -148,8 +150,8 @@
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "15%", "targets": [2, 8] },
-            { "width": "20%", "targets": [0, 1] }
+            { "width": "15%", "targets": [3, 9] },
+            { "width": "20%", "targets": [1, 2] }
 
         ],
         order: [[6, 'asc']]

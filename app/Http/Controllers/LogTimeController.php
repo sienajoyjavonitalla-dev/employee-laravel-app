@@ -8,6 +8,7 @@ use App\Models\TimeLog;
 use App\Models\Jobs;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\User;
 
 class LogTimeController extends Controller
 {
@@ -27,6 +28,19 @@ class LogTimeController extends Controller
 
             return Datatables::of($data)
                     ->addIndexColumn()
+                    ->addColumn('po_num', function($row){
+                        $qry = Jobs::where('id', $row->job_id)->first();
+                        $po_number = $qry->po_number;
+                        return $po_number;
+                    })
+                    ->addColumn('assigned_to', function($row){
+                        $qry = User::where('id', $row->assigned_id)->first();
+                        $user = $qry->name;
+                        return $user;
+                    })
+                    ->addColumn('with_lunch', function($row){
+                        return $row->lunch_break ? 'Yes':'No';
+                    })
                     ->addColumn('action', function($row){
                         $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editTimeLog">Edit</a>';
                         $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteTime">Delete</a>';
