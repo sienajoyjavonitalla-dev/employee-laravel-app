@@ -62,6 +62,9 @@ class InvoiceController extends Controller
                         }
                         return $total_hr;
                     })
+                    ->addColumn('with_lunch', function($row){
+                        return $row->lunch_break ? 'Yes':'No';
+                    })
                     ->addColumn('pay', function($row){
                         $total_hr = 0;
                         $start_time = new Carbon($row->start_time);

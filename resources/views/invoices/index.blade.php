@@ -55,6 +55,7 @@
                     <th>Title</th>
                     <th>Date</th>
                     <th>Hours Worked</th>
+                    <th>Lunch</th>
                     <th>Pay</th>
                     <th>OT Pay</th>
                     <th>Total Pay</th>
@@ -111,11 +112,15 @@
                 {data: 'title', name: 'title'},
                 {data: 'date', name: 'date'},
                 {data: 'hrs_worked', name: 'hrs_worked'},
+                {data: 'with_lunch', name: 'with_lunch'},
                 {data: 'pay', name: 'pay'},
                 {data: 'ot_pay', name: 'ot_pay'},
                 {data: 'total', name: 'total'},
+            ],
+            "columnDefs": [
+                { "width": "2%", "targets": [7] }
 
-            ]
+            ],
         });
     }
     
