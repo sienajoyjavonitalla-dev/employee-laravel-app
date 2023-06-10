@@ -1,20 +1,45 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="row">
-    <div class="col-lg-12 align-items-center border m-2 rounded-4 p-4 d-flex flex-column">
-        <h5 class="text-center">TIMECLOCK</h5>
-        <h1 id='ct7' class="d-flex justify-content-center p-5" style="font-size: 5rem;"></h1>
-        <h3>{{date("Y.m.d")}}</h3>
-        <hr/>
-        @if((isset($clock_in) && $clock_in->end_time) || !isset($clock_in))
-            <button class="btn btn-success btn-lg" id="clock-in"> CLOCK IN </button>
-        @elseif(isset($clock_in) && $clock_in->end_time == null)
-            <h6>Last Clock In {{date('h:i:s a', strtotime($clock_in->start_time))}}. {{$clock_in->date}}</h6>
-            <button class="btn btn-danger btn-lg" id="clock-out"> CLOCK OUT </button>
-        @endif
+<div class="d-flex flex-column align-items-center">
+    <div class="row">
+        <div class="col-lg-12 align-items-center m-2 p-4 d-flex flex-column">
+            <h5 class="text-center">TIMECLOCK</h5>
+            <h1 id='ct7' class="d-flex justify-content-center p-5" style="font-size: 5rem;"></h1>
+            <h3>{{date("Y.m.d")}}</h3>
+            <hr/>
+            @if((isset($clock_in) && $clock_in->end_time) || !isset($clock_in))
+                <button class="btn btn-success btn-lg" id="clock-in"> CLOCK IN </button>
+            @elseif(isset($clock_in) && $clock_in->end_time == null)
+                <h6>Last Clock In {{date('h:i:s a', strtotime($clock_in->start_time))}}. {{$clock_in->date}}</h6>
+                <button class="btn btn-danger btn-lg" id="clock-out"> CLOCK OUT </button>
+            @endif
+        </div>
     </div>
+
+
+    <div class="card" style="width: 70%;">
+        <div class="card-header fw-bold">
+            Job Details
+        </div>
+        <div class="row m-2 p-4">
+
+        <div class="col-lg-6">
+            <span class='fw-bold'>Job ID:</span>    {{$job->id}}<br/>
+            <span class='fw-bold'>Company Name:</span>    {{$job->company_name}}<br/>
+            <span class='fw-bold'>Job Title:</span>    {{$job->title}}<br/>
+            <span class='fw-bold'>Address:</span>    {{$job->address}}<br/>
+        </div>
+        <div class="col-lg-6">
+            <span class='fw-bold'>Date Duration:</span>    {{$job->start_date_time}} - {{$job->end_date_time}}<br/>
+            <span class='fw-bold'>Start & End Time:</span>    {{date('h:i A ', strtotime($job->start_time))}} - {{date('h:i A ', strtotime($job->end_time))}}<br/>
+        </div>
+        
+
+    </div>
+
 </div>
+
 
 @stop
 

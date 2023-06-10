@@ -27,7 +27,7 @@ class JobsController extends Controller
                     ->addIndexColumn()
                     ->addColumn('client', function($row){
                         $client = Client::where('id', $row->client_id)->first();
-                        return $client->client_name;
+                        return $client->company_name;
                     })
                     ->addColumn('assigned', function($row){
                         $user = User::where('id', $row->employee_id)->first();
@@ -43,7 +43,7 @@ class JobsController extends Controller
                     ->make(true);
         }
 
-        $clients = Client::pluck('client_name', 'id');
+        $clients = Client::pluck('company_name', 'id');
         $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
 
         return view('jobs.index', compact('clients', 'assigned'));
@@ -82,7 +82,9 @@ class JobsController extends Controller
                     'description' => $request->description,
                     'address' => $request->address,
                     'start_date_time' => $request->start_date_time,
-                    'end_date_time' => $request->end_date_time
+                    'end_date_time' => $request->end_date_time,
+                    'start_time' => $request->start_time,
+                    'end_time' => $request->end_time
                 ]
             );
 

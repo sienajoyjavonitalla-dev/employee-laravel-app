@@ -11,7 +11,7 @@
             <thead class="thead-light">
                 <tr>
                     <th>Job ID</th>
-                    <th>Client</th>
+                    <th>Company</th>
                     <th>Assigned</th>
                     <th>Job Title</th>
                     <th>Status</th>
@@ -19,6 +19,8 @@
                     <th>Address</th>
                     <th>Start</th>
                     <th>End</th>
+                    <th>Time Start</th>
+                    <th>Time End</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -41,7 +43,7 @@
                    <input type="hidden" name="job_id" id="job_id">
 
                     <div class="form-group">
-                        <label for="client_id" class="col-sm-6 control-label">Client</label>
+                        <label for="client_id" class="col-sm-6 control-label">Company Name</label>
                         <div class="col-sm-12">
                             <select class="form-control" name="client_id" id="client_id" required="">
                                 <option value="">-- Select --</option>
@@ -99,16 +101,29 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="start_date_time" class="col-sm-6 control-label">Start Date & Time</label>
+                        <label for="start_date_time" class="col-sm-6 control-label">Start Date</label>
                         <div class="col-sm-12">
                             <input type="date" class="form-control" id="start_date_time" name="start_date_time" value="" required="">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="end_date_time" class="col-sm-6 control-label">End Date & Time</label>
+                        <label for="end_date_time" class="col-sm-6 control-label">End Date</label>
                         <div class="col-sm-12">
                             <input type="date" class="form-control" id="end_date_time" name="end_date_time" value="" required="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="start_time" class="col-sm-6 control-label">Start Time</label>
+                        <div class="col-sm-12">
+                            <input type="time" class="form-control" id="start_time" name="start_time" value="" required="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end_time" class="col-sm-6 control-label">End Time</label>
+                        <div class="col-sm-12">
+                            <input type="time" class="form-control" id="end_time" name="end_time" value="" required="">
                         </div>
                     </div>
                     
@@ -147,6 +162,8 @@
             {data: 'address', name: 'address'},
             {data: 'start_date_time', name: 'start_date_time'},
             {data: 'end_date_time', name: 'end_date_time'},
+            {data: 'start_time', name: 'start_time'},
+            {data: 'end_time', name: 'end_time'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
@@ -185,6 +202,9 @@
           $('#address').val(data.address);
           $('#start_date_time').val(data.start_date_time);
           $('#end_date_time').val(data.end_date_time);
+          $('#start_time').val(data.start_time);
+          $('#end_time').val(data.end_time);
+
 
       })
 

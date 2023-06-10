@@ -63,8 +63,16 @@ class LogTimeController extends Controller
     public function timeclock()
     {
         $clock_in = TimeLog::where('assigned_id', Auth::user()->id)->orderBy('created_at', 'desc')->first();
-        
-        return view('timelogs.timeclock', compact('clock_in'));
+
+        $job = Jobs::leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id')
+            ->where('employee_id', Auth::user()->id)
+            ->whereDate('start_date_time', '<=', Carbon::now()->toDateString())
+            ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())
+            ->whereDate('start_time', '<=', Carbon::now()->toTimeString())
+            ->whereDate('end_time', '>=', Carbon::now()->toTimeString())
+            ->selectRaw('jobs.address, clients.company_name, jobs.id, jobs.title, jobs.start_date_time, jobs.end_date_time, jobs.start_time, jobs.end_time')
+            ->first();
+        return view('timelogs.timeclock', compact('clock_in', 'job'));
     }
 
     public function store(Request $request)

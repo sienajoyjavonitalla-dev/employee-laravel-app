@@ -21,5 +21,7 @@ class Jobs extends Model
         'address',
         'updated_at',
         'deleted_at',
+        'start_time',
+        'end_time',
     ];
 }
