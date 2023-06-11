@@ -42,7 +42,7 @@ class InvoiceController extends Controller
                 $data = $data->where('assigned_id', $request->assigned);
             }
 
-            $data = $data->selectRaw('jobs.id, title, po_number, assigned_id, job_id, start_time, end_time, date, client_id, client_name, rate_per_hour, ot_rate_per_hour, lunch_break');
+            $data = $data->selectRaw('jobs.id, title, po_number, assigned_id, job_id, tl.start_time, tl.end_time, date, client_id, client_name, rate_per_hour, ot_rate_per_hour, lunch_break');
             // if((string)$request->to_date == '2023-04-20')
             // dd($data->toSql());
             return Datatables::of($data)
@@ -154,7 +154,7 @@ class InvoiceController extends Controller
             $data = $data->where('assigned_id', $request->assigned);
         }
 
-        $data = $data->selectRaw('name, travel_allowance, date, jobs.id, title, po_number, clients.address, assigned_id, job_id, start_time, end_time, date, client_id, client_name, company_name, lunch_break, rate_per_hour, ot_rate_per_hour, TIMESTAMPDIFF(HOUR, start_time, end_time), jobs.address as job_address');
+        $data = $data->selectRaw('name, travel_allowance, date, jobs.id, title, po_number, clients.address, assigned_id, job_id, tl.start_time, tl.end_time, date, client_id, client_name, company_name, lunch_break, rate_per_hour, ot_rate_per_hour, TIMESTAMPDIFF(HOUR, tl.start_time, tl.end_time), jobs.address as job_address');
         // $this->convert_customer_data_to_html($data);
         $data = $data->get();
         $first = $data->first();
