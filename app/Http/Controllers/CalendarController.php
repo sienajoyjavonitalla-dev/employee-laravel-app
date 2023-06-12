@@ -20,7 +20,7 @@ class CalendarController extends Controller
  
         foreach ($appointments as $appointment) {
             $events[] = [
-                'title' => $appointment->title,
+                'title' => "Job #".$appointment->job_id." ".$appointment->title,
                 'comments' => $appointment->comments,
                 'start' => $appointment->start_time,
                 'end' => $appointment->finish_time,
