@@ -17,7 +17,7 @@
         </div>
     </div>
 
-
+    @if($job)
     <div class="card" style="width: 70%;">
         <div class="card-header fw-bold">
             Job Details
@@ -37,7 +37,8 @@
         
 
     </div>
-
+    @endif
+    
 </div>
 
 

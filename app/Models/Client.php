@@ -13,6 +13,7 @@ class Client extends Model
         'ot_rate_per_hour',
         'abn',
         'company_name',
-        'travel_allowance'
+        'travel_allowance',
+        'holiday_rate'
     ];
 }

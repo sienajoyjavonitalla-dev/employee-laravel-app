@@ -77,6 +77,12 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label for="holiday_rate" class="col-sm-6 control-label">Holiday Rate</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="holiday_rate" name="holiday_rate" value="" >
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label for="ot_rate_per_hour" class="col-sm-6 control-label">Travel Allowance</label>
                         <div class="col-sm-12">
                             <input type="text" class="form-control" id="travel_allowance" name="travel_allowance" value="" required="">
@@ -151,6 +157,8 @@
           $('#abn').val(data.abn);
           $('#company_name').val(data.company_name);
           $('#travel_allowance').val(data.travel_allowance);
+          $('#holiday_rate').val(data.holiday_rate);
+
 
       })
 
