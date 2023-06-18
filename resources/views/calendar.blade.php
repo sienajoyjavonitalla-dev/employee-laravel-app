@@ -16,9 +16,12 @@
 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     initialView: 'dayGridMonth',
-                    allDay: 'true',
                     events: events,
                     height: "auto",
+
+                    eventClick: function(info){
+                        alert('TESTING click' + event.extendedProps.comment);
+                    },
                 });
 
                 calendar.render();

@@ -21,7 +21,9 @@ class CalendarController extends Controller
         foreach ($appointments as $appointment) {
             $events[] = [
                 'title' => "Job #".$appointment->job_id." ".$appointment->title,
-                'comments' => $appointment->comments,
+                'extendedProps' => [
+                    'comment' => 'This is a comment.'
+                ],
                 'start' => $appointment->start_time,
                 'end' => $appointment->finish_time,
                 'allDay' => 'true',
