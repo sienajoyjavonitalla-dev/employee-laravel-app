@@ -12,14 +12,46 @@
                 </div>
 
                 <div class="modal-body">
-                    <p id="event-title"></p>
-                    <p id="event-client-name"></p>
-                    <p id="event-employee-name"></p>
-                    <p id="event-status"></p>
-                    <p id="event-comment"></p>
-                    <hr>
-                    <p id="event-invoice">Invoice Link</p>
 
+                    <form id="clientForm" name="clientForm" class="form-horizontal">
+
+                        <input type="hidden" name="client_id" id="client_id">
+                        <div class="form-group">
+                            <label for="client_name" class="col-sm-6 control-label">Job Title</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="event-title" name="event-title" value="" maxlength="50" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="abn" class="col-sm-6 control-label">Client</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="event-client-name" name="event-client-name" value="" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="client_name" class="col-sm-6 control-label">Employee</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="event-employee-name" name="event-employee-name" value="" maxlength="50" disabled="true">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address" class="col-sm-6 control-label">Status</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="event-status" name="event-status" value="" maxlength="50" disabled="true">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rate_per_hour" class="col-sm-6 control-label">Comment</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="event-comment" name="event-comment" value="" disabled="true">
+                            </div>
+                        </div>
+                    </form>
+
+                    <hr>
+                    <p class="invoice-link"><a href="#">INVOICE LINK</a></p>
                 </div>
             </div>
         </div>
@@ -41,9 +73,9 @@
                     height: "auto",
                     eventContent : function(info){
 
-                        let htmlString = "<b>" + info.event.title + "</b><br>" +
+                        let htmlString = "<b>#" + info.event.extendedProps.job_id + " " + info.event.title + "</b><br>" +
                                         "<i>" + info.event.extendedProps.client + "</i> <br>" +
-                                        "Assigned: " + info.event.extendedProps.employee + "<br>";
+                                        info.event.extendedProps.employee + "<br>";
 
                         return {html : htmlString};
                     },
@@ -55,11 +87,11 @@
                         let eventStatus = document.getElementById("event-status");
                         let eventComment = document.getElementById("event-comment");
 
-                        eventTitle.innerHTML = info.event.title;
-                        eventClientName.innerHTML = info.event.extendedProps.client;
-                        eventEmployeeName.innerHTML = info.event.extendedProps.employee;
-                        eventStatus.innerHTML = info.event.extendedProps.status;
-                        eventComment.innerHTML = info.event.extendedProps.comment;
+                        eventTitle.value = "#" + info.event.extendedProps.job_id + " " + info.event.title;
+                        eventClientName.value = info.event.extendedProps.client;
+                        eventEmployeeName.value = info.event.extendedProps.employee;
+                        eventStatus.value = info.event.extendedProps.status;
+                        eventComment.value = info.event.extendedProps.comment;
 
                         $('#ajaxModel').modal('show');
                     }

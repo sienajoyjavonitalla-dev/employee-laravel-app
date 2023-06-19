@@ -30,9 +30,10 @@ class CalendarController extends Controller
             $status = Jobs::find($appointment->job_id)->status;
 
             $events[] = [
-                'title' => "#".$appointment->job_id." ".$appointment->title,
+                'title' => $appointment->title,
                 'extendedProps' => [
-                    'comment' => 'This is a comment.',
+                    'job_id' => $appointment->job_id,
+                    'comment' => $appointment->comments,
                     'employee' => $employeeName,
                     'client' => $clientName,
                     'status' => $status
