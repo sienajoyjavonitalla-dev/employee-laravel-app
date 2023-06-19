@@ -18,10 +18,14 @@
                     initialView: 'dayGridMonth',
                     events: events,
                     height: "auto",
+                    eventContent : function(info){
 
-                    eventClick: function(info){
-                        alert('TESTING click' + event.extendedProps.comment);
-                    },
+                        let htmlString = "<b>" + info.event.title + "</b><br>" +
+                                        info.event.extendedProps.client + "<br>" +
+                                        "Assigned to: " + info.event.extendedProps.employee + "<br>";
+
+                        return {html : htmlString};
+                    }
                 });
 
                 calendar.render();
