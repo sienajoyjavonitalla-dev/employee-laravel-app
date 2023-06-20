@@ -33,3 +33,7 @@ Route::get('generatePDF', 'App\Http\Controllers\InvoiceController@generatePDF')-
 Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
 Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out')->name('clock-in-out');
 Route::get('calendar', 'App\Http\Controllers\CalendarController@index')->name('calendar');
+
+//xero
+Route::get('xero/authorize', 'App\Http\Controllers\XeroController@get_started')->name('xero.get_started');
+Route::get('xero/callback', 'App\Http\Controllers\XeroController@callback')->name('xero.callback');
