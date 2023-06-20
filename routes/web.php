@@ -37,3 +37,5 @@ Route::get('calendar', 'App\Http\Controllers\CalendarController@index')->name('c
 //xero
 Route::get('xero/authorize', 'App\Http\Controllers\XeroController@get_started')->name('xero.get_started');
 Route::get('xero/callback', 'App\Http\Controllers\XeroController@callback')->name('xero.callback');
+Route::get('xero/connections', 'App\Http\Controllers\XeroController@connections')->name('xero.connections');
+Route::get('xero/get_invoices', 'App\Http\Controllers\XeroController@get_invoices')->name('xero.get_invoices');
