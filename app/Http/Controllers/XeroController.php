@@ -11,7 +11,7 @@ use App\Models\XeroToken;
 class XeroController extends Controller
 {
     public function get_started() {
-        $url = 'https://login.xero.com/identity/connect/authorize?response_type=code&client_id=2BC3D6774F2A482D81379F568045B2FD&redirect_uri='.urlencode(env('XERO_REDIRECT_URL')).'&scope=openid profile email accounting.transactions&state=123';
+        $url = 'https://login.xero.com/identity/connect/authorize?response_type=code&client_id='.env('XERO_CLIENT_ID').'&redirect_uri='.urlencode(env('XERO_REDIRECT_URL')).'&scope=openid profile email accounting.transactions&state=123';
         
         return Redirect::to($url);
     }
