@@ -90,6 +90,7 @@
     var table = $('.data-table').DataTable({
         processing: true,
         serverSide: true,
+        pageLength: 8,
         ajax: "{{ route('users.index') }}",
 
         columns: [
