@@ -56,4 +56,27 @@ class XeroController extends Controller
 
         return response($stats, 200)->header('Content-Type', 'application/json');
     }
+
+    public function connections() {
+        $a = XeroToken::latest()->first();
+        $client = new Client();
+        $response= $client->request('GET', 'https://api.xero.com/connections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.$a->access_token,
+                'Content-Type' => 'application/json'
+
+            ]
+        ]);
+
+        $results = json_decode($response->getBody()->getContents());
+        dd($results);
+        $stats = [];
+        if($response->getStatusCode() == 200) {
+        }
+    }
+
+    public function generate_invoice() {
+        return 0;
+    }
+
 }
