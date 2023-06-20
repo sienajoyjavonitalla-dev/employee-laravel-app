@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Appointment;
+use App\Models\Client;
+use App\Models\User;
+use App\Models\Jobs;
+use App\Constants\StatusColorCodes;
 
 class CalendarController extends Controller
 {
@@ -19,9 +23,23 @@ class CalendarController extends Controller
         $appointments = Appointment::all();
  
         foreach ($appointments as $appointment) {
+
+            $clientName = Client::find($appointment->client_id)->client_name;
+            $employeeName = User::find($appointment->user_id)->name;
+
+            $status = Jobs::find($appointment->job_id)->status;
+
             $events[] = [
-                'title' => "Job #".$appointment->job_id." ".$appointment->title,
-                'comments' => $appointment->comments,
+                'title' => $appointment->title,
+                'extendedProps' => [
+                    'job_id' => $appointment->job_id,
+                    'comment' => $appointment->comments,
+                    'employee' => $employeeName,
+                    'client' => $clientName,
+                    'status' => $status
+                ],
+                'backgroundColor' => StatusColorCodes::$statusColorCodes[$status],
+                'textColor' => '#000',
                 'start' => $appointment->start_time,
                 'end' => $appointment->finish_time,
                 'allDay' => 'true',
