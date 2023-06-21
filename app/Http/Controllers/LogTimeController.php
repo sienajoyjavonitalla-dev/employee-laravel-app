@@ -68,8 +68,6 @@ class LogTimeController extends Controller
             ->where('employee_id', Auth::user()->id)
             ->whereDate('start_date_time', '<=', Carbon::now()->toDateString())
             ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())
-            ->whereDate('start_time', '<=', Carbon::now()->toTimeString())
-            ->whereDate('end_time', '>=', Carbon::now()->toTimeString())
             ->selectRaw('jobs.address, clients.company_name, jobs.id, jobs.title, jobs.start_date_time, jobs.end_date_time, jobs.start_time, jobs.end_time')
             ->first();
         return view('timelogs.timeclock', compact('clock_in', 'job'));
@@ -106,7 +104,9 @@ class LogTimeController extends Controller
     {
         if($request->type == 'in') {
             
-            $found_job = Jobs::where('employee_id', Auth::user()->id)->whereDate('start_date_time', '<=', Carbon::now()->toDateString())->whereDate('end_date_time', '>=', Carbon::now()->toDateString())->first();
+            $found_job = Jobs::where('employee_id', Auth::user()->id)
+            ->whereDate('start_date_time', '<=', Carbon::now()->toDateString())
+            ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())->first();
 
             if($found_job) {
                 $tl = new TimeLog();

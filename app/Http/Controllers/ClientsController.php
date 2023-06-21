@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\Jobs;
 use DataTables;
 
 class ClientsController extends Controller
@@ -50,8 +51,9 @@ class ClientsController extends Controller
     {   
         $client_id = $client->id;
         if ($request->ajax()) {
-            $data = Invoice::where('client_id', $client_id)->get();
-            return Datatables::of($data)
+            if ($request->name == 'list') {
+                $data = Invoice::where('client_id', $client_id)->get();
+                return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('online_invoice_url', function($row){
 
@@ -80,6 +82,21 @@ class ClientsController extends Controller
                     })
                     ->rawColumns(['action', 'online_invoice_url','emailed'])
                     ->make(true);
+            } else {
+                $data = Jobs::where('client_id', $client_id)->get();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    
+                    ->addColumn('action', function($row){
+                        $btn = '<a href="" data-toggle="tooltip" class="mr-1 btn btn-primary btn-sm">Edit</a>';
+                        $btn .= '<a href="" data-toggle="tooltip" class="btn btn-danger btn-sm">Delete</a>';
+
+                        return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+            
         }
 
         return view('clients.show', compact('client_id'));

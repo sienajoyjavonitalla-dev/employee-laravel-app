@@ -28,10 +28,21 @@
                 </table>
                 </div>
                 <div class="tab-pane fade" id="nav-generate" role="tabpanel" aria-labelledby="nav-generate-tab">
-                    <p><strong>This is some placeholder content the Profile tab's associated content.</strong>
-                        Clicking another tab will toggle the visibility of this one for the next.
-                        The tab JavaScript swaps classes to control the content visibility and styling. You can use it with
-                        tabs, pills, and any other <code>.nav</code>-powered navigation.</p>
+                <table class="table table-bordered table-hover jobs-table" width="100%">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Assigned Persons</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th width="280px">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
                 </div>
                 
             </div>
@@ -52,13 +63,30 @@
     var table = $('.data-table').DataTable({
         processing: true,
         serverSide: true,
-        ajax: "{{ route('client.show-invoices', ['client'=>$client_id]) }}",
+        ajax: "{{ route('client.show-invoices', ['client'=>$client_id, 'name'=>'list']) }}",
         columns: [
             {data: 'invoice_id', name: 'invoice_id'},
             {data: 'status', name: 'status'},
             {data: 'online_invoice_url', name: 'online_invoice_url'},
             {data: 'emailed', name: 'emailed'},
             {data: 'id', name: 'id'},
+            {data: 'action', name: 'action', orderable: false, searchable: false},
+        ],
+        "columnDefs": [
+        ],
+        order: [[0, 'asc']]
+    });
+    var table = $('.jobs-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "{{ route('client.show-invoices', ['client'=>$client_id, 'name'=>'generate']) }}",
+        columns: [
+            {data: 'id', name: 'id'},
+            {data: 'title', name: 'title'},
+            {data: 'employee_id', name: 'employee_id'},
+            {data: 'status', name: 'status'},
+            {data: 'start_date_time', name: 'start_date_time'},
+            {data: 'end_date_time', name: 'end_date_time'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
