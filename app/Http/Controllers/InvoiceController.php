@@ -144,6 +144,9 @@ class InvoiceController extends Controller
 
         if ($request->client) {
             $data = $data->where('client_id', $request->client);
+        } else {
+            return back()->with('error', 'No client selected!');
+
         }
 
         if ($request->po_number) {

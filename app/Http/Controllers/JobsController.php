@@ -9,6 +9,7 @@ use DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Models\Client;
 use App\Models\User;
+use App\Models\JobAssignee;
 
 class JobsController extends Controller
 {
@@ -30,8 +31,29 @@ class JobsController extends Controller
                         return $client->company_name;
                     })
                     ->addColumn('assigned', function($row){
-                        $user = User::where('id', $row->employee_id)->first();
-                        return $user->name;
+                        $assigned = DB::table('job_assignee as ja')
+                            ->leftJoin('users as u', 'ja.assigned_id', '=', 'u.id')
+                            ->where('ja.job_id', $row->id)
+                            ->select('u.name')
+                            ->get();
+                        $display = "";
+
+                        if($assigned->count() > 0) {
+                            $count=0;
+                            foreach($assigned as $a) {
+                                if($count > 0)
+                                    $display .=', ';
+    
+                                $display .=$a->name;
+                                $count++;
+                            }
+
+                        } 
+                            $display .= '<a href="javascript:void(0)"  data-id="'.$row->id.'" data-toggle="tooltip" class="btn-xs assignBtn"><i class="fas fa-pen"></i></a>';
+
+
+                        
+                        return $display;
                     })
                     ->addColumn('action', function($row){
                         $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editJob">Edit</a>';
@@ -39,7 +61,7 @@ class JobsController extends Controller
 
                         return $btn;
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action', 'assigned'])
                     ->make(true);
         }
 
@@ -47,6 +69,39 @@ class JobsController extends Controller
         $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
 
         return view('jobs.index', compact('clients', 'assigned'));
+
+    }
+    public function assigned_index(Request $request, Jobs $job)
+    {
+        if ($request->ajax()) {
+
+            $data = JobAssignee::leftJoin('users as u', 'job_assignee.assigned_id', '=', 'u.id')
+                ->where('job_id', $job->id)
+                ->selectRaw('job_assignee.id, name, job_title')
+                ->get();
+            return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row){
+                        $btn = ' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteJobAssign">Delete</a>';
+
+                        return $btn;
+                    })
+                    ->rawColumns(['action', 'assigned'])
+                    ->make(true);
+        }
+
+        $clients = Client::pluck('company_name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
+
+        return view('jobs.index', compact('clients', 'assigned'));
+
+    }
+
+    public function assigned_delete(Request $request, JobAssignee $assign)
+    {
+        JobAssignee::find($assign->id)->delete();
+
+        return response()->json(['success'=>'Deleted successfully.']);
 
     }
 
@@ -105,6 +160,29 @@ class JobsController extends Controller
         },2);
 
         return response()->json(['success'=>'Job saved successfully.']);
+    }
+
+    public function store_assigned(Request $request)
+    {
+        $job = Jobs::where('id', $request->job_assignee_id)->first();
+        $assigned = JobAssignee::where('job_id', $request->job_assignee_id)->get()->count();
+
+        if( $assigned < $job->no_of_persons ) {
+            JobAssignee::updateOrCreate(
+                ['job_id' => $request->job_assignee_id,
+                'assigned_id' => (int)$request->assigned_id],
+                [
+                    'job_id' => $request->job_assignee_id,
+                    'assigned_id' => (int)$request->assigned_id,
+                    'job_title' => $request->job_title
+                ]
+            );
+
+            return response()->json(['success'=>'Job Assigned successfully.']);
+        } else {
+            return response()->json(['error'=>'Job Assigned is full already']);
+
+        }
     }
 
     public function edit($id)
