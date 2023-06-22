@@ -11,16 +11,14 @@
             <thead class="thead-light">
                 <tr>
                     <th>Job ID</th>
+                    <th>Invoice</th>
                     <th>Company</th>
-                    <th>Assigned</th>
-                    <th>Job Title</th>
                     <th>Status</th>
-                    <th>PO#</th>
                     <th>Address</th>
                     <th>Start</th>
                     <th>End</th>
-                    <th>Time Start</th>
-                    <th>Time End</th>
+                    <th>Assigned Count</th>
+                    <th>Assigned</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -34,7 +32,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="modelHeading"></h4>
+                <h4 class="modal-title" id="modelHeading">Edit</h4>
             </div>
 
             <div class="modal-body">
@@ -57,7 +55,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="employee_id" class="col-sm-6 control-label">Assign to</label>
                         <div class="col-sm-12">
                             <select class="form-control" name="employee_id" id="employee_id" required="">
@@ -68,16 +66,8 @@
                                     </option>
                                 @endforeach    
                             </select>
-                            <!-- <input type="text" class="form-control" id="employee_id" name="employee_id" value="" maxlength="50" required=""> -->
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="title" class="col-sm-6 control-label">Job Title</label>
-                        <div class="col-sm-12">
-                            <input type="text" class="form-control" id="title" name="title" value="" required="">
-                        </div>
-                    </div>
+                    </div> -->
 
                     <div class="form-group">
                         <label class="col-sm-6 control-label">Description</label>
@@ -89,7 +79,7 @@
                     <div class="form-group">
                         <label for="po_number" class="col-sm-6 control-label">PO Number</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="po_number" name="po_number" value="" required="">
+                            <input type="text" class="form-control" id="po_number" name="po_number" value="" >
                         </div>
                     </div>
 
@@ -113,24 +103,120 @@
                             <input type="date" class="form-control" id="end_date_time" name="end_date_time" value="" required="">
                         </div>
                     </div>
+
                     <div class="form-group">
-                        <label for="start_time" class="col-sm-6 control-label">Start Time</label>
+                        <label for="no_of_persons" class="col-sm-6 control-label">Number of Persons Assigned</label>
                         <div class="col-sm-12">
-                            <input type="time" class="form-control" id="start_time" name="start_time" value="" required="">
+                            <input type="text" class="form-control" id="no_of_persons" name="no_of_persons" value="" required="">
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="end_time" class="col-sm-6 control-label">End Time</label>
+                    <!-- <div class="form-group">
+                        <label for="job_assignees" class="col-sm-6 control-label">Assign to</label>
                         <div class="col-sm-12">
-                            <input type="time" class="form-control" id="end_time" name="end_time" value="" required="">
+                            <select class="form-control" name="job_assignees[]" id="job_assignees" multiple="multiple">
+                                <option value="">-- Select --</option>
+                                @foreach ($assigned as $key => $value)
+                                    <option value="{{ $key }}"> 
+                                        {{ $value }} 
+                                    </option>
+                                @endforeach    
+                            </select>
                         </div>
-                    </div>
-                    
+                    </div> -->
                     <div class="col-sm-offset-2 col-sm-10">
                         <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="assignModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modelHeading">Assign</h4>
+            </div>
+
+            <div class="modal-body">
+                <form id="assignForm" name="assignForm" class="form-horizontal pb-1">
+
+                    <div class="form-group">
+                        <input type="hidden" class="form-control" id="job_assignee_id" name="job_assignee_id" value="" >
+
+                        <label for="assigned_id" class="col-sm-6 control-label">Assign to</label>
+                        <div class="col-sm-12">
+                            <select class="form-control" name="assigned_id" id="assigned_id" required="">
+                                <option value="">-- Select --</option>
+                                @foreach ($assigned as $key => $value)
+                                    <option value="{{ $key }}"> 
+                                        {{ $value }} 
+                                    </option>
+                                @endforeach    
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="job_title" class="col-sm-6 control-label">Job Title</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="job_title" name="job_title" value="" >
+                        </div>
+                    </div>
+
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary" id="saveAssBtn" value="create">Add</button>
+                    </div>
+                </form>
+
+                <table class="table table-bordered table-hover assign-table" width="100%">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Assigned</th>
+                            <th>Job Title</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="generateModal" aria-hidden="true" width="100%">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modelHeading">Generate Invoice</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-5">
+                    <span class="font-weight-bold">Job ID:</span> <span id="generate_job_id"></span></br>
+                    <span class="font-weight-bold">Client:</span> <span id="company_name" class=></span>
+                </div>
+                <a href="{{ route('invoices.generate.pdf',['download'=>'pdf']) }}" class="btn btn-primary mb-3"><i class="fas fa-print"></i> Generate Invoice</a>
+
+                <table class="table table-bordered table-hover generate-table" >
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Assigned</th>
+                            <th>Job Title</th>
+                            <th>Date</th>
+                            <th>Hrs Worked</th>
+                            <th>Lunch</th>
+                            <th>Pay</th>
+                            <th>OT Pay</th>
+                            <th>Total Pay</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -150,28 +236,26 @@
     var table = $('.data-table').DataTable({
         processing: true,
         serverSide: true,
-        ajax: "{{ route('jobs.index') }}",
+        pageLength: 8,
+        ajax: "{{ route('jobs.index', ['name'=>'list']) }}",
 
         columns: [
             {data: 'id', name: 'id'},
+            {data: 'invoice', name: 'invoice'},
             {data: 'client', name: 'client'},
-            {data: 'assigned', name: 'assigned'},
-            {data: 'title', name: 'title'},
             {data: 'status', name: 'status'},
-            {data: 'po_number', name: 'po_number'},
             {data: 'address', name: 'address'},
             {data: 'start_date_time', name: 'start_date_time'},
             {data: 'end_date_time', name: 'end_date_time'},
-            {data: 'start_time', name: 'start_time'},
-            {data: 'end_time', name: 'end_time'},
+            {data: 'no_of_persons', name: 'no_of_persons'},
+            {data: 'assigned', name: 'assigned'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "15%", "targets": [3, 9] },
-            { "width": "20%", "targets": [1, 2] }
-
+            { "width": "20%", "targets": [8] },
+            { "width": "15%", "targets": [4, 9] },
         ],
-        order: [[6, 'asc']]
+        order: [[5, 'desc']]
     });
 
     $('#createNewJob').click(function () {
@@ -204,13 +288,76 @@
           $('#end_date_time').val(data.end_date_time);
           $('#start_time').val(data.start_time);
           $('#end_time').val(data.end_time);
-
-
+          $('#no_of_persons').val(data.no_of_persons);
       })
 
     });
 
-      
+    $('body').on('click', '.assignBtn', function () {
+        $('#assignModal').modal('show');
+        var job_id = $(this).data('id');
+        $('#job_assignee_id').val(job_id);
+
+        var url = "{{ route('assign.index', ['job'=>':id']) }}";
+        url = url.replace(':id', job_id);
+        var assign_table = $('.assign-table').DataTable({
+            processing: true,
+            serverSide: true,
+            paging: false,
+            ajax: url,
+            columns: [
+                {data: 'name', name: 'name'},
+                {data: 'job_title', name: 'job_title'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            "columnDefs": [
+            ]
+        });
+        assign_table.destroy();
+
+    });
+
+    $('body').on('click', '.generateBtn', function () {
+        $('#generateModal').modal('show');
+        var job_id = $(this).data('id');
+        var company_name = $(this).data('company');
+        var company_id = $(this).data('compid');
+
+        $('#generate_job_id').text(job_id);
+        $('#company_name').text(company_name);
+
+        var generate_table = $('.generate-table').DataTable({
+            processing: true,
+            serverSide: true,
+            pageLength: 4,
+            ajax: {
+
+                url: "{{ route('jobs.index', ['name'=>'generate']) }}",
+                data:{
+                    job_id: job_id, 
+                    company_id: company_id
+                }
+            },
+            columns: [
+                {data: 'employee', name: 'employee'},
+                {data: 'title', name: 'title'},
+                {data: 'date', name: 'date'},
+                {data: 'hrs_worked', name: 'hrs_worked'},
+                {data: 'with_lunch', name: 'with_lunch'},
+                {data: 'pay', name: 'pay'},
+                {data: 'ot_pay', name: 'ot_pay'},
+                {data: 'total', name: 'total'},
+            ],
+            "columnDefs": [
+                { "width": "2%", "targets": [7] }
+
+            ],
+        });
+        generate_table.destroy();
+
+    });
+
+
     $('#saveBtn').click(function (e) {
 
         e.preventDefault();
@@ -238,6 +385,39 @@
       });
     });
 
+    $('#saveAssBtn').click(function (e) {
+
+        e.preventDefault();
+
+        $(this).html('Saving..');
+
+        $.ajax({
+        data: $('#assignForm').serialize(),
+        url: "{{ route('assign.store') }}",
+        type: "POST",
+        dataType: 'json',
+        success: function (data) {
+            $('#assignForm').trigger("reset");
+            $('#assignModal').modal('hide');
+            $('#saveAssBtn').html('Save Changes');
+
+            if(data.success) {
+                table.draw();
+                toastr.success('Assigned Job successfully!');
+            } else {
+                toastr.error('Job Assigned is full already!');
+
+            }
+            
+        },
+        error: function (data) {
+            console.log('Error:', data);
+            $('#saveAssBtn').html('Save Changes');
+            toastr.error('Error Saving!');
+
+        }
+        });
+    });
 
     $('body').on('click', '.deleteJob', function () {
 
@@ -263,6 +443,31 @@
             });
         }
     });
+    $('body').on('click', '.deleteJobAssign', function () {
+
+        var job_id = $(this).data("id");
+
+        var response = confirm("Are You sure want to delete?");
+
+        if (response == true) {
+            var url = "{{ route('assign.delete', ['assign'=>':id']) }}";
+            url = url.replace(':id', job_id);
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                success: function (data) {
+                    table.draw();
+                    $('#assignModal').modal('hide');
+                    toastr.success('Deleted successfully!');
+                },
+                error: function (data) {
+                    console.log('Error:', data);
+                    toastr.error('Error!');
+                }
+            });
+        }
+        });
   });
 
 </script>

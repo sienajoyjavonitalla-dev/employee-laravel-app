@@ -9,7 +9,6 @@
             <thead class="thead-light">
                 <tr>
                     <th>Job ID</th>
-                    <th>PO #</th>
                     <th>Assigned</th>
                     <th>Lunch Break</th>
                     <th>Start Time</th>
@@ -106,11 +105,11 @@
     var table = $('.data-table').DataTable({
         processing: true,
         serverSide: true,
+        pageLength: 8,
         ajax: "{{ route('timelogs.index') }}",
 
         columns: [
             {data: 'job_id', name: 'job_id'},
-            {data: 'po_num', name: 'po_num'},
             {data: 'assigned_to', name: 'assigned_to'},
             {data: 'with_lunch', name: 'with_lunch'},
             {data: 'start_time', name: 'start_time'},
