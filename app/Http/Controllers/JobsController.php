@@ -225,11 +225,7 @@ class JobsController extends Controller
 
     public function store(Request $request)
     {
-        $status = "open";
-
-        if($request->employee_id) 
-            $status = "assigned";
-        DB::transaction(function() use ($request, $status) {
+        DB::transaction(function() use ($request) {
 
             $job = Jobs::updateOrCreate(
                 [
@@ -238,7 +234,6 @@ class JobsController extends Controller
                 [
                     'client_id' => $request->client_id,
                     'employee_id' => $request->employee_id,
-                    'status' => $status,
                     'po_number' => $request->po_number,
                     'description' => $request->description,
                     'address' => $request->address,

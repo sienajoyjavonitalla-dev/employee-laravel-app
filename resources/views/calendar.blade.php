@@ -29,9 +29,10 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="client_name" class="col-sm-6 control-label">Employee</label>
+                            <label for="client_name" class="col-sm-6 control-label">Employee(s)</label>
                             <div class="col-sm-12">
-                                <input type="text" class="form-control" id="event-employee-name" name="event-employee-name" value="" maxlength="50" disabled="true">
+                                <textarea class="form-control" id="event-employee-name" name="event-employee-name" value="" rows="3" disabled="true">
+                                </textarea>
                             </div>
                         </div>
 
@@ -39,13 +40,6 @@
                             <label for="address" class="col-sm-6 control-label">Status</label>
                             <div class="col-sm-12">
                                 <input type="text" class="form-control" id="event-status" name="event-status" value="" maxlength="50" disabled="true">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="rate_per_hour" class="col-sm-6 control-label">Comment</label>
-                            <div class="col-sm-12">
-                                <input type="text" class="form-control" id="event-comment" name="event-comment" value="" disabled="true">
                             </div>
                         </div>
                     </form>
@@ -73,25 +67,54 @@
                     height: "auto",
                     eventContent : function(info){
 
-                        let htmlString = "<b>#" + info.event.extendedProps.job_id + " " + info.event.title + "</b><br>" +
-                                        "<i>" + info.event.extendedProps.client + "</i> <br>" +
-                                        info.event.extendedProps.employee + "<br>";
+                        data = info.event.extendedProps;
+                        assignee = "Assigned: N/A";
+
+                        if(data.employee.length > 0)
+                        {         
+                            assignee = "Assigned:<br>";
+
+                            data.employee.forEach(function(item){
+                                assignee += item.name + "<br>";
+                            });
+                        }
+
+                        if(data.status == "open") assignee = "<b>JOB IS OPEN</b>";
+
+                        htmlString =    "<b>#" + data.job_id + " " + info.event.title + " </b>" +
+                                        "<i>" + data.client + "</i> <br>" + assignee;
 
                         return {html : htmlString};
                     },
                     eventClick : function(info){
 
-                        let eventTitle = document.getElementById("event-title");
-                        let eventClientName = document.getElementById("event-client-name");
-                        let eventEmployeeName = document.getElementById("event-employee-name");
-                        let eventStatus = document.getElementById("event-status");
-                        let eventComment = document.getElementById("event-comment");
+                        data = info.event.extendedProps;
 
-                        eventTitle.value = "#" + info.event.extendedProps.job_id + " " + info.event.title;
-                        eventClientName.value = info.event.extendedProps.client;
-                        eventEmployeeName.value = info.event.extendedProps.employee;
-                        eventStatus.value = info.event.extendedProps.status;
-                        eventComment.value = info.event.extendedProps.comment;
+                        eventTitle = document.getElementById("event-title");
+                        eventClientName = document.getElementById("event-client-name");
+                        eventEmployeeName = document.getElementById("event-employee-name");
+                        eventStatus = document.getElementById("event-status");
+                        eventComment = document.getElementById("event-comment")
+
+                        eventTitle.value = "#" + data.job_id + " " + info.event.title;
+                        eventClientName.value = data.client;
+                        eventStatus.value = data.status;
+
+                        console.log(data.employee);
+
+                        employees = "";
+
+                        if(data.employee.length > 0)
+                        {
+                            data.employee.forEach(function(item){
+                                employees +=    item.name + " (" + item.jobTitle + ")\n";
+                            });
+                        } 
+                        else
+                        {
+
+                        }
+                        eventEmployeeName.value = employees;
 
                         $('#ajaxModel').modal('show');
                     }
