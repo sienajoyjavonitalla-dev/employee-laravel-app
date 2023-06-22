@@ -40,7 +40,7 @@ class CalendarController extends Controller
             }
 
             $events[] = [
-                'title' => $appointment->title,
+                'title' => $appointment->id,
                 'extendedProps' => [
                     'job_id' => $appointment->id,
                     'employee' => $assignee,

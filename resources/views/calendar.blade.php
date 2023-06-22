@@ -15,13 +15,8 @@
 
                     <form id="clientForm" name="clientForm" class="form-horizontal">
 
-                        <input type="hidden" name="client_id" id="client_id">
-                        <div class="form-group">
-                            <label for="client_name" class="col-sm-6 control-label">Job Title</label>
-                            <div class="col-sm-12">
-                                <input type="text" class="form-control" id="event-title" name="event-title" value="" maxlength="50" disabled="true">
-                            </div>
-                        </div>
+                        <label class="col-sm-6 control-label" id="modal-header-title"></label>
+
                         <div class="form-group">
                             <label for="abn" class="col-sm-6 control-label">Client</label>
                             <div class="col-sm-12">
@@ -29,7 +24,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="client_name" class="col-sm-6 control-label">Employee(s)</label>
+                            <label for="client_name" class="col-sm-6 control-label">Assigned To</label>
                             <div class="col-sm-12">
                                 <textarea class="form-control" id="event-employee-name" name="event-employee-name" value="" rows="3" disabled="true">
                                 </textarea>
@@ -64,25 +59,26 @@
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     initialView: 'dayGridMonth',
                     events: events,
-                    height: "auto",
+                    height: "98vh",
                     eventContent : function(info){
 
                         data = info.event.extendedProps;
-                        assignee = "Assigned: N/A";
+                        status = "ONGOING";
 
-                        if(data.employee.length > 0)
-                        {         
-                            assignee = "Assigned:<br>";
+                        // if(data.employee.length > 0)
+                        // {         
+                        //     assignee = "Assigned:<br>";
 
-                            data.employee.forEach(function(item){
-                                assignee += item.name + "<br>";
-                            });
-                        }
+                        //     data.employee.forEach(function(item){
+                        //         assignee += item.name + "<br>";
+                        //     });
+                        // }
 
-                        if(data.status == "open") assignee = "<b>JOB IS OPEN</b>";
+                        if(data.status == "open") status = "OPEN";
+                        if(data.status == "completed") status = "COMPLETE";
 
-                        htmlString =    "<b>#" + data.job_id + " " + info.event.title + " </b>" +
-                                        "<i>" + data.client + "</i> <br>" + assignee;
+                        htmlString =    "<b>Job #" + data.job_id + "</b><br>" +
+                                        data.client + "<br> <i>" + status + "</i>";
 
                         return {html : htmlString};
                     },
@@ -90,17 +86,15 @@
 
                         data = info.event.extendedProps;
 
-                        eventTitle = document.getElementById("event-title");
+                        modalHeader = document.getElementById("modal-header-title");
                         eventClientName = document.getElementById("event-client-name");
                         eventEmployeeName = document.getElementById("event-employee-name");
                         eventStatus = document.getElementById("event-status");
                         eventComment = document.getElementById("event-comment")
 
-                        eventTitle.value = "#" + data.job_id + " " + info.event.title;
+                        modalHeader.innerHTML = "JOB ID #" + info.event.title;
                         eventClientName.value = data.client;
                         eventStatus.value = data.status;
-
-                        console.log(data.employee);
 
                         employees = "";
 
