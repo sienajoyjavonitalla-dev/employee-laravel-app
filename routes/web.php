@@ -35,6 +35,8 @@ Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out
 Route::get('calendar', 'App\Http\Controllers\CalendarController@index')->name('calendar');
 
 Route::get('client/{client}/show_invoices', 'App\Http\Controllers\ClientsController@show_invoices')->name('client.show-invoices');
+Route::get('generate/invoice', 'App\Http\Controllers\JobsController@generateInvoice')->name('job.generate.invoice');
+
 //post methods
 Route::post('assign', 'App\Http\Controllers\JobsController@store_assigned')->name('assign.store');
 Route::get('assign/{job}', 'App\Http\Controllers\JobsController@assigned_index')->name('assign.index');
