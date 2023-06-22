@@ -65,15 +65,6 @@
                         data = info.event.extendedProps;
                         status = "ONGOING";
 
-                        // if(data.employee.length > 0)
-                        // {         
-                        //     assignee = "Assigned:<br>";
-
-                        //     data.employee.forEach(function(item){
-                        //         assignee += item.name + "<br>";
-                        //     });
-                        // }
-
                         if(data.status == "open") status = "OPEN";
                         if(data.status == "completed") status = "COMPLETE";
 
@@ -101,7 +92,7 @@
                         if(data.employee.length > 0)
                         {
                             data.employee.forEach(function(item){
-                                employees +=    item.name + " (" + item.jobTitle + ")\n";
+                                employees += item.name + " (" + item.jobTitle + ")\n";
                             });
                         } 
                         else

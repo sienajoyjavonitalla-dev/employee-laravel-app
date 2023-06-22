@@ -237,6 +237,7 @@
         processing: true,
         serverSide: true,
         pageLength: 8,
+        responsive: true,
         ajax: "{{ route('jobs.index', ['name'=>'list']) }}",
 
         columns: [
