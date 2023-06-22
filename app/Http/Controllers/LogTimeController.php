@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use DataTables;
 use App\Models\TimeLog;
 use App\Models\Jobs;
+use App\Models\JobAssignee;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\User;
@@ -28,11 +29,6 @@ class LogTimeController extends Controller
 
             return Datatables::of($data)
                     ->addIndexColumn()
-                    ->addColumn('po_num', function($row){
-                        $qry = Jobs::where('id', $row->job_id)->first();
-                        $po_number = $qry->po_number;
-                        return $po_number;
-                    })
                     ->addColumn('assigned_to', function($row){
                         $qry = User::where('id', $row->assigned_id)->first();
                         $user = $qry->name;
@@ -65,10 +61,11 @@ class LogTimeController extends Controller
         $clock_in = TimeLog::where('assigned_id', Auth::user()->id)->orderBy('created_at', 'desc')->first();
 
         $job = Jobs::leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id')
-            ->where('employee_id', Auth::user()->id)
+            ->leftJoin('job_assignee as ja', 'ja.job_id', '=', 'jobs.id')
+            ->where('ja.assigned_id', Auth::user()->id)
             ->whereDate('start_date_time', '<=', Carbon::now()->toDateString())
             ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())
-            ->selectRaw('jobs.address, clients.company_name, jobs.id, jobs.title, jobs.start_date_time, jobs.end_date_time, jobs.start_time, jobs.end_time')
+            ->selectRaw('jobs.address, clients.company_name, jobs.id, ja.job_title as title, jobs.start_date_time, jobs.end_date_time, jobs.start_time, jobs.end_time')
             ->first();
         return view('timelogs.timeclock', compact('clock_in', 'job'));
     }
@@ -104,9 +101,12 @@ class LogTimeController extends Controller
     {
         if($request->type == 'in') {
             
-            $found_job = Jobs::where('employee_id', Auth::user()->id)
+            $found_job = Jobs::leftJoin('job_assignee as ja', 'ja.job_id', '=', 'jobs.id')
+            ->where('ja.assigned_id', Auth::user()->id)
             ->whereDate('start_date_time', '<=', Carbon::now()->toDateString())
-            ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())->first();
+            ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())
+            ->selectRaw('jobs.id')
+            ->first();
 
             if($found_job) {
                 $tl = new TimeLog();

@@ -11,6 +11,7 @@
             <thead class="thead-light">
                 <tr>
                     <th>Job ID</th>
+                    <th>Invoice</th>
                     <th>Company</th>
                     <th>Status</th>
                     <th>Address</th>
@@ -185,6 +186,41 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="generateModal" aria-hidden="true" width="100%">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modelHeading">Generate Invoice</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-5">
+                    <span class="font-weight-bold">Job ID:</span> <span id="generate_job_id"></span></br>
+                    <span class="font-weight-bold">Client:</span> <span id="company_name" class=></span>
+                </div>
+                <a href="{{ route('invoices.generate.pdf',['download'=>'pdf']) }}" class="btn btn-primary mb-3"><i class="fas fa-print"></i> Generate Invoice</a>
+
+                <table class="table table-bordered table-hover generate-table" >
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Assigned</th>
+                            <th>Job Title</th>
+                            <th>Date</th>
+                            <th>Hrs Worked</th>
+                            <th>Lunch</th>
+                            <th>Pay</th>
+                            <th>OT Pay</th>
+                            <th>Total Pay</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 @stop
 
 @section('scripts')
@@ -201,10 +237,11 @@
         processing: true,
         serverSide: true,
         pageLength: 8,
-        ajax: "{{ route('jobs.index') }}",
+        ajax: "{{ route('jobs.index', ['name'=>'list']) }}",
 
         columns: [
             {data: 'id', name: 'id'},
+            {data: 'invoice', name: 'invoice'},
             {data: 'client', name: 'client'},
             {data: 'status', name: 'status'},
             {data: 'address', name: 'address'},
@@ -215,13 +252,11 @@
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "20%", "targets": [7] },
-            { "width": "15%", "targets": [3, 8] },
+            { "width": "20%", "targets": [8] },
+            { "width": "15%", "targets": [4, 9] },
         ],
-        order: [[4, 'desc']]
+        order: [[5, 'desc']]
     });
-
-    
 
     $('#createNewJob').click(function () {
         $('#saveBtn').val("create-job");
@@ -281,6 +316,47 @@
         assign_table.destroy();
 
     });
+
+    $('body').on('click', '.generateBtn', function () {
+        $('#generateModal').modal('show');
+        var job_id = $(this).data('id');
+        var company_name = $(this).data('company');
+        var company_id = $(this).data('compid');
+
+        $('#generate_job_id').text(job_id);
+        $('#company_name').text(company_name);
+
+        var generate_table = $('.generate-table').DataTable({
+            processing: true,
+            serverSide: true,
+            pageLength: 4,
+            ajax: {
+
+                url: "{{ route('jobs.index', ['name'=>'generate']) }}",
+                data:{
+                    job_id: job_id, 
+                    company_id: company_id
+                }
+            },
+            columns: [
+                {data: 'employee', name: 'employee'},
+                {data: 'title', name: 'title'},
+                {data: 'date', name: 'date'},
+                {data: 'hrs_worked', name: 'hrs_worked'},
+                {data: 'with_lunch', name: 'with_lunch'},
+                {data: 'pay', name: 'pay'},
+                {data: 'ot_pay', name: 'ot_pay'},
+                {data: 'total', name: 'total'},
+            ],
+            "columnDefs": [
+                { "width": "2%", "targets": [7] }
+
+            ],
+        });
+        generate_table.destroy();
+
+    });
+
 
     $('#saveBtn').click(function (e) {
 

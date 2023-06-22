@@ -23,5 +23,6 @@ class Jobs extends Model
         'deleted_at',
         'start_time',
         'end_time',
+        'no_of_persons'
     ];
 }

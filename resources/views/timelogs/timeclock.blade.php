@@ -27,12 +27,11 @@
         <div class="col-lg-6">
             <span class='fw-bold'>Job ID:</span>    {{$job->id}}<br/>
             <span class='fw-bold'>Company Name:</span>    {{$job->company_name}}<br/>
-            <span class='fw-bold'>Job Title:</span>    {{$job->title}}<br/>
             <span class='fw-bold'>Address:</span>    {{$job->address}}<br/>
         </div>
         <div class="col-lg-6">
+            <span class='fw-bold'>Job Title:</span>    {{$job->title}}<br/>
             <span class='fw-bold'>Date Duration:</span>    {{$job->start_date_time}} - {{$job->end_date_time}}<br/>
-            <span class='fw-bold'>Start & End Time:</span>    {{date('h:i A ', strtotime($job->start_time))}} - {{date('h:i A ', strtotime($job->end_time))}}<br/>
         </div>
         
 

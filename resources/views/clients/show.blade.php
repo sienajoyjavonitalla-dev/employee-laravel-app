@@ -7,7 +7,7 @@
             <nav>
                 <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
                     <button class="nav-link active" id="nav-list-tab" data-bs-toggle="tab" data-bs-target="#nav-list" type="button" role="tab" aria-controls="nav-list" aria-selected="true">List</button>
-                    <button class="nav-link" id="nav-generate-tab" data-bs-toggle="tab" data-bs-target="#nav-generate" type="button" role="tab" aria-controls="nav-generate" aria-selected="false">Generate</button>
+                    <!-- <button class="nav-link" id="nav-generate-tab" data-bs-toggle="tab" data-bs-target="#nav-generate" type="button" role="tab" aria-controls="nav-generate" aria-selected="false">Generate</button> -->
                 </div>
             </nav>
             <div class="tab-content p-3 border bg-light" id="nav-tabContent">
@@ -31,13 +31,16 @@
                 <table class="table table-bordered table-hover jobs-table" width="100%">
                     <thead class="thead-light">
                         <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Assigned Persons</th>
+                            <th>Job ID</th>
+                            <th>Invoice</th>
+                            <th>Company</th>
                             <th>Status</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th width="280px">Action</th>
+                            <th>Address</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Assigned Count</th>
+                            <th>Assigned</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,19 +82,24 @@
     var table = $('.jobs-table').DataTable({
         processing: true,
         serverSide: true,
-        ajax: "{{ route('client.show-invoices', ['client'=>$client_id, 'name'=>'generate']) }}",
+        ajax: "{{ route('client.show-invoices', ['client'=>$client_id, 'name'=>'jobs-list']) }}",
         columns: [
             {data: 'id', name: 'id'},
-            {data: 'title', name: 'title'},
-            {data: 'employee_id', name: 'employee_id'},
+            {data: 'invoice', name: 'invoice'},
+            {data: 'client', name: 'client'},
             {data: 'status', name: 'status'},
+            {data: 'address', name: 'address'},
             {data: 'start_date_time', name: 'start_date_time'},
             {data: 'end_date_time', name: 'end_date_time'},
+            {data: 'no_of_persons', name: 'no_of_persons'},
+            {data: 'assigned', name: 'assigned'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
+            { "width": "20%", "targets": [8] },
+            { "width": "15%", "targets": [4, 9] },
         ],
-        order: [[0, 'asc']]
+        order: [[5, 'desc']]
     });
   });
 

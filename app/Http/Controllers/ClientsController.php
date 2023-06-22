@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Jobs;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 
 class ClientsController extends Controller
 {
@@ -82,7 +83,62 @@ class ClientsController extends Controller
                     })
                     ->rawColumns(['action', 'online_invoice_url','emailed'])
                     ->make(true);
-            } else {
+            } else if($request->name == 'jobs-list'){
+                $data = DB::table('jobs as j')
+                    ->leftJoin('invoices as i', 'i.job_id', '=', 'j.id')
+                    ->leftJoin('clients as c', 'c.id', '=', 'j.client_id')
+                    ->selectRaw('j.id, j.client_id, j.status, j.address, j.start_date_time, j.end_date_time, j.no_of_persons, i.invoice_id, i.invoice_url, c.company_name')
+                    ->where('j.client_id', $client_id)
+                    ->get();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('invoice', function($row){
+                        if($row->invoice_id) {
+                            $inv = "<a href='".$row->invoice_url."'> ".$row->invoice_id."</a>";
+                        } else {
+                            $inv = '<a href="javascript:void(0)" data-compid="'.$row->client_id.'"  data-company="'.$row->company_name.'"  data-id="'.$row->id.'" data-toggle="tooltip" class="btn btn-secondary btn-xs generateBtn"><i class="fa-solid fa-gear"></i>Generate</a>';
+
+                        }
+                        return $inv;
+                    })
+                    ->addColumn('client', function($row){
+                        $client = Client::where('id', $row->client_id)->first();
+                        return $client->company_name;
+                    })
+                    ->addColumn('assigned', function($row){
+                        $assigned = DB::table('job_assignee as ja')
+                            ->leftJoin('users as u', 'ja.assigned_id', '=', 'u.id')
+                            ->where('ja.job_id', $row->id)
+                            ->select('u.name')
+                            ->get();
+                        $display = "";
+
+                        if($assigned->count() > 0) {
+                            $count=0;
+                            foreach($assigned as $a) {
+                                if($count > 0)
+                                    $display .=', ';
+    
+                                $display .=$a->name;
+                                $count++;
+                            }
+
+                        } 
+                            $display .= '<a href="javascript:void(0)"  data-id="'.$row->id.'" data-toggle="tooltip" class="btn-xs assignBtn"><i class="fas fa-pen"></i></a>';
+
+
+                        
+                        return $display;
+                    })
+                    ->addColumn('action', function($row){
+                        $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editJob">Edit</a>';
+                        $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteJob">Delete</a>';
+
+                        return $btn;
+                    })
+                    ->rawColumns(['action', 'assigned', 'invoice'])
+                    ->make(true);
+            }else {
                 $data = Jobs::where('client_id', $client_id)->get();
                 return Datatables::of($data)
                     ->addIndexColumn()
