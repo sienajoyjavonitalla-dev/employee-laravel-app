@@ -17,7 +17,7 @@
                     <th>Address</th>
                     <th>Start</th>
                     <th>End</th>
-                    <th>Assigned Count</th>
+                    <th>No of Persons</th>
                     <th>Assigned</th>
                     <th>Action</th>
                 </tr>
@@ -51,23 +51,8 @@
                                     </option>
                                 @endforeach    
                             </select>
-                            <!-- <input type="text" class="form-control" id="client_id" name="client_id" value="" maxlength="50" required=""> -->
                         </div>
                     </div>
-
-                    <!-- <div class="form-group">
-                        <label for="employee_id" class="col-sm-6 control-label">Assign to</label>
-                        <div class="col-sm-12">
-                            <select class="form-control" name="employee_id" id="employee_id" required="">
-                                <option value="">-- Select --</option>
-                                @foreach ($assigned as $key => $value)
-                                    <option value="{{ $key }}"> 
-                                        {{ $value }} 
-                                    </option>
-                                @endforeach    
-                            </select>
-                        </div>
-                    </div> -->
 
                     <div class="form-group">
                         <label class="col-sm-6 control-label">Description</label>
@@ -199,7 +184,8 @@
                     <span class="font-weight-bold">Job ID:</span> <span id="generate_job_id"></span></br>
                     <span class="font-weight-bold">Client:</span> <span id="company_name" class=></span>
                 </div>
-                <a href="{{ route('invoices.generate.pdf',['download'=>'pdf']) }}" class="btn btn-primary mb-3"><i class="fas fa-print"></i> Generate Invoice</a>
+                <!-- <a href="{{ route('invoices.generate.pdf',['download'=>'pdf']) }}" class="btn btn-primary mb-3"><i class="fas fa-print"></i> Generate Invoice</a> -->
+                <a href="javascript:void(0)" class="btn btn-primary mb-3 postInvoiceBtn" id="generate_btn"><i class="fas fa-print"></i> Generate Invoice</a>
 
                 <table class="table table-bordered table-hover generate-table" >
                     <thead class="thead-light">
@@ -257,6 +243,35 @@
         ],
         order: [[5, 'desc']]
     });
+
+    $('.postInvoiceBtn').click(function (e) {
+        
+        var job_id = $(this).attr('data-job');
+        var client_id = $(this).attr('data-client');
+        var dataToSend = {
+            'job_id': job_id,
+            'client_id': client_id
+        };
+        $.ajax({
+            url: "generate/invoice",
+            type: "GET",
+            dataType: 'json',
+            data: dataToSend,
+            success: function (data) {
+                if(data.success) {
+                    toastr.success(data.success, 'SUCCESS');
+                    window.location.reload();        
+                } else {
+                    toastr.error(data.error, 'ERROR');
+                }
+            },
+            error: function (data) {
+                console.log('Error:', data);
+                toastr.error('Error Saving!');
+
+            }
+        });
+    })
 
     $('#createNewJob').click(function () {
         $('#saveBtn').val("create-job");
@@ -325,6 +340,8 @@
 
         $('#generate_job_id').text(job_id);
         $('#company_name').text(company_name);
+        $('#generate_btn').attr("data-job", job_id);
+        $('#generate_btn').attr("data-client", company_id);
 
         var generate_table = $('.generate-table').DataTable({
             processing: true,
