@@ -7,6 +7,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\TransferStats;
 use App\Models\XeroToken;
 use App\Models\Customer;
+use App\Models\Client as MClient;
+
 
 
 class GetCustomers extends Command
@@ -83,7 +85,7 @@ class GetCustomers extends Command
                         $PhoneCountryCode = $p->PhoneCountryCode ?? '';
                     }
                 }
-                Customer::updateOrCreate(['ContactID' => $i->ContactID, 'ContactStatus' => $i->ContactStatus],
+                MClient::updateOrCreate(['ContactID' => $i->ContactID, 'ContactStatus' => $i->ContactStatus],
                 [
                     'ContactID' => $i->ContactID,
                     'ContactStatus' => $i->ContactStatus, 

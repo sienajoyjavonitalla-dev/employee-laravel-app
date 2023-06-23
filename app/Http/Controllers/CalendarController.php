@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Appointment;
+use App\Models\JobAssignee;
 use App\Models\Client;
 use App\Models\User;
 use App\Models\Jobs;
@@ -20,28 +20,36 @@ class CalendarController extends Controller
     {
         $events = [];
  
-        $appointments = Appointment::all();
+        $appointments = Jobs::all();
  
         foreach ($appointments as $appointment) {
 
             $clientName = Client::find($appointment->client_id)->client_name;
-            $employeeName = User::find($appointment->user_id)->name;
+            $status = $appointment->status;
 
-            $status = Jobs::find($appointment->job_id)->status;
+            $jobAssignees = JobAssignee::where('job_id', $appointment->id)->get()->toArray();
+
+            $assignee = [];
+
+            foreach($jobAssignees as $jobAssignee)
+            {
+                $assignee[] = [
+                    "name" => User::find($jobAssignee['assigned_id'])->name,
+                    "jobTitle" => $jobAssignee['job_title']
+                ];
+            }
 
             $events[] = [
-                'title' => $appointment->title,
+                'title' => $appointment->id,
                 'extendedProps' => [
-                    'job_id' => $appointment->job_id,
-                    'comment' => $appointment->comments,
-                    'employee' => $employeeName,
+                    'job_id' => $appointment->id,
+                    'employee' => $assignee,
                     'client' => $clientName,
                     'status' => $status
                 ],
                 'backgroundColor' => StatusColorCodes::$statusColorCodes[$status],
                 'textColor' => '#000',
-                'start' => $appointment->start_time,
-                'end' => $appointment->finish_time,
+                'start' => $appointment->start_date_time,
                 'allDay' => 'true',
                 'display' => 'block'
             ];

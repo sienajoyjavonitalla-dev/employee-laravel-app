@@ -38,7 +38,7 @@
                             <th>Address</th>
                             <th>Start</th>
                             <th>End</th>
-                            <th>Assigned Count</th>
+                            <th>No of Persons</th>
                             <th>Assigned</th>
                             <th>Action</th>
                         </tr>
