@@ -283,6 +283,8 @@ class JobsController extends Controller
             ]
         );
 
+        return response()->json(['success'=>'Job Assigned successfully.']);
+
     }
 
     public function generateInvoice(Request $req) {
