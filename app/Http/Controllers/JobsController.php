@@ -133,8 +133,10 @@ class JobsController extends Controller
                             $pay = $total_hr * $row->rate_per_hour;
                         } else if($total_hr > 0 && $total_hr <= 4) {
                             $pay = 4 * $row->rate_per_hour;
+                        } else if($total_hr > 8) {
+                            $total_hr = 8;
+                            $pay = 8 * $row->rate_per_hour;
                         }
-
                         
                         return $pay;
                     })
@@ -165,6 +167,9 @@ class JobsController extends Controller
                             if($total_hr > 8) {
                                 $ot_hours= $total_hr - 8;
                                 $ot_pay = $ot_hours * $row->ot_rate_per_hour;
+                                $total_hr = 8;
+                                $pay = $total_hr * $row->rate_per_hour;
+
                             }
                             $total_amount = $ot_pay + $pay;
                         } else if($total_hr > 0 && $total_hr <= 4) {
@@ -321,6 +326,8 @@ class JobsController extends Controller
                 if($total_hr > 8) {
                     $ot_hours= $total_hr - 8;
                     $ot_pay = $ot_hours * $tl->ot_rate_per_hour;
+                    $total_hr = 8;
+                    $pay = $total_hr * $tl->rate_per_hour;
                 }
                 $total_amount = $pay;
             } else if($total_hr > 0 && $total_hr <= 4) {
@@ -336,16 +343,19 @@ class JobsController extends Controller
                 'TaxType'=> 'OUTPUT',
                 'LineAmount'=> $total_amount
             ]);
-
+            
             //ot pay add line item
-            array_push($line_items, (object)[
-                'Description'=> $tl->date . ' ' . $tl->name .' Overtime',
-                'Quantity'=> $ot_hours,
-                'UnitAmount'=> $tl->ot_rate_per_hour,
-                'AccountCode'=> '200',
-                'TaxType'=> 'OUTPUT',
-                'LineAmount'=> $ot_pay
-            ]);
+            if($ot_hours > 0) {
+                array_push($line_items, (object)[
+                    'Description'=> $tl->date . ' ' . $tl->name .' Overtime',
+                    'Quantity'=> $ot_hours,
+                    'UnitAmount'=> $tl->ot_rate_per_hour,
+                    'AccountCode'=> '200',
+                    'TaxType'=> 'OUTPUT',
+                    'LineAmount'=> $ot_pay
+                ]);
+            }
+            
         } 
 
         $body = [
@@ -364,7 +374,7 @@ class JobsController extends Controller
             ]
           ];
         $a = XeroToken::latest()->first();
-
+        // dd(json_encode($body));
         $client = new GClient();
         $response= $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices', [
             'headers' => [
@@ -409,7 +419,7 @@ class JobsController extends Controller
                             'LineItemID' => $l->LineItemID,
                             'Description'=> $l->Description,
                             'UnitAmount'=> $l->UnitAmount,
-                            'TaxType'=> $l->TaxType,
+                            'TaxType'=> $l->TaxType ?? '',
                             'TaxAmount'=> $l->TaxAmount,
                             'LineAmount'=> $l->LineAmount,
                             'Quantity'=> $l->Quantity
