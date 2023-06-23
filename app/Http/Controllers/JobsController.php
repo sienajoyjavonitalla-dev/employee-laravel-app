@@ -32,7 +32,7 @@ class JobsController extends Controller
                 $data = DB::table('jobs as j')
                     ->leftJoin('invoices as i', 'i.job_id', '=', 'j.id')
                     ->leftJoin('clients as c', 'c.id', '=', 'j.client_id')
-                    ->selectRaw('j.id, j.client_id, j.status, j.address, j.start_date_time, j.end_date_time, j.no_of_persons, i.invoice_id, i.invoice_url, c.company_name')
+                    ->selectRaw('j.id, j.client_id, j.status, j.address, j.start_date_time, j.end_date_time, i.invoice_id, i.invoice_url, c.company_name')
                     ->get();
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -245,8 +245,7 @@ class JobsController extends Controller
                     'start_date_time' => $request->start_date_time,
                     'end_date_time' => $request->end_date_time,
                     'start_time' => $request->start_time,
-                    'end_time' => $request->end_time,
-                    'no_of_persons' => $request->no_of_persons,
+                    'end_time' => $request->end_time
                 ]
             );
 
@@ -274,22 +273,16 @@ class JobsController extends Controller
         $job = Jobs::where('id', $request->job_assignee_id)->first();
         $assigned = JobAssignee::where('job_id', $request->job_assignee_id)->get()->count();
 
-        if( $assigned < $job->no_of_persons ) {
-            JobAssignee::updateOrCreate(
-                ['job_id' => $request->job_assignee_id,
-                'assigned_id' => (int)$request->assigned_id],
-                [
-                    'job_id' => $request->job_assignee_id,
-                    'assigned_id' => (int)$request->assigned_id,
-                    'job_title' => $request->job_title
-                ]
-            );
+        JobAssignee::updateOrCreate(
+            ['job_id' => $request->job_assignee_id,
+            'assigned_id' => (int)$request->assigned_id],
+            [
+                'job_id' => $request->job_assignee_id,
+                'assigned_id' => (int)$request->assigned_id,
+                'job_title' => $request->job_title
+            ]
+        );
 
-            return response()->json(['success'=>'Job Assigned successfully.']);
-        } else {
-            return response()->json(['error'=>'Job Assigned is full already']);
-
-        }
     }
 
     public function generateInvoice(Request $req) {

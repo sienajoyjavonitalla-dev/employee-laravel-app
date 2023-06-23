@@ -87,7 +87,7 @@ class ClientsController extends Controller
                 $data = DB::table('jobs as j')
                     ->leftJoin('invoices as i', 'i.job_id', '=', 'j.id')
                     ->leftJoin('clients as c', 'c.id', '=', 'j.client_id')
-                    ->selectRaw('j.id, j.client_id, j.status, j.address, j.start_date_time, j.end_date_time, j.no_of_persons, i.invoice_id, i.invoice_url, c.company_name')
+                    ->selectRaw('j.id, j.client_id, j.status, j.address, j.start_date_time, j.end_date_time, i.invoice_id, i.invoice_url, c.company_name')
                     ->where('j.client_id', $client_id)
                     ->get();
                 return Datatables::of($data)

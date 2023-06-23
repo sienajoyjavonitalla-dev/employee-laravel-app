@@ -17,7 +17,6 @@
                     <th>Address</th>
                     <th>Start</th>
                     <th>End</th>
-                    <th>No of Persons</th>
                     <th>Assigned</th>
                     <th>Action</th>
                 </tr>
@@ -86,13 +85,6 @@
                         <label for="end_date_time" class="col-sm-6 control-label">End Date</label>
                         <div class="col-sm-12">
                             <input type="date" class="form-control" id="end_date_time" name="end_date_time" value="" required="">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="no_of_persons" class="col-sm-6 control-label">Number of Persons Assigned</label>
-                        <div class="col-sm-12">
-                            <input type="text" class="form-control" id="no_of_persons" name="no_of_persons" value="" required="">
                         </div>
                     </div>
 
@@ -233,13 +225,12 @@
             {data: 'address', name: 'address'},
             {data: 'start_date_time', name: 'start_date_time'},
             {data: 'end_date_time', name: 'end_date_time'},
-            {data: 'no_of_persons', name: 'no_of_persons'},
             {data: 'assigned', name: 'assigned'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "20%", "targets": [8] },
-            { "width": "15%", "targets": [4, 9] },
+            { "width": "20%", "targets": [7] },
+            { "width": "15%", "targets": [4, 8] },
         ],
         order: [[5, 'desc']]
     });
@@ -303,7 +294,6 @@
           $('#end_date_time').val(data.end_date_time);
           $('#start_time').val(data.start_time);
           $('#end_time').val(data.end_time);
-          $('#no_of_persons').val(data.no_of_persons);
       })
 
     });
