@@ -15,13 +15,8 @@
 
                     <form id="clientForm" name="clientForm" class="form-horizontal">
 
-                        <input type="hidden" name="client_id" id="client_id">
-                        <div class="form-group">
-                            <label for="client_name" class="col-sm-6 control-label">Job Title</label>
-                            <div class="col-sm-12">
-                                <input type="text" class="form-control" id="event-title" name="event-title" value="" maxlength="50" disabled="true">
-                            </div>
-                        </div>
+                        <label class="col-sm-6 control-label" id="modal-header-title"></label>
+
                         <div class="form-group">
                             <label for="abn" class="col-sm-6 control-label">Client</label>
                             <div class="col-sm-12">
@@ -29,9 +24,10 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="client_name" class="col-sm-6 control-label">Employee</label>
+                            <label for="client_name" class="col-sm-6 control-label">Assigned To</label>
                             <div class="col-sm-12">
-                                <input type="text" class="form-control" id="event-employee-name" name="event-employee-name" value="" maxlength="50" disabled="true">
+                                <textarea class="form-control" id="event-employee-name" name="event-employee-name" value="" rows="3" disabled="true">
+                                </textarea>
                             </div>
                         </div>
 
@@ -39,13 +35,6 @@
                             <label for="address" class="col-sm-6 control-label">Status</label>
                             <div class="col-sm-12">
                                 <input type="text" class="form-control" id="event-status" name="event-status" value="" maxlength="50" disabled="true">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="rate_per_hour" class="col-sm-6 control-label">Comment</label>
-                            <div class="col-sm-12">
-                                <input type="text" class="form-control" id="event-comment" name="event-comment" value="" disabled="true">
                             </div>
                         </div>
                     </form>
@@ -70,28 +59,47 @@
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     initialView: 'dayGridMonth',
                     events: events,
-                    height: "auto",
+                    height: "98vh",
                     eventContent : function(info){
 
-                        let htmlString = "<b>#" + info.event.extendedProps.job_id + " " + info.event.title + "</b><br>" +
-                                        "<i>" + info.event.extendedProps.client + "</i> <br>" +
-                                        info.event.extendedProps.employee + "<br>";
+                        data = info.event.extendedProps;
+                        status = "ONGOING";
+
+                        if(data.status == "open") status = "OPEN";
+                        if(data.status == "completed") status = "COMPLETE";
+
+                        htmlString =    "<b>Job #" + data.job_id + "</b><br>" +
+                                        data.client + "<br> <i>" + status + "</i>";
 
                         return {html : htmlString};
                     },
                     eventClick : function(info){
 
-                        let eventTitle = document.getElementById("event-title");
-                        let eventClientName = document.getElementById("event-client-name");
-                        let eventEmployeeName = document.getElementById("event-employee-name");
-                        let eventStatus = document.getElementById("event-status");
-                        let eventComment = document.getElementById("event-comment");
+                        data = info.event.extendedProps;
 
-                        eventTitle.value = "#" + info.event.extendedProps.job_id + " " + info.event.title;
-                        eventClientName.value = info.event.extendedProps.client;
-                        eventEmployeeName.value = info.event.extendedProps.employee;
-                        eventStatus.value = info.event.extendedProps.status;
-                        eventComment.value = info.event.extendedProps.comment;
+                        modalHeader = document.getElementById("modal-header-title");
+                        eventClientName = document.getElementById("event-client-name");
+                        eventEmployeeName = document.getElementById("event-employee-name");
+                        eventStatus = document.getElementById("event-status");
+                        eventComment = document.getElementById("event-comment")
+
+                        modalHeader.innerHTML = "JOB ID #" + info.event.title;
+                        eventClientName.value = data.client;
+                        eventStatus.value = data.status;
+
+                        employees = "";
+
+                        if(data.employee.length > 0)
+                        {
+                            data.employee.forEach(function(item){
+                                employees += item.name + " (" + item.jobTitle + ")\n";
+                            });
+                        } 
+                        else
+                        {
+
+                        }
+                        eventEmployeeName.value = employees;
 
                         $('#ajaxModel').modal('show');
                     }

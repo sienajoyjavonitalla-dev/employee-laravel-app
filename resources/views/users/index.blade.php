@@ -118,7 +118,6 @@
     $('body').on('click', '.editUser', function () {
 
       var user_id = $(this).data('id');
-        console.log('edit');
       $.get("{{ route('users.index') }}" +'/' + user_id +'/edit', function (data) {
           $('#modelHeading').html("Edit User");
           $('#saveBtn').val("edit-user");
@@ -152,7 +151,7 @@
             toastr.success('User saved successfully!');
           },
           error: function (data) {
-            console.log('Error:', data);
+
             $('#saveBtn').html('Save Changes');
             toastr.error('Error Saving!');
 
@@ -178,7 +177,6 @@
 
                 },
                 error: function (data) {
-                    console.log('Error:', data);
                     toastr.error('Error!');
 
                 }

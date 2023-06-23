@@ -38,7 +38,6 @@
                             <th>Address</th>
                             <th>Start</th>
                             <th>End</th>
-                            <th>Assigned Count</th>
                             <th>Assigned</th>
                             <th>Action</th>
                         </tr>
@@ -91,13 +90,12 @@
             {data: 'address', name: 'address'},
             {data: 'start_date_time', name: 'start_date_time'},
             {data: 'end_date_time', name: 'end_date_time'},
-            {data: 'no_of_persons', name: 'no_of_persons'},
             {data: 'assigned', name: 'assigned'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "20%", "targets": [8] },
-            { "width": "15%", "targets": [4, 9] },
+            { "width": "20%", "targets": [7] },
+            { "width": "15%", "targets": [4, 8] },
         ],
         order: [[5, 'desc']]
     });

@@ -107,7 +107,6 @@
                     }
                 },
                 error: function (data) {
-                    console.log('Error:', data);
                     toastr.error('Error Saving!');
 
                 }
@@ -135,7 +134,6 @@
                     }
                 },
                 error: function (data) {
-                    console.log('Error:', data);
                     toastr.error('Error Saving!');
 
                 }

@@ -17,7 +17,6 @@
                     <th>Address</th>
                     <th>Start</th>
                     <th>End</th>
-                    <th>Assigned Count</th>
                     <th>Assigned</th>
                     <th>Action</th>
                 </tr>
@@ -51,23 +50,8 @@
                                     </option>
                                 @endforeach    
                             </select>
-                            <!-- <input type="text" class="form-control" id="client_id" name="client_id" value="" maxlength="50" required=""> -->
                         </div>
                     </div>
-
-                    <!-- <div class="form-group">
-                        <label for="employee_id" class="col-sm-6 control-label">Assign to</label>
-                        <div class="col-sm-12">
-                            <select class="form-control" name="employee_id" id="employee_id" required="">
-                                <option value="">-- Select --</option>
-                                @foreach ($assigned as $key => $value)
-                                    <option value="{{ $key }}"> 
-                                        {{ $value }} 
-                                    </option>
-                                @endforeach    
-                            </select>
-                        </div>
-                    </div> -->
 
                     <div class="form-group">
                         <label class="col-sm-6 control-label">Description</label>
@@ -101,13 +85,6 @@
                         <label for="end_date_time" class="col-sm-6 control-label">End Date</label>
                         <div class="col-sm-12">
                             <input type="date" class="form-control" id="end_date_time" name="end_date_time" value="" required="">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="no_of_persons" class="col-sm-6 control-label">Number of Persons Assigned</label>
-                        <div class="col-sm-12">
-                            <input type="text" class="form-control" id="no_of_persons" name="no_of_persons" value="" required="">
                         </div>
                     </div>
 
@@ -199,7 +176,8 @@
                     <span class="font-weight-bold">Job ID:</span> <span id="generate_job_id"></span></br>
                     <span class="font-weight-bold">Client:</span> <span id="company_name" class=></span>
                 </div>
-                <a href="{{ route('invoices.generate.pdf',['download'=>'pdf']) }}" class="btn btn-primary mb-3"><i class="fas fa-print"></i> Generate Invoice</a>
+                <!-- <a href="{{ route('invoices.generate.pdf',['download'=>'pdf']) }}" class="btn btn-primary mb-3"><i class="fas fa-print"></i> Generate Invoice</a> -->
+                <a href="javascript:void(0)" class="btn btn-primary mb-3 postInvoiceBtn" id="generate_btn"><i class="fas fa-print"></i> Generate Invoice</a>
 
                 <table class="table table-bordered table-hover generate-table" >
                     <thead class="thead-light">
@@ -237,6 +215,7 @@
         processing: true,
         serverSide: true,
         pageLength: 8,
+        responsive: true,
         ajax: "{{ route('jobs.index', ['name'=>'list']) }}",
 
         columns: [
@@ -247,16 +226,43 @@
             {data: 'address', name: 'address'},
             {data: 'start_date_time', name: 'start_date_time'},
             {data: 'end_date_time', name: 'end_date_time'},
-            {data: 'no_of_persons', name: 'no_of_persons'},
             {data: 'assigned', name: 'assigned'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "20%", "targets": [8] },
-            { "width": "15%", "targets": [4, 9] },
+            { "width": "20%", "targets": [7] },
+            { "width": "15%", "targets": [4, 8] },
         ],
         order: [[5, 'desc']]
     });
+
+    $('.postInvoiceBtn').click(function (e) {
+        
+        var job_id = $(this).attr('data-job');
+        var client_id = $(this).attr('data-client');
+        var dataToSend = {
+            'job_id': job_id,
+            'client_id': client_id
+        };
+        $.ajax({
+            url: "generate/invoice",
+            type: "GET",
+            dataType: 'json',
+            data: dataToSend,
+            success: function (data) {
+                if(data.success) {
+                    toastr.success(data.success, 'SUCCESS');
+                    window.location.reload();        
+                } else {
+                    toastr.error(data.error, 'ERROR');
+                }
+            },
+            error: function (data) {
+                toastr.error('Error Saving!');
+
+            }
+        });
+    })
 
     $('#createNewJob').click(function () {
         $('#saveBtn').val("create-job");
@@ -271,7 +277,6 @@
     $('body').on('click', '.editJob', function () {
 
       var job_id = $(this).data('id');
-        console.log('edit');
       $.get("{{ route('jobs.index') }}" +'/' + job_id +'/edit', function (data) {
           $('#modelHeading').html("Edit Job");
           $('#saveBtn').val("edit-job");
@@ -288,7 +293,6 @@
           $('#end_date_time').val(data.end_date_time);
           $('#start_time').val(data.start_time);
           $('#end_time').val(data.end_time);
-          $('#no_of_persons').val(data.no_of_persons);
       })
 
     });
@@ -325,6 +329,8 @@
 
         $('#generate_job_id').text(job_id);
         $('#company_name').text(company_name);
+        $('#generate_btn').attr("data-job", job_id);
+        $('#generate_btn').attr("data-client", company_id);
 
         var generate_table = $('.generate-table').DataTable({
             processing: true,
@@ -377,7 +383,6 @@
             toastr.success('Job saved successfully!');
           },
           error: function (data) {
-            console.log('Error:', data);
             $('#saveBtn').html('Save Changes');
             toastr.error('Error Saving!');
 
@@ -411,7 +416,6 @@
             
         },
         error: function (data) {
-            console.log('Error:', data);
             $('#saveAssBtn').html('Save Changes');
             toastr.error('Error Saving!');
 
@@ -436,7 +440,6 @@
 
                 },
                 error: function (data) {
-                    console.log('Error:', data);
                     toastr.error('Error!');
 
                 }
@@ -462,7 +465,6 @@
                     toastr.success('Deleted successfully!');
                 },
                 error: function (data) {
-                    console.log('Error:', data);
                     toastr.error('Error!');
                 }
             });

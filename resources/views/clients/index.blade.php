@@ -167,7 +167,6 @@
     $('body').on('click', '.editClient', function () {
 
       var client_id = $(this).data('id');
-        console.log('edit');
       $.get("{{ route('clients.index') }}" +'/' + client_id +'/edit', function (data) {
           $('#modelHeading').html("Edit Client");
           $('#saveBtn').val("edit-client");
@@ -213,7 +212,6 @@
             toastr.success('Client saved successfully!');
           },
           error: function (data) {
-            console.log('Error:', data);
             $('#saveBtn').html('Save Changes');
             toastr.error('Error Saving!');
 
@@ -239,7 +237,6 @@
 
                 },
                 error: function (data) {
-                    console.log('Error:', data);
                     toastr.error('Error!');
 
                 }
