@@ -69,8 +69,8 @@
                         if(data.status == "open") status = "OPEN";
                         if(data.status == "completed") status = "COMPLETE";
 
-                        htmlString =    "<b>Job #" + data.job_id + "</b><br>" +
-                                        data.client + "<br> <i>" + status + "</i>";
+                        htmlString =    "<b>#" + data.job_id + "</b> " + " - <i>" + status + "</i><br>" +
+                                        data.client;
 
                         return {html : htmlString};
                     },
