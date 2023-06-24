@@ -44,6 +44,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css?v=').time() }}" rel="stylesheet">
+    <link href="{{ asset('css/custom.css?v=').time() }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.0/css/toastr.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/overlayScrollbars/css/OverlayScrollbars.min.css') }}">

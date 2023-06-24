@@ -215,6 +215,7 @@
         processing: true,
         serverSide: true,
         pageLength: 8,
+        responsive: true,
         ajax: "{{ route('jobs.index', ['name'=>'list']) }}",
 
         columns: [
@@ -257,7 +258,6 @@
                 }
             },
             error: function (data) {
-                console.log('Error:', data);
                 toastr.error('Error Saving!');
 
             }
@@ -277,7 +277,6 @@
     $('body').on('click', '.editJob', function () {
 
       var job_id = $(this).data('id');
-        console.log('edit');
       $.get("{{ route('jobs.index') }}" +'/' + job_id +'/edit', function (data) {
           $('#modelHeading').html("Edit Job");
           $('#saveBtn').val("edit-job");
@@ -384,7 +383,6 @@
             toastr.success('Job saved successfully!');
           },
           error: function (data) {
-            console.log('Error:', data);
             $('#saveBtn').html('Save Changes');
             toastr.error('Error Saving!');
 
@@ -443,7 +441,6 @@
 
                 },
                 error: function (data) {
-                    console.log('Error:', data);
                     toastr.error('Error!');
 
                 }
@@ -469,7 +466,6 @@
                     toastr.success('Deleted successfully!');
                 },
                 error: function (data) {
-                    console.log('Error:', data);
                     toastr.error('Error!');
                 }
             });

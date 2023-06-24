@@ -173,7 +173,6 @@
                 toastr.success('Log saved successfully!');
             },
             error: function (data) {
-                console.log('Error:', data);
                 $('#saveBtn').html('Save Changes');
                 toastr.error('Error Saving!');
 
@@ -199,7 +198,6 @@
 
                 },
                 error: function (data) {
-                    console.log('Error:', data);
                     toastr.error('Error!');
 
                 }
@@ -208,7 +206,6 @@
     });
 
     $('#lunch_break').change(function() {
-        console.log(this.checked);
         $('#lunch_break').val(this.checked);        
     });
   });
