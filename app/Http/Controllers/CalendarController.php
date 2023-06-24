@@ -10,6 +10,8 @@ use App\Models\Jobs;
 use App\Constants\StatusColorCodes;
 use App\Models\LineItem;
 use App\Models\Invoice;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CalendarController extends Controller
 {
@@ -20,9 +22,23 @@ class CalendarController extends Controller
 
     public function index(Request $request)
     {
+        $user = Auth::user();
         $events = [];
- 
-        $appointments = Jobs::all();
+
+        if($user->roles == 'admin')
+        {
+            $appointments = Jobs::all();
+        }
+        else
+        {
+            $data = DB::table('jobs as j')
+                    ->rightJoin('job_assignee as ja', 'j.id', '=', 'ja.job_id')
+                    ->selectRaw('j.id, j.client_id, j.po_number, j.status, j.description, j.start_date_time, j.end_date_time, ja.assigned_id, ja.job_title')
+                    ->where('ja.assigned_id', $user->id)
+                    ->get();
+
+            $appointments = $data;
+        }       
  
         foreach ($appointments as $appointment) {
 
