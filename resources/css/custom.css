@@ -1,6 +1,11 @@
 .fc-event-main {
     padding: 2px;
     overflow: hidden;
+    cursor: pointer;
+}
+
+.fc .fc-popover {
+    z-index: 10;
 }
 
 .row{
