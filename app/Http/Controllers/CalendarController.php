@@ -71,6 +71,8 @@ class CalendarController extends Controller
                     'job_id' => $appointment->id,
                     'employee' => $assignee,
                     'client' => $clientName,
+                    'description' => $appointment->description,
+                    'poNumber' => $appointment->po_number,
                     'status' => $status,
                     'invoiceUrl' => $invoiceUrl
                 ],

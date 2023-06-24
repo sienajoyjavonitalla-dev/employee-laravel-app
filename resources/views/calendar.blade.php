@@ -14,13 +14,22 @@
                 <div class="modal-body">
 
                     <form id="clientForm" name="clientForm" class="form-horizontal">
-
-                        <label class="col-sm-6 control-label" id="modal-header-title"></label>
-
                         <div class="form-group">
-                            <label for="abn" class="col-sm-6 control-label">Client</label>
+                            <label for="event-po-number" class="col-sm-6 control-label">Client</label>
                             <div class="col-sm-12">
                                 <input type="text" class="form-control" id="event-client-name" name="event-client-name" value="" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-po-number" class="col-sm-6 control-label">PO Number</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="event-po-number" name="event-po-number" value="" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-description" class="col-sm-6 control-label">Description</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="event-description" name="event-description" value="" disabled="true">
                             </div>
                         </div>
                         <div class="form-group">
@@ -78,8 +87,10 @@
 
                         data = info.event.extendedProps;
 
-                        modalHeader = document.getElementById("modal-header-title");
+                        modalHeading = document.getElementById("modelHeading");
                         eventClientName = document.getElementById("event-client-name");
+                        eventDescription = document.getElementById("event-description");
+                        eventPONumber = document.getElementById("event-po-number");
                         eventEmployeeName = document.getElementById("event-employee-name");
                         eventStatus = document.getElementById("event-status");
                         eventComment = document.getElementById("event-comment");
@@ -91,9 +102,12 @@
                                         + info.event.backgroundColor + '">'
                                         + data.status + '</span>';
 
-                        modalHeader.innerHTML = "JOB ID #" + info.event.title + jobTitleStatus;
+                                    
+                        modalHeading.innerHTML = "JOB ID #" + info.event.title + jobTitleStatus;
                         eventClientName.value = data.client;
-                        eventStatus.value = data.status;                        
+                        eventStatus.value = data.status;
+                        eventDescription.value = data.description;
+                        eventPONumber.value = data.poNumber;
 
                         if(data.invoiceUrl)
                         {
