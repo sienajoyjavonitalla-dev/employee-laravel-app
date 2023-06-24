@@ -96,10 +96,7 @@
                                 employees += item.name + " (" + item.jobTitle + ")\n";
                             });
                         } 
-                        else
-                        {
-
-                        }
+                        
                         eventEmployeeName.value = employees;
 
                         $('#ajaxModel').modal('show');
