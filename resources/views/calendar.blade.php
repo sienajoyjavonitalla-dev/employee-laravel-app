@@ -40,7 +40,7 @@
                     </form>
 
                     <hr>
-                    <p class="invoice-link"><a href="#">INVOICE LINK</a></p>
+                    <p class="invoice-link btn btn-info"><a href="#">INVOICE LINK</a></p>
                 </div>
             </div>
         </div>
@@ -60,6 +60,7 @@
                     initialView: 'dayGridMonth',
                     events: events,
                     height: "98vh",
+                    dayMaxEvents: 1,
                     eventContent : function(info){
 
                         data = info.event.extendedProps;
