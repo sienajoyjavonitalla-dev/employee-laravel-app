@@ -8,6 +8,14 @@
     z-index: 10;
 }
 
+.invoice-link {
+    margin-left: 0.5em;
+}
+
+.invoice-link > a, .invoice-link > a:hover{
+    color: #FFF;
+}
+
 .row{
     width: 98%;
 }
