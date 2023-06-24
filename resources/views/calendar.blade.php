@@ -40,7 +40,7 @@
                     </form>
 
                     <hr>
-                    <p class="invoice-link btn btn-info"><a href="#">INVOICE LINK</a></p>
+                    <p class="invoice-link btn btn-info" id="invoice-link-section"><a href="#" id="invoice-link" target="_blank">INVOICE LINK</a></p>
                 </div>
             </div>
         </div>
@@ -82,7 +82,10 @@
                         eventClientName = document.getElementById("event-client-name");
                         eventEmployeeName = document.getElementById("event-employee-name");
                         eventStatus = document.getElementById("event-status");
-                        eventComment = document.getElementById("event-comment")
+                        eventComment = document.getElementById("event-comment");
+                        invoiceLinkSection = document.getElementById("invoice-link-section");
+                        invoiceLink = document.getElementById("invoice-link");
+
 
                         jobTitleStatus = '<span class="job-title-status" style="background-color:'
                                         + info.event.backgroundColor + '">'
@@ -90,7 +93,17 @@
 
                         modalHeader.innerHTML = "JOB ID #" + info.event.title + jobTitleStatus;
                         eventClientName.value = data.client;
-                        eventStatus.value = data.status;
+                        eventStatus.value = data.status;                        
+
+                        if(data.invoiceUrl)
+                        {
+                            invoiceLink.href = data.invoiceUrl;
+                            invoiceLinkSection.style.display = "unset";
+                        } 
+                        else
+                        {
+                            invoiceLinkSection.style.display = "none";
+                        }
 
                         employees = "";
 
