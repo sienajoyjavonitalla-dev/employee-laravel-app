@@ -120,7 +120,7 @@ class InvoiceController extends Controller
                     })
                     ->make(true);
             } else {
-                $data = Invoice::latest()->get();
+                $data = Invoice::where('job_id', '>', 0)->get();
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('online_invoice_url', function($row){

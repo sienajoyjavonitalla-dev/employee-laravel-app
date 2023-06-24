@@ -406,7 +406,7 @@
         success: function (data) {
             $('#assignForm').trigger("reset");
             $('#assignModal').modal('hide');
-            $('#saveAssBtn').html('Save Changes');
+            $('#saveAssBtn').html('Add');
 
             if(data.success) {
                 table.draw();
@@ -419,7 +419,7 @@
         },
         error: function (data) {
             console.log('Error:', data);
-            $('#saveAssBtn').html('Save Changes');
+            $('#saveAssBtn').html('Add');
             toastr.error('Error Saving!');
 
         }
