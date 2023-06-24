@@ -39,13 +39,6 @@
                                 </textarea>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="address" class="col-sm-6 control-label">Status</label>
-                            <div class="col-sm-12">
-                                <input type="text" class="form-control" id="event-status" name="event-status" value="" maxlength="50" disabled="true">
-                            </div>
-                        </div>
                     </form>
 
                     <hr>
@@ -92,7 +85,6 @@
                         eventDescription = document.getElementById("event-description");
                         eventPONumber = document.getElementById("event-po-number");
                         eventEmployeeName = document.getElementById("event-employee-name");
-                        eventStatus = document.getElementById("event-status");
                         eventComment = document.getElementById("event-comment");
                         invoiceLinkSection = document.getElementById("invoice-link-section");
                         invoiceLink = document.getElementById("invoice-link");
@@ -105,7 +97,6 @@
                                     
                         modalHeading.innerHTML = "JOB ID #" + info.event.title + jobTitleStatus;
                         eventClientName.value = data.client;
-                        eventStatus.value = data.status;
                         eventDescription.value = data.description;
                         eventPONumber.value = data.poNumber;
 
