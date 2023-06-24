@@ -64,7 +64,7 @@
                     eventContent : function(info){
 
                         data = info.event.extendedProps;
-                        status = "ONGOING";
+                        status = "ASSIGNED";
 
                         if(data.status == "open") status = "OPEN";
                         if(data.status == "completed") status = "COMPLETE";
@@ -84,7 +84,11 @@
                         eventStatus = document.getElementById("event-status");
                         eventComment = document.getElementById("event-comment")
 
-                        modalHeader.innerHTML = "JOB ID #" + info.event.title;
+                        jobTitleStatus = '<span class="job-title-status" style="background-color:'
+                                        + info.event.backgroundColor + '">'
+                                        + data.status + '</span>';
+
+                        modalHeader.innerHTML = "JOB ID #" + info.event.title + jobTitleStatus;
                         eventClientName.value = data.client;
                         eventStatus.value = data.status;
 
