@@ -8,6 +8,10 @@
     z-index: 10;
 }
 
+.fc-daygrid-more-link.fc-more-link {
+    padding-top: 1em;
+}
+
 .invoice-link {
     margin-left: 0.5em;
 }
