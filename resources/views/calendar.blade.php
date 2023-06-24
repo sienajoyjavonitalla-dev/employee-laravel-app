@@ -60,6 +60,7 @@
                     initialView: 'dayGridMonth',
                     events: events,
                     height: "98vh",
+                    dayMaxEvents: 1,
                     eventContent : function(info){
 
                         data = info.event.extendedProps;
