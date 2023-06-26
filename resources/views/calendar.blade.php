@@ -59,10 +59,16 @@
                 var events = @json($events);
 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
-                    initialView: 'dayGridMonth',
+                    initialView: 'dayGridFourWeek',
+                    views: {
+                        dayGridFourWeek: {
+                        type: 'dayGrid',
+                        duration: { weeks: 2}
+                        }
+                    },
+                    // initialView: 'dayGridMonth',
                     events: events,
-                    height: "98vh",
-                    dayMaxEvents: 1,
+                    height: "90svh",
                     eventContent : function(info){
 
                         data = info.event.extendedProps;
