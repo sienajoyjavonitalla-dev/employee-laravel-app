@@ -21,7 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'roles'
+        'roles',
+        'rate_per_hour',
+        'ot_rate_per_hour'
     ];
 
     /**

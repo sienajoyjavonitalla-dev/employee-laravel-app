@@ -146,6 +146,9 @@ class JobsController extends Controller
                         $end_time =new Carbon($row->end_time);
                         $total_hr = $start_time->diffInHours($end_time);
                         $ot_pay = 0;
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
                         if($total_hr > 8) {
                             $ot_hours= $total_hr - 8;
                             $ot_pay = $ot_hours * $row->ot_rate_per_hour;
