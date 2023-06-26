@@ -56,6 +56,8 @@ class UsersController extends Controller
             if($request->password != null) {
                 $user->password = Hash::make($request->password);
             }
+            $user->rate_per_hour = $request->rate_per_hour;
+            $user->ot_rate_per_hour = $request->ot_rate_per_hour;
             $user->save();
         } else {
             User::create(
@@ -63,8 +65,9 @@ class UsersController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'roles' => $request->roles
-
+                'roles' => $request->roles,
+                'rate_per_hour' => $request->rate_per_hour,
+                'ot_rate_per_hour' => $request->ot_rate_per_hour
             ]);   
         }
              

@@ -12,6 +12,8 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Rate</th>
+                    <th>OT Rate</th>
                     <th width="280px">Action</th>
                 </tr>
             </thead>
@@ -67,6 +69,20 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="rate_per_hour" class="col-sm-6 control-label">Rate</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="rate_per_hour" name="rate_per_hour" value="" maxlength="50" >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ot_rate_per_hour" class="col-sm-6 control-label">OT Rate</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="ot_rate_per_hour" name="ot_rate_per_hour" value="" maxlength="50">
+                        </div>
+                    </div>
+
                     <div class="col-sm-offset-2 col-sm-10">
                         <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
                     </div>
@@ -97,10 +113,11 @@
             {data: 'name', name: 'name'},
             {data: 'email', name: 'email'},
             {data: 'roles', name: 'roles'},
+            {data: 'rate_per_hour', name: 'rate_per_hour'},
+            {data: 'ot_rate_per_hour', name: 'ot_rate_per_hour'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "25%", "targets": [0,1,2,3] }
         ],
         order: [[1, 'asc']]
     });
@@ -127,6 +144,8 @@
           $('#name').val(data.name);
           $('#email').val(data.email);
           $('#roles').val(data.roles);
+          $('#rate_per_hour').val(data.rate_per_hour);
+          $('#ot_rate_per_hour').val(data.ot_rate_per_hour);
       })
 
     });

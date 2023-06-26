@@ -80,7 +80,7 @@ body {
     <title>Pdf Download</title>
   </head>
   <body>
-    <div class='box'>
+    <!-- <div class='box'>
         <div class='box1'>
             <img src="uprise_rigging.png" alt="uprise Logo" class="brand-image img-circle">
         </div>
@@ -96,7 +96,7 @@ body {
                 ABN: 79 647 093 310<br/>
             </h5>
         </div>
-    </div>
+    </div> -->
     <div>
         <h4>Tax Invoice</h4>
         <table id="invoice">
@@ -107,7 +107,7 @@ body {
                 <th>Due Date</th>
             </tr>
             <tr>
-                <td>{{$dataArr['first']->po_number}}</td>
+                <td>{{$dataArr['first']->po_number ?? ''}}</td>
                 <td></td>
                 <td>{{ date("Y-m-d") }}</td>
                 <td>{{ date("Y-m-d") }}</td>
@@ -118,9 +118,12 @@ body {
         Bill to
     </h4>
     <span>
-        {{$dataArr['first']->client_name}} <br/>
-        {{$dataArr['first']->company_name}} <br/>
-        {{$dataArr['first']->address}} <br/>
+        Uprise Rigging Pty Ltd<br/>
+        Yan Yean Rd, Doreen VIC3754<br/>
+        Phone: 0426964330<br/>
+        admin@upriserigging.com<br/>
+        www.upriserigging.com<br/>
+        ABN: 79 647 093 310<br/>
     </span>
     <br/>
     <span>
@@ -138,7 +141,7 @@ body {
                 $subtotal = 0;
             @endphp
 
-            @foreach ($dataArr['data'] as $index=>$data)
+            @foreach ($dataArr['data'] as $data)
                 @php
                     $total_hr = 0;
                     $start_time = new Carbon\Carbon($data->start_time);
@@ -178,18 +181,18 @@ body {
                 <td>Travel Allowance</td>
                 <td>Per Day</td>
                 <td>{{$dataArr['data']->count()}}</td>
-                <td>{{$dataArr['first']->travel_allowance}}</td>
+                <td>50</td>
                 <td>GST</td>
-                <td>{{ $dataArr['data']->count() * $dataArr['first']->travel_allowance }}</td>
+                <td>{{ $dataArr['data']->count() * 50 }}</td>
             </tr>
         </table>
         @php
-            $sub_ta = $subtotal + ($dataArr['data']->count() * $dataArr['first']->travel_allowance);
+            $sub_ta = $subtotal + ($dataArr['data']->count() * 50);
             $tax = $sub_ta *.1;
         @endphp   
         <div class="box" > 
             <div class='notes-box'>
-                <div><h4 class='title'>Notes: </h4><span> {{$dataArr['first']->job_address}}</span></div> 
+                <div><h4 class='title'>Notes: </h4><span> {{$dataArr['first']->address ?? ''}}</span></div> 
             </div>
             <div class='box3'>        
                 <div><span class='title'>Subtotal</span> <span>{{$sub_ta}}</span></div> 
