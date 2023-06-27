@@ -80,51 +80,28 @@ body {
     <title>Pdf Download</title>
   </head>
   <body>
-    <!-- <div class='box'>
+    <div class='box'>
+        <h5 class='flex-right'>Issue Date: {{ date("Y-m-d") }}</h5>
+    </div>
+    <div class='box'>
         <div class='box1'>
-            <img src="uprise_rigging.png" alt="uprise Logo" class="brand-image img-circle">
+            <span><h4 class='m-0'>Uprise Rigging Pty Ltd</h4></span>
+            <h5 class='weight-normal' style="text-align: left;">
+                www.upriserigging.com<br/>
+                Yan Yean Rd, Doreen VIC3754<br/>
+                ABN: 79 647 093 310<br/>
+            </h5>
         </div>
         <div class='box2'>
         </div>
         <div class='box3'>
-            <span class='flex-right'><h3 class='m-0'>Uprise Rigging Pty Ltd</h3></span>
-            <h5 class='flex-right weight-normal'>
-                Yan Yean Rd, Doreen VIC3754<br/>
+            <h5 class='flex-right weight-normal' style="padding-top: 1rem;">
                 Phone: 0426964330<br/>
                 admin@upriserigging.com<br/>
-                www.upriserigging.com<br/>
-                ABN: 79 647 093 310<br/>
             </h5>
         </div>
-    </div> -->
-    <div>
-        <h4>Tax Invoice</h4>
-        <table id="invoice">
-            <tr>
-                <th>Purchase Order #</th>
-                <th>Invoice #</th>
-                <th>Issue Date</th>
-                <th>Due Date</th>
-            </tr>
-            <tr>
-                <td>{{$dataArr['first']->po_number ?? ''}}</td>
-                <td></td>
-                <td>{{ date("Y-m-d") }}</td>
-                <td>{{ date("Y-m-d") }}</td>
-            </tr>
-        </table>
     </div>
-    <h4>
-        Bill to
-    </h4>
-    <span>
-        Uprise Rigging Pty Ltd<br/>
-        Yan Yean Rd, Doreen VIC3754<br/>
-        Phone: 0426964330<br/>
-        admin@upriserigging.com<br/>
-        www.upriserigging.com<br/>
-        ABN: 79 647 093 310<br/>
-    </span>
+    
     <br/>
     <span>
         <table id="invoice">
@@ -133,7 +110,9 @@ body {
                 <th>Description</th>
                 <th>Unit</th>
                 <th>Qty</th>
-                <th>Unit Price ($)<br/>Excluding Tax</th>
+                <th>Rate</th>
+                <th>OT Hrs</th>
+                <th>OT Rate</th>
                 <th>Tax</th>
                 <th>Amount ($)<br/>Excluding Tax</th>
             </tr>
@@ -144,6 +123,7 @@ body {
             @foreach ($dataArr['data'] as $data)
                 @php
                     $total_hr = 0;
+                    $ot_hours =0;
                     $start_time = new Carbon\Carbon($data->start_time);
                     $end_time =new Carbon\Carbon($data->end_time);
                     $total_hr = $start_time->diffInHours($end_time);
@@ -156,6 +136,9 @@ body {
                             if($total_hr > 8) {
                                 $ot_hours= $total_hr - 8;
                                 $ot_pay = $ot_hours * $data->ot_rate_per_hour;
+                                $total_hr = 8;
+                                $pay = $total_hr * $data->rate_per_hour;
+
                             }
                             $total_amount = $ot_pay + $pay;
                         } else if($total_hr <= 4) {
@@ -166,11 +149,13 @@ body {
                         $subtotal += $total_amount;
                 @endphp
             <tr>
-                <td>Service</td>
+                <td>{{$data->job_title}}</td>
                 <td>{{ $data->date . ' ' . $data->name }}</td>
                 <td>Hour</td>
                 <td>{{ $total_hr }}</td>
                 <td>{{ $data->rate_per_hour }}</td>
+                <td>{{ $ot_hours }}</td>
+                <td>{{ $data->ot_rate_per_hour }}</td>
                 <td>GST</td>
                 <td>{{ $total_amount }}</td>
 
@@ -182,6 +167,8 @@ body {
                 <td>Per Day</td>
                 <td>{{$dataArr['data']->count()}}</td>
                 <td>50</td>
+                <td></td>
+                <td></td>
                 <td>GST</td>
                 <td>{{ $dataArr['data']->count() * 50 }}</td>
             </tr>

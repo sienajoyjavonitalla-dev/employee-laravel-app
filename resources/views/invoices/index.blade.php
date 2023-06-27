@@ -78,9 +78,9 @@
                             </div>
                             <button class="w-auto mb-4 mt-4 btn btn-success filter"><i class="fas fa-search"></i> Filter</button>
                             <!-- <a href="{{ route('invoices.generate.pdf') }}" class="btn btn-primary"><i class="fas fa-print"></i> Generate Invoice</a> -->
-                            <!-- <a href="javascript:void(0)" class="btn btn-primary generate" id="generate_btn"><i class="fas fa-print"></i> Generate Invoice</a> -->
+                            <a href="javascript:void(0)" class="btn btn-primary generate" id="generate_btn"><i class="fas fa-print"></i> Generate Invoice</a>
                             <!-- <a href="{{ route('invoices.generate.pdf') }}" class="btn btn-primary"><i class="fas fa-print"></i> Generate Invoice</a> -->
-                            <a href="{{ route('invoices.generate.pdf',['download'=>'pdf']) }}" class="btn btn-primary"><i class="fas fa-print"></i> Generate Invoice</a>
+                            <!-- <a href="{{ route('invoices.generate.pdf',['download'=>'pdf']) }}" class="btn btn-primary"><i class="fas fa-print"></i> Generate Invoice</a> -->
 
                             <table class="table table-bordered table-hover data-table" width="100%">
                                 <thead class="thead-light">
@@ -214,24 +214,11 @@
         var job = $('#job').val();
         var assigned = $('#assigned').val();
 
-        var dataToSend = {
-            'from_date': from_date,
-            'to_date': to_date,
-            'client': client,
-            'job': job,
-            'assigned': assigned
-        };
-
-        $.ajax({
-            url: "generatePDF",
-            type: "POST",
-            data: dataToSend,
-            dataType: 'json',
-            success: function(data) {
-            },
-            error: function(data) {
-            }
-        });
+        
+        var uri = "/generatePDF?assigned="+ assigned +"&job="+job+"&from_date="+from_date+"&to_date="+to_date;
+        var encoded = encodeURI(uri);
+        window.location.href=encoded;
+      
     })
   });
 
