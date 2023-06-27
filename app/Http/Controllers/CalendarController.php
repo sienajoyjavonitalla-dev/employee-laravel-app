@@ -12,6 +12,7 @@ use App\Models\LineItem;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class CalendarController extends Controller
 {
@@ -65,6 +66,9 @@ class CalendarController extends Controller
                 ];
             }
 
+            $jobTimeFrame = new Carbon($appointment->end_date_time);
+            $newEndDateTime = $jobTimeFrame->addDays(1)->toDateString();
+
             $events[] = [
                 'title' => $appointment->id,
                 'extendedProps' => [
@@ -79,8 +83,7 @@ class CalendarController extends Controller
                 'backgroundColor' => StatusColorCodes::$statusColorCodes[$status],
                 'textColor' => '#000',
                 'start' => $appointment->start_date_time,
-                'allDay' => 'true',
-                'display' => 'block'
+                'end' => $newEndDateTime,
             ];
         }
  
