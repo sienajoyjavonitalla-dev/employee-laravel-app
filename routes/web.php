@@ -47,3 +47,9 @@ Route::get('xero/authorize', 'App\Http\Controllers\XeroController@get_started')-
 Route::get('xero/callback', 'App\Http\Controllers\XeroController@callback')->name('xero.callback');
 Route::get('xero/connections', 'App\Http\Controllers\XeroController@connections')->name('xero.connections');
 Route::get('xero/get_invoices', 'App\Http\Controllers\XeroController@get_invoices')->name('xero.get_invoices');
+
+
+//pusher chat
+Route::get('pusher', 'App\Http\Controllers\PusherController@index')->name('pusher');
+Route::get('pusher/fetch', 'App\Http\Controllers\PusherController@fetch')->name('pusher.fetch');
+Route::post('pusher/broadcast', 'App\Http\Controllers\PusherController@broadcast')->name('pusher.broadcast');
