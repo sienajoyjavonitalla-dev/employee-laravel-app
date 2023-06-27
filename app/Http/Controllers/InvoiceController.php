@@ -28,7 +28,9 @@ class InvoiceController extends Controller
             ->leftJoin('users as u', 'u.id', '=', 'ja.assigned_id')
             ->whereNotNull('tl.end_time')
             ->whereNotNull('ja.assigned_id')
-            ->whereNotNull('j.id');
+            ->whereNotNull('j.id')
+            ->where('u.roles', 'subcontractor');
+
         $filter = $data;
 
         if ($request->filled('from_date') && $request->filled('to_date')) {
@@ -52,7 +54,7 @@ class InvoiceController extends Controller
         if ($request->ajax()) {
             if ($request->name == 'generate') {
                 $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
-                    client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->get();
+                    client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date')->get();
                 return Datatables::of($data)
                     ->addIndexColumn()
                     // ->addColumn('employee', function($row){
@@ -191,7 +193,8 @@ class InvoiceController extends Controller
             ->leftJoin('users as u', 'u.id', '=', 'ja.assigned_id')
             ->whereNotNull('tl.end_time')
             ->whereNotNull('ja.assigned_id')
-            ->whereNotNull('j.id');
+            ->whereNotNull('j.id')
+            ->where('u.roles', 'subcontractor');
 
         if ($request->from_date && $request->to_date) {
             $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
@@ -210,7 +213,7 @@ class InvoiceController extends Controller
         }
         
         $data = $data->selectRaw('j.id, j.address, j.po_number, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
-                    client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break');// $this->convert_customer_data_to_html($data);
+                    client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');// $this->convert_customer_data_to_html($data);
         // dd($data->get());
         $data = $data->get();
         $first = $data->first();
@@ -221,11 +224,14 @@ class InvoiceController extends Controller
         );
         // dd($dataArr);
         //uncomment later
-        view()->share('dataArr',$dataArr);       
-        $pdf = PDF::loadView('invoices.pdf_view');
-        return $pdf->download('pdf_view.pdf');
+        // view()->share('dataArr',$dataArr);       
+        // $pdf = PDF::loadView('invoices.pdf_view');
+        // $pdf->download('pdf_view.pdf');
 
+        $pdf = \App::make('dompdf.wrapper');
+        $pdf =PDF::loadView('invoices.pdf_view',compact('dataArr'));
 
+        return $pdf->stream('pdf_view.pdf');
         // return view('invoices.pdf_view', compact('dataArr'));
 
     }

@@ -29,7 +29,6 @@ Route::resource('clients', App\Http\Controllers\ClientsController::class);
 // Route::resource('invoices', InvoiceController::class);
 Route::get('invoices', 'App\Http\Controllers\InvoiceController@index')->name('invoices.index');
 Route::get('invoices/pdf', 'App\Http\Controllers\InvoiceController@pdf')->name('invoices.pdf');
-Route::get('generatePDF', 'App\Http\Controllers\InvoiceController@generatePDF')->name('invoices.generate.pdf');
 Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
 Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out')->name('clock-in-out');
 Route::get('calendar', 'App\Http\Controllers\CalendarController@index')->name('calendar');
@@ -41,6 +40,7 @@ Route::get('generate/invoice', 'App\Http\Controllers\JobsController@generateInvo
 Route::post('assign', 'App\Http\Controllers\JobsController@store_assigned')->name('assign.store');
 Route::get('assign/{job}', 'App\Http\Controllers\JobsController@assigned_index')->name('assign.index');
 Route::post('assign/{assign}/delete', 'App\Http\Controllers\JobsController@assigned_delete')->name('assign.delete');
+Route::get('generatePDF', 'App\Http\Controllers\InvoiceController@generatePDF')->name('invoices.generate.pdf');
 
 //xero
 Route::get('xero/authorize', 'App\Http\Controllers\XeroController@get_started')->name('xero.get_started');
