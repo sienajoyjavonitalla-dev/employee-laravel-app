@@ -21,11 +21,7 @@
 
         <!-- Header -->
         <div class="top">
-            <img src="https://assets.edlin.app/images/rossedlin/03/rossedlin-03-100.jpg" alt="Avatar">
-            <div>
-            <p>Ross Edlin</p>
-            <small>Online</small>
-            </div>
+            <h2 style="text-align:center">Uprise Public Chat</h2>
         </div>
         <!-- End Header -->
 

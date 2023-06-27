@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\PusherEvent;
 use Illuminate\Http\Request;
+use App\Models\Messages;
 
 class PusherController extends Controller
 {
