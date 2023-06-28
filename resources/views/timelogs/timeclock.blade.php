@@ -24,18 +24,70 @@
         </div>
         <div class="row m-2 p-4">
 
-        <div class="col-lg-6">
-            <span class='fw-bold'>Job ID:</span>    {{$job->id}}<br/>
-            <span class='fw-bold'>Company Name:</span>    {{$job->company_name}}<br/>
-            <span class='fw-bold'>Address:</span>    {{$job->address}}<br/>
-        </div>
-        <div class="col-lg-6">
-            <span class='fw-bold'>Job Title:</span>    {{$job->title}}<br/>
-            <span class='fw-bold'>Date Duration:</span>    {{$job->start_date_time}} - {{$job->end_date_time}}<br/>
-        </div>
-        
+            <div class="col-lg-6">
+                <span class='fw-bold'>Job ID:</span>    {{$job->id}}<br/>
+                <span class='fw-bold'>Company Name:</span>    {{$job->company_name}}<br/>
+                <span class='fw-bold'>Address:</span>    {{$job->address}}<br/>
+            </div>
+            <div class="col-lg-6">
+                <span class='fw-bold'>Job Title:</span>    {{$job->title}}<br/>
+                <span class='fw-bold'>Date Duration:</span>    {{$job->start_date_time}} - {{$job->end_date_time}}<br/>
+            </div>
 
+        </div>
+        @if(isset($clock_in) && $clock_in->end_time == null)
+        <form id="timelogForm" name="timelogForm" class="form-horizontal">
+
+            <input type="hidden" name="job_id" id="job_id" value="{{$job->id}}">
+            <div class="row m-2 p-2">
+            <div class="text-danger">Please fill out form and save before clocking out.</div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label for="authorized" class="col-sm-6 control-label">Authorized Person</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="authorized" name="authorized" value="{{$clock_in ? $clock_in->authorized : '' }}" required="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Signature</label>
+                        <div class="col-sm-12">
+                            @if($clock_in->signature)
+                            <img src="{{url('/signature/'.$clock_in->signature.'')}}" alt="Image"/>
+                            
+                            @endif
+                            <div id="signaturePad" ></div>
+                            <br/>
+                            <button id="clear" class="btn btn-danger btn-sm">Clear Signature</button>
+                            <textarea id="signature64" name="signed" style="display:none;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+
+                    <div class="form-group">
+                        <label for="lunch_break" class="col-sm-6 control-label">Did you have lunch break?</label>
+                        <div class="col-sm-12">
+                            <select class="form-control" name="lunch_break" id="lunch_break" required="" value="{{$clock_in ? $clock_in->lunch_break : '' }}" autocomplete="off">
+                                <option value="" >-- Select --</option>
+                                <option value="0" selected="{{$clock_in->lunch_break == 0 ? 'selected' : '' }}"> No</option>
+                                <option value="1" selected="{{$clock_in->lunch_break == 1 ? 'selected' : '' }}"> Yes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-offset-2 col-sm-10 mt-3 pt-5">
+                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        @include('timelogs.signature-pad')
+        @endif
     </div>
+
     @endif
     
 </div>
@@ -139,6 +191,36 @@
                 }
             });
         })
+
+        $('#saveBtn').click(function (e) {
+            var formData = new FormData($('#timelogForm')[0]);
+            e.preventDefault();
+
+            $(this).html('Saving..');
+            $.ajax({
+                url: "clock_in_out",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (data) {
+                    $('#saveBtn').html('Save');
+                    if(data.success) {
+                        $('#timelogForm').trigger("reset");
+                        toastr.success(data.success, 'SUCCESS');
+                        window.location.reload();        
+                    } else {
+                        toastr.error(data.error, 'ERROR');
+                    }
+                },
+                error: function (data) {
+                    $('#saveBtn').html('Save');
+                    toastr.error('Error Saving!');
+
+                }
+            });
+        });
     });
 </script>
 

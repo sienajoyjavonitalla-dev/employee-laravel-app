@@ -165,8 +165,12 @@ class InvoiceController extends Controller
                         return $url;
                     })
                     ->addColumn('action', function($row){
-                        $btn = '<a href="" data-toggle="tooltip" class="mr-1 btn btn-warning btn-sm">Authorize</a>';
-                        $btn .= '<a href="" data-toggle="tooltip" class="mr-1 btn btn-primary btn-sm">Update</a>';
+                        $btn='';
+                        if($row->status != 'AUTHORISED') {
+                            $btn = '<a href="" data-toggle="tooltip" class="mr-1 btn btn-warning btn-sm">Authorize</a>';
+                            $btn .= '<a href="" data-toggle="tooltip" class="mr-1 btn btn-primary btn-sm">Update</a>';
+                        }
+                        
                         $btn .= '<a href="" data-toggle="tooltip" class="btn btn-danger btn-sm">Void</a>';
 
                         return $btn;
