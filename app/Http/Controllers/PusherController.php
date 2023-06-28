@@ -22,7 +22,7 @@ class PusherController extends Controller
         $user = Auth::user();
 
         $messages = DB::table('messages')
-                    ->leftJoin('users', 'messages.id', '=', 'users.id')
+                    ->leftJoin('users', 'messages.user_id', '=', 'users.id')
                     ->selectRaw('users.id, users.name, messages.message')
                     ->latest('messages.created_at')->get();
 
