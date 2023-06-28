@@ -55,5 +55,5 @@ Route::get('xero/get_invoices', 'App\Http\Controllers\XeroController@get_invoice
 
 # Pusher
 Route::get('pusher', 'App\Http\Controllers\PusherController@index')->name('pusher');
-Route::post('pusher/fetch', 'App\Http\Controllers\PusherController@fetch')->name('pusher.fetch');
+Route::post('pusher/receive', 'App\Http\Controllers\PusherController@receive')->name('pusher.receive');
 Route::post('pusher/broadcast', 'App\Http\Controllers\PusherController@broadcast')->name('pusher.broadcast');

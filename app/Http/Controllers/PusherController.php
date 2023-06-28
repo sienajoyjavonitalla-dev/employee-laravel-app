@@ -8,16 +8,21 @@ use App\Models\Messages;
 
 class PusherController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         return view('pusher.index');
     }
 
-    public function fetch(Request $request)
+    public function receive(Request $request)
     {
-        return view('pusher.fetch', [
+        return view('pusher.receive', [
             'message' => $request->get('message'),
-            'name' => 'Anony Mouse'
+            // 'name' => 'Anony Mouse 1'
         ]);
 
     }
@@ -28,7 +33,7 @@ class PusherController extends Controller
 
         return view('pusher.broadcast', [
             'message' => $request->get('message'),
-            'name' => 'Anony Mouse'
+            'name' => 'Anony Mouse 2'
         ]);
     }
 }

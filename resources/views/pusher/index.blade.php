@@ -27,8 +27,8 @@
 
         <!-- Chat -->
         <div class="messages">
-            @include('pusher.fetch', ['message' => "Hey! What's up!  👋"])
-            @include('pusher.fetch', ['message' => "Ask a friend to open this link and you can chat with them!"])
+            @include('pusher.receive', ['message' => "Hey! What's up!  👋"])
+            @include('pusher.receive', ['message' => "Ask a friend to open this link and you can chat with them!"])
         </div>
         <!-- End Chat -->
 
@@ -36,7 +36,7 @@
         <div class="bottom">
             <form>
             <input type="text" id="message" name="message" placeholder="Enter message..." autocomplete="off">
-            <button type="submit"></button>
+            <button type="submit" class="btn btn-secondary">SEND</button>
             </form>
         </div>
         <!-- End Footer -->
@@ -50,7 +50,10 @@
 
   //Receive messages
   channel.bind('chat', function (data) {
-    $.post("/pusher/fetch", {
+
+    console.log("receiving");
+
+    $.post("/pusher/receive", {
       _token:  '{{csrf_token()}}',
       message: data.message,
     })
@@ -63,6 +66,8 @@
   //Broadcast messages
   $("form").submit(function (event) {
     event.preventDefault();
+
+    console.log("sending");
 
     $.ajax({
       url:     "/pusher/broadcast",
