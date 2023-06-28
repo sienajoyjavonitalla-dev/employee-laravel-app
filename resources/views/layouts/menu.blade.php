@@ -26,7 +26,7 @@
         <nav class="mt-2 sidebar-main-items">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
 
-                <li class="nav-item">
+                <li class="nav-item admin-only">
                     <a href="/home" class="nav-link  {{ request()->is('home') ? 'active' : '' }}">
                         <i class="fas fa-home nav-icon"></i>
                         <p>Dashboard</p>
@@ -62,19 +62,19 @@
                         <p>Jobs</p>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item admin-only">
                     <a href="/invoices" class="nav-link  {{ request()->is('invoices') ? 'active' : '' }}">
                         <i class="fas fa-print nav-icon"></i>
                         <p>Invoices</p>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item admin-only">
                     <a href="/clients" class="nav-link  {{ request()->is('clients') ? 'active' : '' }}">
                         <i class="fas fa-address-book nav-icon"></i>
                         <p>Clients</p>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item admin-only">
                     <a href="/users" class="nav-link  {{ request()->is('users') ? 'active' : '' }}">
                         <i class="fas fa-users nav-icon"></i>
                         <p>Users</p>
@@ -110,6 +110,21 @@
         </nav>
 
         <link href="{{ asset('css/sidebar-menu.css?v=').time() }}" rel="stylesheet">
+
+        <script>
+
+            // adminOnlyItems = document.querySelectorAll('.admin-only');
+            
+            if( '{{Auth::user()->roles}}' != 'admin' )
+            {
+                $('.admin-only').each(function(e){
+                    console.log($(this).prop('display'));
+
+                    $(this).hide();
+                });
+            }
+
+        </script>
 
         <!-- Sidebar Menu Logout Section-->
         <!-- <nav class="mt-2 logout-section">
