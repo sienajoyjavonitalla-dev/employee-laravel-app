@@ -21,7 +21,7 @@
 
         <!-- Header -->
         <div class="top">
-            <h2 style="text-align:center">Uprise Public Chat</h2>
+            <h2 style="text-align:center">Uprise Rigging Channel</h2>
         </div>
         <!-- End Header -->
 

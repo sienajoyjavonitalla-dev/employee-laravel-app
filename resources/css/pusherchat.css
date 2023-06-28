@@ -13804,7 +13804,8 @@
     text-align: var(--bs-body-text-align);
     font-family: "Nunito", sans-serif;
     font-size: 1rem;
-    color: #161c2d;
+    background-color: #1B375D;
+    color: #FFF;
     word-wrap: break-word;
     box-sizing: border-box;
     border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
@@ -13883,7 +13884,7 @@
     text-align: right;
   }
   .chat .messages .message {
-    margin-bottom: 1rem;
+    /* margin-bottom: 1rem; */
   }
   .chat .messages .message p {
     display: inline-flex;
