@@ -26,7 +26,7 @@
         <!-- End Header -->
 
         <!-- Chat -->
-        <div class="messages">
+        <div class="messages" id="messages">
             @include('pusher.receive', ['message' => "Hey! What's up!  👋"])
             @include('pusher.receive', ['message' => "Ask a friend to open this link and you can chat with them!"])
         </div>
@@ -51,23 +51,23 @@
   //Receive messages
   channel.bind('chat', function (data) {
 
-    console.log("receiving");
-
     $.post("/pusher/receive", {
       _token:  '{{csrf_token()}}',
       message: data.message,
     })
      .done(function (res) {
        $(".messages > .message").last().after(res);
-       $(document).scrollTop($(document).height());
+
+       $("#messages").animate({
+          scrollTop: $(
+            '#messages').get(0).scrollHeight
+      }, 2000);
      });
   });
 
   //Broadcast messages
   $("form").submit(function (event) {
     event.preventDefault();
-
-    console.log("sending");
 
     $.ajax({
       url:     "/pusher/broadcast",
@@ -84,6 +84,8 @@
       $("form #message").val('');
       $(document).scrollTop($(document).height());
     });
+
+    $("form #message").val('');
   });
 
 </script>
