@@ -1,5 +1,8 @@
 <div class="left message">
 
-    <p>{{ $message }}</p>
+    <p> 
+        <span class="message-user-name">{{ $name }}</span>
+        <span class="message-row">{{ $message }}</span>
+    </p>
 
 </div>

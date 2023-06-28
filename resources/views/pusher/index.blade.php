@@ -27,8 +27,9 @@
 
         <!-- Chat -->
         <div class="messages" id="messages">
-            @include('pusher.receive', ['message' => "Hey! What's up!  👋"])
-            @include('pusher.receive', ['message' => "Ask a friend to open this link and you can chat with them!"])
+          @foreach($messages as $message)
+            @include('pusher.receive', ['message' => $message->message, 'name' => $message->name])
+          @endforeach
         </div>
         <!-- End Chat -->
 
@@ -48,8 +49,17 @@
   const pusher  = new Pusher('{{config('broadcasting.connections.pusher.key')}}', {cluster: 'ap1'});
   const channel = pusher.subscribe('public');
 
+  $('document').ready(function(){
+    $("#messages").animate({
+          scrollTop: $(
+            '#messages').get(0).scrollHeight
+      }, 2000);
+  });
+
   //Receive messages
   channel.bind('chat', function (data) {
+
+    console.log('receiving');
 
     $.post("/pusher/receive", {
       _token:  '{{csrf_token()}}',
@@ -69,6 +79,8 @@
   $("form").submit(function (event) {
     event.preventDefault();
 
+    console.log('broadcasting');
+
     $.ajax({
       url:     "/pusher/broadcast",
       method:  'POST',
@@ -78,6 +90,7 @@
       data:    {
         _token:  '{{csrf_token()}}',
         message: $("form #message").val(),
+        userId: {{ Auth::user()->id }}
       }
     }).done(function (res) {
       $(".messages > .message").last().after(res);

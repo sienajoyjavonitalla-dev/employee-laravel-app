@@ -13962,4 +13962,14 @@
     width: 4.35rem;
     height: 2.35rem;
   }
-  
+
+  .message-row {
+    margin-left: 1em;
+  }
+
+  .message-user-name {
+    min-width: 50px;
+    max-width: 51px;
+    font-size: .7em !important;
+    font-weight: 600;
+  }
