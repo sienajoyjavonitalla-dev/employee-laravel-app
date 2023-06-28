@@ -115,7 +115,7 @@
             {data: 'start_time', name: 'start_time'},
             {data: 'end_time', name: 'end_time'},
             {data: 'date', name: 'date'},
-            {data: 'timesheet', name: 'timesheet'},
+            {data: 'timesheet_url', name: 'timesheet_url'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [

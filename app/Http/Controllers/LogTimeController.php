@@ -10,6 +10,8 @@ use App\Models\JobAssignee;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\User;
+use DB;
+use App\Models\Client;
 
 class LogTimeController extends Controller
 {
@@ -29,6 +31,10 @@ class LogTimeController extends Controller
 
             return Datatables::of($data)
                     ->addIndexColumn()
+                    ->addColumn('timesheet_url', function($row){
+                        return "<a href=".url('/img/'.$row->timesheet)." target='_blank'>".$row->timesheet."</a>";
+                    })
+
                     ->addColumn('assigned_to', function($row){
                         $qry = User::where('id', $row->assigned_id)->first();
                         $user = $qry->name;
@@ -43,13 +49,16 @@ class LogTimeController extends Controller
 
                         return $btn;
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action', 'timesheet_url'])
                     ->make(true);
         }
         return view('timelogs.index');
 
     }
-
+    public function signature()
+    {
+        return view('timelogs.signature-pad');
+    }
     public function show(Jobs $id)
     {
 
@@ -58,8 +67,8 @@ class LogTimeController extends Controller
 
     public function timeclock()
     {
-        $clock_in = TimeLog::where('assigned_id', Auth::user()->id)->orderBy('created_at', 'desc')->first();
-
+        $clock_in = TimeLog::where('assigned_id', Auth::user()->id)->whereNull('end_time')->orderBy('created_at', 'desc')->first();
+       
         $job = Jobs::leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id')
             ->leftJoin('job_assignee as ja', 'ja.job_id', '=', 'jobs.id')
             ->where('ja.assigned_id', Auth::user()->id)
@@ -119,10 +128,40 @@ class LogTimeController extends Controller
                 return response()->json(['error'=>'No job assigned for you at the moment. Contact admin.']);
             }
             
-        } else {
+        } else if($request->type == 'out'){
             $found_tl = TimeLog::where('assigned_id', Auth::user()->id)->whereNull('end_time')->first();
-            $found_tl->end_time = Carbon::now()->toTimeString();
-            $found_tl->save();
+
+            if($found_tl->signature) {
+                $found_tl->end_time = Carbon::now()->toTimeString();
+                $found_tl->save();
+            } else if($found_tl->signature == null || $found_tl->lunch_break == null || $found_tl->authorized == null){
+                return response()->json(['error'=>'Fill up the form below before clocking out!']);
+            }
+            
+        } else {
+
+            if($request->authorized && $request->signed && $request->lunch_break) {
+                $folderPath = public_path('signature/');
+                $image_parts = explode(";base64,", $request->signed);
+                $image_type_aux = explode("image/", $image_parts[0]);
+                $image_type = $image_type_aux[1];
+                $image_base64 = base64_decode($image_parts[1]);
+                $signature = uniqid() . '.'.$image_type;
+                $file = $folderPath . $signature;
+                file_put_contents($file, $image_base64);
+                
+                $found_tl = TimeLog::where('assigned_id', Auth::user()->id)
+                    ->whereNull('end_time')
+                    ->where('job_id', $request->job_id)
+                    ->first();
+                $found_tl->authorized = $request->authorized;
+                $found_tl->signature = $signature;
+                $found_tl->lunch_break = $request->lunch_break;
+                $found_tl->save();
+            } else {
+                return response()->json(['error'=>'Fill up the form completely before saving!']);
+            }
+            
         }
 
         return response()->json(['success'=>'Log saved successfully.']);
@@ -139,5 +178,138 @@ class LogTimeController extends Controller
         TimeLog::find($id)->delete();
 
         return response()->json(['success'=>'Log deleted successfully.']);
+    }
+
+    public function timesheet(Request $request)
+    {
+        $data = DB::table('time_logs as tl')
+            ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
+            ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
+            ->leftJoin('job_assignee as ja', 'j.id', '=', 'ja.job_id')
+            ->leftJoin('users as u', 'u.id', '=', 'ja.assigned_id')
+            ->whereNotNull('tl.end_time')
+            ->whereNotNull('ja.assigned_id')
+            ->whereNotNull('j.id');
+
+        $filter = $data;
+
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
+        }
+
+        if ($request->filled('client')) {
+            $data = $data->where('j.client_id', $request->client);
+        }
+
+        if ($request->filled('assigned')) {
+            $data = $data->where('ja.assigned_id', $request->assigned);
+        }
+
+        if ($request->filled('job')) {
+            $data = $data->where('j.id', $request->job);
+        }
+
+        if ($request->filled('user_type')) {
+            $data = $data->where('u.roles', $request->user_type);
+        }
+        if ($request->ajax()) {
+                $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
+                    client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date')->get();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    // ->addColumn('employee', function($row){
+                    //     $qry = User::where('id', $row->assigned_id)->first();
+                    //     $user = $qry->name;
+                    //     return $user;
+                    // })
+                    ->addColumn('hrs_worked', function($row){
+                        $total_hr = 0;
+                        $start_time = new Carbon($row->start_time);
+                        $end_time =new Carbon($row->end_time);
+                        $total_hr = $start_time->diffInHours($end_time);
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
+                        return $total_hr;
+                    })
+                    ->addColumn('with_lunch', function($row){
+                        return $row->lunch_break ? 'Yes':'No';
+                    })
+                    ->addColumn('pay', function($row){
+                        $total_hr = 0;
+                        $start_time = new Carbon($row->start_time);
+                        $end_time =new Carbon($row->end_time);
+                        $total_hr = $start_time->diffInHours($end_time);
+                        $pay = 0;
+                        
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
+                        
+                        if($total_hr > 4 && $total_hr <= 8 ) {
+                            $ot_pay=0;
+                            $pay = $total_hr * $row->rate_per_hour;
+                        } else if($total_hr > 0 && $total_hr <= 4) {
+                            $pay = 4 * $row->rate_per_hour;
+                        } else if($total_hr > 8) {
+                            $total_hr = 8;
+                            $pay = 8 * $row->rate_per_hour;
+                        }
+                        
+                        return $pay;
+                    })
+                    ->addColumn('ot_pay', function($row){
+                        $total_hr = 0;
+                        $start_time = new Carbon($row->start_time);
+                        $end_time =new Carbon($row->end_time);
+                        $total_hr = $start_time->diffInHours($end_time);
+                        $ot_pay = 0;
+
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
+                        if($total_hr > 8) {
+                            $ot_hours= $total_hr - 8;
+                            $ot_pay = $ot_hours * $row->ot_rate_per_hour;
+                        }
+                        return $ot_pay;
+                    })
+                    ->addColumn('total', function($row){
+                        $total_hr = 0;
+                        $start_time = new Carbon($row->start_time);
+                        $end_time =new Carbon($row->end_time);
+                        $total_hr = $start_time->diffInHours($end_time);
+                        $total_amount=0;
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }    
+                        if($total_hr > 4) {
+                            $ot_pay=0;
+                            $pay = $total_hr * $row->rate_per_hour;
+                            if($total_hr > 8) {
+                                $ot_hours= $total_hr - 8;
+                                $ot_pay = $ot_hours * $row->ot_rate_per_hour;
+                                $total_hr = 8;
+                                $pay = $total_hr * $row->rate_per_hour;
+
+                            }
+                            $total_amount = $ot_pay + $pay;
+                        } else if($total_hr > 0 && $total_hr <= 4) {
+                            $pay = 4 * $row->rate_per_hour;
+                            $total_amount = $pay;
+                        }
+                        
+                        return $total_amount;
+                    })
+                    ->make(true);
+        }
+        $clients = Client::pluck('company_name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
+
+        $jobs = Jobs::pluck('address', 'id');
+       
+        $filter_assigned = $filter->where('u.roles', 'subcontractor')->selectRaw('DISTINCT u.name, ja.assigned_id')->get();
+        return view('timelogs.timesheet', compact('clients', 'jobs', 'filter_assigned'));
+
     }
 }

@@ -33,6 +33,9 @@ Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->nam
 Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out')->name('clock-in-out');
 Route::get('calendar', 'App\Http\Controllers\CalendarController@index')->name('calendar');
 
+Route::get('laravel-signature-pad','App\Http\Controllers\LogTimeController@signature');
+Route::get('timesheet', 'App\Http\Controllers\LogTimeController@timesheet')->name('timesheet');
+
 Route::get('client/{client}/show_invoices', 'App\Http\Controllers\ClientsController@show_invoices')->name('client.show-invoices');
 Route::get('generate/invoice', 'App\Http\Controllers\JobsController@generateInvoice')->name('job.generate.invoice');
 
