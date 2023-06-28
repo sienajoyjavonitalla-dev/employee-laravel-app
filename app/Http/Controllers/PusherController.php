@@ -34,7 +34,7 @@ class PusherController extends Controller
     {
         return view('pusher.receive', [
             'message' => $request->get('message'),
-            'name' => 'Anony Mouse 1'
+            'name' => $request->get('name')
         ]);
 
     }
@@ -43,11 +43,14 @@ class PusherController extends Controller
     {
         $message = DB::transaction(function() use ($request) {
 
-            broadcast(new PusherEvent($request->get('message')))->toOthers();
+            $msgToSend = $request->get('message');
+            $userId = $request->get('user_id');
+
+            broadcast(new PusherEvent($msgToSend, $userId))->toOthers();
 
             $message = Messages::create([
                 'message' => $request->get('message'),
-                'user_id' => $request->get('userId')
+                'user_id' => $request->get('user_id')
             ]);
 
             return $message;

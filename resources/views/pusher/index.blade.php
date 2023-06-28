@@ -64,6 +64,7 @@
     $.post("/pusher/receive", {
       _token:  '{{csrf_token()}}',
       message: data.message,
+      name: data.senderName
     })
      .done(function (res) {
        $(".messages > .message").last().after(res);
@@ -90,7 +91,7 @@
       data:    {
         _token:  '{{csrf_token()}}',
         message: $("form #message").val(),
-        userId: {{ Auth::user()->id }}
+        user_id: {{ Auth::user()->id }}
       }
     }).done(function (res) {
       $(".messages > .message").last().after(res);
