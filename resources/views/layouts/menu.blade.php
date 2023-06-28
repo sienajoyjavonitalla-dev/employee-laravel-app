@@ -81,6 +81,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="/how_tos" class="nav-link  {{ request()->is('how_tos') ? 'active' : '' }}">
+                        <i class="fas fa-question nav-icon"></i>
+                        <p>How To's</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ route('logout') }}" class="nav-link" onclick="event.preventDefault();
                                     document.getElementById('logout-form').submit();">
                         <i class="nav-icon fas fa-power-off"></i>

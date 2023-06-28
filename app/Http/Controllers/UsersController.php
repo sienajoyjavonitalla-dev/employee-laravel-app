@@ -86,4 +86,9 @@ class UsersController extends Controller
 
         return response()->json(['success'=>'User deleted successfully.']);
     }
+
+
+    public function how_tos() {
+        return view('users.how_tos');
+    }
 }

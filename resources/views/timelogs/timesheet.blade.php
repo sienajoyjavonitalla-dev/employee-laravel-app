@@ -31,18 +31,18 @@
                             </div>
                             <div class="row mt-3">
                                 <div class="col-lg-6">
-                                    <strong>Job ID </strong>
-                                    <select class="selectpicker" name="job" id="job">
+                                    <strong>Client </strong>
+                                    <select  name="client" id="client">
                                         <option value="">-- Select --</option>
-                                        @foreach ($jobs as $key => $value)
+                                        @foreach ($clients as $key => $value)
                                             <option value="{{ $key }}"> 
-                                                {{ $key }} 
+                                                {{ $value }} 
                                             </option>
                                         @endforeach    
                                     </select>
                                 </div>
                                 <div class="col-lg-6">
-                                    <strong>User</strong>
+                                    <strong>Assigned Person</strong>
                                     <select  name="assigned" id="assigned">
                                         <option value="">-- Select --</option>
                                         @foreach ($filter_assigned as $d)
@@ -56,16 +56,17 @@
                             </div>
                             <div class="row mt-3">
                                 <div class="col-lg-6">
-                                    <strong>Client </strong>
-                                    <select  name="client" id="client">
+                                    <strong>Job ID </strong>
+                                    <select class="selectpicker" name="job" id="job">
                                         <option value="">-- Select --</option>
-                                        @foreach ($clients as $key => $value)
+                                        @foreach ($jobs as $key => $value)
                                             <option value="{{ $key }}"> 
-                                                {{ $value }} 
+                                                {{ $key }} 
                                             </option>
                                         @endforeach    
                                     </select>
                                 </div>
+                                
                             </div>
                             <button class="w-auto mb-4 mt-4 btn btn-success filter"><i class="fas fa-search"></i> Filter</button>
 
@@ -75,7 +76,7 @@
                                         <th>Job</th>
                                         <th>Site</th>
                                         <th>Client</th>
-                                        <th>Subcontractor</th>
+                                        <th>Assigned Person</th>
                                         <th>Title</th>
                                         <th>Date</th>
                                         <th>Hours Worked</th>
