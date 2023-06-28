@@ -13863,7 +13863,8 @@
     font-weight: var(--bs-body-font-weight);
     line-height: var(--bs-body-line-height);
     text-align: var(--bs-body-text-align);
-    min-height: 130vh;
+    min-height: 70vh;
+    overflow-y: scroll;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     font-family: "Nunito", sans-serif;
