@@ -74,6 +74,13 @@
                         <p>Users</p>
                     </a>
                 </li>
+
+                <li class="nav-item">
+                    <a href="/pusher" class="nav-link  {{ request()->is('pusher') ? 'active' : '' }}">
+                        <i class="fas fa-comments nav-icon"></i>
+                        <p>Chat</p>
+                    </a>
+                </li>
                 
             </ul>
         </nav>

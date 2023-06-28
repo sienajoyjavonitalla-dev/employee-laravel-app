@@ -42,18 +42,20 @@
         <!-- Footer -->
         <div class="bottom">
             <form>
-            <input type="text" id="message" name="message" placeholder="Enter message..." autocomplete="off">
-            <button type="submit" id="msgBtn" class="btn btn-secondary" disabled="true">SEND</button>
+              <input type="text" id="message" name="message" placeholder="Enter message..." autocomplete="off">
+              <button type="submit" id="msgBtn" class="btn btn-secondary" disabled="true">SEND</button>
             </form>
-        </div>
+        </div>        
         <!-- End Footer -->
-
+        <button><a href="/calendar">GO BACK TO CALENDAR</a></button>
     </div>
 </body>
 
 <script>
   const pusher  = new Pusher('{{config('broadcasting.connections.pusher.key')}}', {cluster: 'ap1'});
   const channel = pusher.subscribe('public');
+
+
 
   $('document').ready(function(){
     $("#messages").animate({
