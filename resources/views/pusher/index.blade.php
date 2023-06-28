@@ -28,7 +28,13 @@
         <!-- Chat -->
         <div class="messages" id="messages">
           @foreach($messages as $message)
-            @include('pusher.receive', ['message' => $message->message, 'name' => $message->name])
+
+            @if($message->user_id != $user_id)
+                @include('pusher.receive', ['message' => $message->message, 'name' => $message->name])            
+            @else
+                @include('pusher.broadcast', ['message' => $message->message, 'name' => $message->name])
+            @endif
+
           @endforeach
         </div>
         <!-- End Chat -->
@@ -37,7 +43,7 @@
         <div class="bottom">
             <form>
             <input type="text" id="message" name="message" placeholder="Enter message..." autocomplete="off">
-            <button type="submit" class="btn btn-secondary">SEND</button>
+            <button type="submit" id="msgBtn" class="btn btn-secondary" disabled="true">SEND</button>
             </form>
         </div>
         <!-- End Footer -->
@@ -54,13 +60,20 @@
           scrollTop: $(
             '#messages').get(0).scrollHeight
       }, 2000);
+
+    $("#message").on('input', function(e){
+
+      if($(e.target).val() == '')
+      {
+        $("#msgBtn").attr('disabled', true);
+      } else {
+        $("#msgBtn").removeAttr('disabled');
+      }
+    });
   });
 
   //Receive messages
   channel.bind('chat', function (data) {
-
-    console.log('receiving');
-    console.log(data);
 
     $.post("/pusher/receive", {
       _token:  '{{csrf_token()}}',
@@ -81,8 +94,6 @@
   //Broadcast messages
   $("form").submit(function (event) {
     event.preventDefault();
-
-    console.log('broadcasting');
 
     $.ajax({
       url:     "/pusher/broadcast",

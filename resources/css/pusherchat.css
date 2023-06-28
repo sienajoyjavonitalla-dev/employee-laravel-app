@@ -13880,8 +13880,13 @@
     text-align: left;
   }
   .chat .messages .right {
-    text-align: right;
+    text-align: left;
   }
+
+  .right {
+    float: right;
+  }
+
   .chat .messages .message {
     margin-bottom: 1rem;
   }
@@ -13965,6 +13970,9 @@
 
   .message-row {
     margin-left: 1em;
+    border: 1px solid #3dd5f3;
+    border-radius: 5px;
+    padding: 1em;
   }
 
   .message-user-name {
@@ -13972,4 +13980,10 @@
     max-width: 51px;
     font-size: .7em !important;
     font-weight: 600;
+  }
+
+  .message-row-user {
+    border: 2px solid #0a58ca;
+    border-radius: 5px;
+    padding: 1em;
   }
