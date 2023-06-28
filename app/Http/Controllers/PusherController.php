@@ -44,14 +44,14 @@ class PusherController extends Controller
         $message = DB::transaction(function() use ($request) {
 
             $msgToSend = $request->get('message');
-            $userId = $request->get('user_id');
-
-            broadcast(new PusherEvent($msgToSend, $userId))->toOthers();
+            $user = User::find($request->get('user_id'));            
 
             $message = Messages::create([
-                'message' => $request->get('message'),
-                'user_id' => $request->get('user_id')
+                'message' => $msgToSend,
+                'user_id' => $user->id
             ]);
+
+            broadcast(new PusherEvent($msgToSend, $user->name, $user->id))->toOthers();
 
             return $message;
         });        

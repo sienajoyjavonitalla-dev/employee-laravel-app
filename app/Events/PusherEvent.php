@@ -14,16 +14,18 @@ class PusherEvent implements ShouldBroadcast
 
     public $message;
     public $senderName;
+    public $senderId;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($message, $senderName)
+    public function __construct($message, $senderName, $senderId)
     {
         $this->message = $message;
         $this->$senderName = $senderName;
+        $this->$senderId = $senderId;
     }
 
     /**

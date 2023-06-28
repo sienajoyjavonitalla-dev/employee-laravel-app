@@ -60,11 +60,13 @@
   channel.bind('chat', function (data) {
 
     console.log('receiving');
+    console.log(data);
 
     $.post("/pusher/receive", {
       _token:  '{{csrf_token()}}',
       message: data.message,
-      name: data.senderName
+      name: data.senderName,
+      user_id: data.senderId
     })
      .done(function (res) {
        $(".messages > .message").last().after(res);
