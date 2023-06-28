@@ -13880,13 +13880,8 @@
     text-align: left;
   }
   .chat .messages .right {
-    text-align: left;
+    text-align: right;
   }
-
-  .right {
-    float: right;
-  }
-
   .chat .messages .message {
     margin-bottom: 1rem;
   }
