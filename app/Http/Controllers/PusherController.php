@@ -23,8 +23,9 @@ class PusherController extends Controller
 
         $messages = DB::table('messages')
                     ->leftJoin('users', 'messages.user_id', '=', 'users.id')
-                    ->selectRaw('users.id as user_id, users.name, messages.message')
-                    ->latest('messages.created_at')->get();
+                    ->selectRaw('users.id as user_id, users.name, messages.message, messages.created_at')
+                    ->take(30)->orderBy('messages.created_at', 'asc')
+                    ->get();
 
         return view('pusher.index',[
             'user_id' => $user->id
