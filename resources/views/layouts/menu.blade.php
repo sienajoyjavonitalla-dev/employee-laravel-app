@@ -56,19 +56,19 @@
                         <p>Jobs</p>
                     </a>
                 </li>
-                <li class="nav-item admin-only">
+                <li class="nav-item">
                     <a href="/invoices" class="nav-link  {{ request()->is('invoices') ? 'active' : '' }}">
                         <i class="fas fa-print nav-icon"></i>
                         <p>Invoices</p>
                     </a>
                 </li>
-                <li class="nav-item admin-only">
+                <li class="nav-item">
                     <a href="/clients" class="nav-link  {{ request()->is('clients') ? 'active' : '' }}">
                         <i class="fas fa-address-book nav-icon"></i>
                         <p>Clients</p>
                     </a>
                 </li>
-                <li class="nav-item admin-only">
+                <li class="nav-item">
                     <a href="/users" class="nav-link  {{ request()->is('users') ? 'active' : '' }}">
                         <i class="fas fa-users nav-icon"></i>
                         <p>Users</p>
@@ -104,21 +104,6 @@
         </nav>
 
         <link href="{{ asset('css/sidebar-menu.css?v=').time() }}" rel="stylesheet">
-
-        <script>
-
-            // adminOnlyItems = document.querySelectorAll('.admin-only');
-            
-            if( '{{Auth::user()->roles}}' != 'admin' )
-            {
-                $('.admin-only').each(function(e){
-                    console.log($(this).prop('display'));
-
-                    $(this).hide();
-                });
-            }
-
-        </script>
 
         <!-- Sidebar Menu Logout Section-->
         <!-- <nav class="mt-2 logout-section">
