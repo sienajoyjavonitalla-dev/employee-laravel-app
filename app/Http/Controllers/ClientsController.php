@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Jobs;
 use DataTables;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ClientsController extends Controller
@@ -18,6 +19,12 @@ class ClientsController extends Controller
     
     public function index(Request $request)
     {
+
+        if(Auth::user()->roles != 'admin')
+        {
+            return redirect('/timeclock');
+        }
+
         if ($request->ajax()) {
 
             $data = Client::latest()->get();

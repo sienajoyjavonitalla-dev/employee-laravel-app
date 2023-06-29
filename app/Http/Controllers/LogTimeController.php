@@ -194,6 +194,11 @@ class LogTimeController extends Controller
 
     public function timesheet(Request $request)
     {
+        if(Auth::user()->roles != 'admin')
+        {
+            return redirect('/timeclock');
+        }
+
         $data = DB::table('time_logs as tl')
             ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
             ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')

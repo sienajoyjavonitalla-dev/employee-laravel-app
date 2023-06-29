@@ -12,6 +12,8 @@ use DataTables;
 use Carbon\Carbon;
 use PDF;
 use DB;
+use Illuminate\Support\Facades\Auth;
+
 class InvoiceController extends Controller
 {
     public function __construct()
@@ -21,6 +23,11 @@ class InvoiceController extends Controller
     
     public function index(Request $request)
     {
+        if(Auth::user()->roles != 'admin')
+        {
+            return redirect('/timeclock');
+        }
+
         $data = DB::table('time_logs as tl')
             ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
             ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
