@@ -51,13 +51,16 @@
                                 </a>
                             </p>
                         </div>
+
+                        @if(Auth::user()->roles == 'admin')
                         <div class="col-sm-6">
                             <p class="invoice-link btn btn-danger float-right">
-                                <a href="#" id="job-delete" target="_blank">
+                                <a href="#" id="job-delete">
                                     Delete
                                 </a>
                             </p>
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -68,6 +71,12 @@
         <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.js'></script>
 
         <script> 
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
 
             document.addEventListener('DOMContentLoaded', function () {
 
@@ -147,17 +156,20 @@
                 });
 
                 $('#job-delete').click(function(){
-                    $deleteJob = confirm("Are you sure you want to delete this job?");
+                    deleteJob = confirm("Are you sure you want to delete this job?");
 
-                    if(response == true) {
+                    if(deleteJob == true) {
                         $.ajax({
                             type: "DELETE",
-                            url: "{{ route('users.store') }}"+'/'+user_id,
+                            url: '/jobs/'+data.job_id,
 
                             success: function (data) {
-                                table.draw();
-                                toastr.success('Deleted successfully!');
+                                event= calendar.getEventById(data.id);
 
+                                event.remove();
+
+                                toastr.success('Deleted successfully!');
+                                $('#ajaxModel').modal('hide');
                             },
                             error: function (data) {
                                 toastr.error('Error!');
