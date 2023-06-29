@@ -4,6 +4,8 @@
 <div class="row">
     <div class="col-lg-12 align-items-center p-4">
         <div class="container">
+        <a class="btn btn-success mb-4" href="javascript:void(0)" id="createNewTimeLog"> Create New TimeLog</a>
+
 
         <table class="table table-bordered table-hover data-table">
             <thead class="thead-light">
@@ -38,14 +40,28 @@
                     <div class="form-group">
                         <label for="job_id" class="col-sm-6 control-label">Job</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="job_id" name="job_id" value="" maxlength="50" required="" disabled="true">
+                            <select class="form-control" name="job_id" id="job_id" required="">
+                                <option value="">-- Select --</option>
+                                @foreach ($jobs as $j)
+                                    <option value="{{ $j->id }}"> 
+                                        Job #{{ $j->id . ' - '. $j->company_name}} 
+                                    </option>
+                                @endforeach    
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="assigned_id" class="col-sm-6 control-label">Assign to</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="assigned_id" name="assigned_id" value="" maxlength="50" required="">
+                            <select class="form-control" name="assigned_id" id="assigned_id" required="">
+                                <option value="">-- Select --</option>
+                                @foreach ($users as $key => $value)
+                                    <option value="{{ $key }}"> 
+                                        {{ $value }} 
+                                    </option>
+                                @endforeach    
+                            </select>
                         </div>
                     </div>
 
@@ -126,14 +142,28 @@
         order: [[6, 'asc']]
     });
 
+    $('#createNewTimeLog').click(function () {
+        $('#saveBtn').val("create-timelog");
+        $('#id').val('');
+        $('.job_container').hide();
+        $('#job_id').attr('disabled', false); 
+
+        $('#timelogForm').trigger("reset");
+
+        $('#modelHeading').html("Create New Timelog");
+        $('#ajaxModel').modal('show');
+
+    });
+
     $('body').on('click', '.editTimeLog', function () {
+        $('#job_id').attr('disabled', true); 
 
       var timelogs = $(this).data('id');
       $.get("{{ route('timelogs.index') }}" +'/' + timelogs +'/edit', function (data) {
           $('#modelHeading').html("Edit TimeLog");
           $('#saveBtn').val("edit-timelog");
           $('#ajaxModel').modal('show');
-
+          $('.job_container').show();
           $('#id').val(data.id);
           $('#job_id').val(data.job_id);
           $('#assigned_id').val(data.assigned_id);
@@ -154,6 +184,8 @@
 
       
     $('#saveBtn').click(function (e) {
+        $('#job_id').attr('disabled', false); 
+
         var formData = new FormData($('#timelogForm')[0]);
         e.preventDefault();
 
