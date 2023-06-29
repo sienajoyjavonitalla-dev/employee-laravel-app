@@ -38,12 +38,14 @@
                         <p>Time Logs</p>
                     </a>
                 </li>
+                @if(Auth::user()->roles == 'admin')
                 <li class="nav-item">
                     <a href="/timesheet" class="nav-link  {{ request()->is('timesheet') ? 'active' : '' }}">
                         <i class="fas fa-file nav-icon"></i>
                         <p>Timesheet</p>
                     </a>
                 </li>
+                @endif
                 <li class="nav-item">
                     <a href="/calendar" class="nav-link  {{ request()->is('calendar') ? 'active' : '' }}">
                         <i class="fas fa-solid fa-calendar  nav-icon"></i>
@@ -56,6 +58,7 @@
                         <p>Jobs</p>
                     </a>
                 </li>
+                @if(Auth::user()->roles == 'admin')
                 <li class="nav-item">
                     <a href="/invoices" class="nav-link  {{ request()->is('invoices') ? 'active' : '' }}">
                         <i class="fas fa-print nav-icon"></i>
@@ -74,7 +77,7 @@
                         <p>Users</p>
                     </a>
                 </li>
-
+                @endif
                 <li class="nav-item">
                     <a href="/pusher" class="nav-link  {{ request()->is('pusher') ? 'active' : '' }}">
                         <i class="fas fa-comments nav-icon"></i>
