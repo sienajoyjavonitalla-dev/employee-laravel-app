@@ -52,7 +52,13 @@ class LogTimeController extends Controller
                     ->rawColumns(['action', 'timesheet_url'])
                     ->make(true);
         }
-        return view('timelogs.index');
+        $users = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
+        $jobs = DB::table('jobs as j')
+            ->leftJoin('clients as c', 'c.id', '=', 'j.client_id')
+            ->where('j.status', '!=', 'complete')
+            ->selectRaw('j.id, c.company_name, j.start_date_time, j.end_date_time')
+            ->get();
+        return view('timelogs.index',compact('users', 'jobs'));
 
     }
     public function signature()
@@ -81,19 +87,25 @@ class LogTimeController extends Controller
 
     public function store(Request $request)
     {
+        $filename = '';
+
         if($request->file('timesheet')){
             $file= $request->file('timesheet');
             $filename= date('YmdHi').$file->getClientOriginalName();
             $file-> move(public_path('img'), $filename);
             // $data['image']= $filename;
         } else {
-            $tl=TimeLog::where('id', $request->id)->first();
-            $filename = $tl->timesheet;
+            if($request->id) {
+                $tl=TimeLog::where('id', $request->id)->first();
+                $filename = $tl->timesheet;
+            }
         }
+        
         TimeLog::updateOrCreate([
             'id' => $request->id
         ],
         [
+            'job_id' => $request->job_id,
             'assigned_id' => $request->assigned_id,
             'lunch_break' => $request->has('lunch_break'),
             'start_time' => $request->start_time,
