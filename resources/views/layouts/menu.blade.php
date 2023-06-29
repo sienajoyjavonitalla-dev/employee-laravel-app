@@ -26,12 +26,6 @@
         <nav class="mt-2 sidebar-main-items">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
 
-                <li class="nav-item admin-only">
-                    <a href="/home" class="nav-link  {{ request()->is('home') ? 'active' : '' }}">
-                        <i class="fas fa-home nav-icon"></i>
-                        <p>Dashboard</p>
-                    </a>
-                </li>
                 <li class="nav-item">
                     <a href="/timeclock" class="nav-link  {{ request()->is('timeclock') ? 'active' : '' }}">
                         <i class="fas fa-clock nav-icon"></i>
