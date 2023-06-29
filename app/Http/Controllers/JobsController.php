@@ -490,8 +490,11 @@ class JobsController extends Controller
 
         DB::transaction(function() use($id) {
 
-            Jobs::find($id)->delete();
-            Appointment::where('job_id', $id)->delete();
+            $jabAssignees = JobAssignee::where('job_id', $id);
+
+            // Jobs::find($id)->delete();
+
+            $test = "testsefse";
 
         },2);        
 

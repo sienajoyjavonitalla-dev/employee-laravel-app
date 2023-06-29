@@ -42,7 +42,23 @@
                     </form>
 
                     <hr>
-                    <p class="invoice-link btn btn-info" id="invoice-link-section"><a href="#" id="invoice-link" target="_blank">INVOICE LINK</a></p>
+
+                    <div class="row pl-4 pr-4">
+                        <div class="col-sm-6">
+                            <p class="invoice-link btn btn-info float-left" id="invoice-link-section">
+                                <a href="#" id="invoice-link" target="_blank">
+                                    INVOICE LINK
+                                </a>
+                            </p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="invoice-link btn btn-danger float-right">
+                                <a href="#" id="job-delete" target="_blank">
+                                    Delete
+                                </a>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -95,7 +111,6 @@
                         invoiceLinkSection = document.getElementById("invoice-link-section");
                         invoiceLink = document.getElementById("invoice-link");
 
-
                         jobTitleStatus = '<span class="job-title-status" style="background-color:'
                                         + info.event.backgroundColor + '">'
                                         + data.status + '</span>';
@@ -130,6 +145,28 @@
                         $('#ajaxModel').modal('show');
                     }
                 });
+
+                $('#job-delete').click(function(){
+                    $deleteJob = confirm("Are you sure you want to delete this job?");
+
+                    if(response == true) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "{{ route('users.store') }}"+'/'+user_id,
+
+                            success: function (data) {
+                                table.draw();
+                                toastr.success('Deleted successfully!');
+
+                            },
+                            error: function (data) {
+                                toastr.error('Error!');
+
+                            }
+                        });
+                    }
+                });
+
 
                 calendar.render();
             });
