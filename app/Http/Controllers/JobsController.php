@@ -490,11 +490,19 @@ class JobsController extends Controller
 
         DB::transaction(function() use($id) {
 
+            $jabAssignees = JobAssignee::where('job_id', $id)->get();
+
+            foreach ($jabAssignees as $jabAssignee) {
+                $jabAssignee->delete();
+            }
+
             Jobs::find($id)->delete();
-            Appointment::where('job_id', $id)->delete();
 
         },2);        
 
-        return response()->json(['success'=>'Job deleted successfully.']);
+        return response()->json([
+            'id' => $id,
+            'success'=>'Job deleted successfully.'
+        ]);
     }
 }

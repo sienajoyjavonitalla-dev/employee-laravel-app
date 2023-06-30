@@ -14,6 +14,8 @@ use DataTables;
 use Carbon\Carbon;
 use PDF;
 use DB;
+use Illuminate\Support\Facades\Auth;
+
 class InvoiceController extends Controller
 {
     public function __construct()

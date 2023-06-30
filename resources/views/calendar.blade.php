@@ -42,7 +42,26 @@
                     </form>
 
                     <hr>
-                    <p class="invoice-link btn btn-info" id="invoice-link-section"><a href="#" id="invoice-link" target="_blank">INVOICE LINK</a></p>
+
+                    <div class="row pl-4 pr-4">
+                        <div class="col-sm-6">
+                            <p class="invoice-link btn btn-info float-left" id="invoice-link-section">
+                                <a href="#" id="invoice-link" target="_blank">
+                                    INVOICE LINK
+                                </a>
+                            </p>
+                        </div>
+
+                        @if(Auth::user()->roles == 'admin')
+                        <div class="col-sm-6">
+                            <p class="invoice-link btn btn-danger float-right">
+                                <a href="#" id="job-delete">
+                                    Delete
+                                </a>
+                            </p>
+                        </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -52,6 +71,12 @@
         <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.js'></script>
 
         <script> 
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
 
             document.addEventListener('DOMContentLoaded', function () {
 
@@ -95,7 +120,6 @@
                         invoiceLinkSection = document.getElementById("invoice-link-section");
                         invoiceLink = document.getElementById("invoice-link");
 
-
                         jobTitleStatus = '<span class="job-title-status" style="background-color:'
                                         + info.event.backgroundColor + '">'
                                         + data.status + '</span>';
@@ -130,6 +154,31 @@
                         $('#ajaxModel').modal('show');
                     }
                 });
+
+                $('#job-delete').click(function(){
+                    deleteJob = confirm("Are you sure you want to delete this job?");
+
+                    if(deleteJob == true) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: '/jobs/'+data.job_id,
+
+                            success: function (data) {
+                                event= calendar.getEventById(data.id);
+
+                                event.remove();
+
+                                toastr.success('Deleted successfully!');
+                                $('#ajaxModel').modal('hide');
+                            },
+                            error: function (data) {
+                                toastr.error('Error!');
+
+                            }
+                        });
+                    }
+                });
+
 
                 calendar.render();
             });

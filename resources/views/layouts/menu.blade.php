@@ -1,7 +1,7 @@
 <!-- Main Sidebar Container -->
-<aside style="min-height: 150%;" class="main-sidebar main-sidebar-custom sidebar-dark-primary elevation-4 sidebar-wrapper">
+<aside class="main-sidebar main-sidebar-custom sidebar-dark-primary elevation-4 sidebar-wrapper">
     <!-- Brand Logo -->
-    <a href="/home" class="brand-link">
+    <a href="/timeclock" class="brand-link">
         <img src="favicon.ico" alt="uprise Logo" class="brand-image img-circle">
         <span class="brand-text font-weight-light">Uprise Rigging Ltd.</span>
     </a>
@@ -39,15 +39,15 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/jobs" class="nav-link  {{ request()->is('jobs') ? 'active' : '' }}">
-                        <i class="fas fa-briefcase nav-icon"></i>
-                        <p>Jobs</p>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a href="/pusher" class="nav-link  {{ request()->is('pusher') ? 'active' : '' }}">
                         <i class="fas fa-comments nav-icon"></i>
                         <p>Chat</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/jobs" class="nav-link  {{ request()->is('jobs') ? 'active' : '' }}">
+                        <i class="fas fa-briefcase nav-icon"></i>
+                        <p>Jobs</p>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -174,21 +174,6 @@
         </nav>
 
         <link href="{{ asset('css/sidebar-menu.css?v=').time() }}" rel="stylesheet">
-
-        <script>
-
-            // adminOnlyItems = document.querySelectorAll('.admin-only');
-            
-            if( '{{Auth::user()->roles}}' != 'admin' )
-            {
-                $('.admin-only').each(function(e){
-                    console.log($(this).prop('display'));
-
-                    $(this).hide();
-                });
-            }
-
-        </script>
 
         <!-- Sidebar Menu Logout Section-->
         <!-- <nav class="mt-2 logout-section">

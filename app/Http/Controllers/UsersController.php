@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use DataTables;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
@@ -16,6 +17,11 @@ class UsersController extends Controller
     
     public function index(Request $request)
     {
+        if(Auth::user()->roles != 'admin')
+        {
+            return redirect('/timeclock');
+        }
+
         if ($request->ajax()) {
 
             $data = User::latest()->get();

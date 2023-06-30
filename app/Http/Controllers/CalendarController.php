@@ -70,6 +70,7 @@ class CalendarController extends Controller
             $newEndDateTime = $jobTimeFrame->addDays(1)->toDateString();
 
             $events[] = [
+                'id' => $appointment->id,
                 'title' => $appointment->id,
                 'extendedProps' => [
                     'job_id' => $appointment->id,
