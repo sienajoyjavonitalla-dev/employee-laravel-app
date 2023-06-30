@@ -45,8 +45,12 @@ class LogTimeController extends Controller
                     })
                     ->addColumn('action', function($row){
                         $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editTimeLog">Edit</a>';
-                        $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteTimeLog">Delete</a>';
 
+                        if(Auth::user()->roles == 'admin') {
+                            $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteTimeLog">Delete</a>';
+
+                        }
+                        
                         return $btn;
                     })
                     ->rawColumns(['action', 'timesheet_url'])
@@ -207,8 +211,9 @@ class LogTimeController extends Controller
             ->whereNotNull('tl.end_time')
             ->whereNotNull('ja.assigned_id')
             ->whereNotNull('j.id');
-
-        $filter = $data;
+        if(Auth::user()->roles != 'admin') {
+            $data = $data->where('ja.assigned_id', Auth::user()->id);
+        }
 
         if ($request->filled('from_date') && $request->filled('to_date')) {
             $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
@@ -226,12 +231,14 @@ class LogTimeController extends Controller
             $data = $data->where('j.id', $request->job);
         }
 
-        if ($request->filled('user_type')) {
+        if ($request->user_type == 'full-timer' || $request->user_type == 'subcontractor') {
             $data = $data->where('u.roles', $request->user_type);
         }
+
+        $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
+                client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
         if ($request->ajax()) {
-                $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
-                    client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date')->get();
+                
                 return Datatables::of($data)
                     ->addIndexColumn()
                     // ->addColumn('employee', function($row){
@@ -324,8 +331,11 @@ class LogTimeController extends Controller
         $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
 
         $jobs = Jobs::pluck('address', 'id');
-       
-        $filter_assigned = $filter->where('u.roles', 'subcontractor')->selectRaw('DISTINCT u.name, ja.assigned_id')->get();
+        if($request->user_type == "full-timer")
+            $filter_assigned = User::where('roles', 'full-timer')->selectRaw('name, id')->get();
+        else
+            $filter_assigned = User::where('roles', 'subcontractor')->selectRaw('name, id')->get();
+
         return view('timelogs.timesheet', compact('clients', 'jobs', 'filter_assigned'));
 
     }

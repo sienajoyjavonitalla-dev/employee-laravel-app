@@ -25,10 +25,15 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::resource('jobs', App\Http\Controllers\JobsController::class);
 Route::resource('users', App\Http\Controllers\UsersController::class);
 Route::resource('timelogs', App\Http\Controllers\LogTimeController::class);
+Route::resource('banks', App\Http\Controllers\BankDetailsController::class);
 Route::resource('clients', App\Http\Controllers\ClientsController::class);
 
 # Route::resource('invoices', InvoiceController::class);
 Route::get('invoices', 'App\Http\Controllers\InvoiceController@index')->name('invoices.index');
+Route::get('subinvoices', 'App\Http\Controllers\InvoiceController@index')->name('subinvoices.index');
+Route::get('clients_invoice', 'App\Http\Controllers\InvoiceController@clients_invoice')->name('clients_invoice');
+
+
 Route::get('invoices/pdf', 'App\Http\Controllers\InvoiceController@pdf')->name('invoices.pdf');
 Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
 Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out')->name('clock-in-out');
@@ -39,6 +44,10 @@ Route::get('how_tos', 'App\Http\Controllers\UsersController@how_tos')->name('cal
 
 Route::get('laravel-signature-pad','App\Http\Controllers\LogTimeController@signature');
 Route::get('timesheet', 'App\Http\Controllers\LogTimeController@timesheet')->name('timesheet');
+Route::get('fulltimetimesheet', 'App\Http\Controllers\LogTimeController@timesheet')->name('fulltimetimesheet');
+
+Route::get('subtimesheet', 'App\Http\Controllers\LogTimeController@timesheet')->name('subtimesheet');
+
 
 Route::get('client/{client}/show_invoices', 'App\Http\Controllers\ClientsController@show_invoices')->name('client.show-invoices');
 Route::get('generate/invoice', 'App\Http\Controllers\JobsController@generateInvoice')->name('job.generate.invoice');

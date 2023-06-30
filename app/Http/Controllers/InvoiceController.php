@@ -7,7 +7,9 @@ use App\Models\Jobs;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Models\BankDetails;
 use App\Models\TimeLog;
+use App\Models\SubcontractorInvoice;
 use DataTables;
 use Carbon\Carbon;
 use PDF;
@@ -23,11 +25,7 @@ class InvoiceController extends Controller
     
     public function index(Request $request)
     {
-        if(Auth::user()->roles != 'admin')
-        {
-            return redirect('/timeclock');
-        }
-
+        //this is for subcontractor's invoice
         $data = DB::table('time_logs as tl')
             ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
             ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
@@ -36,6 +34,7 @@ class InvoiceController extends Controller
             ->whereNotNull('tl.end_time')
             ->whereNotNull('ja.assigned_id')
             ->whereNotNull('j.id')
+            ->whereNull('tl.subbies_invoice_id')
             ->where('u.roles', 'subcontractor');
 
         $filter = $data;
@@ -150,6 +149,96 @@ class InvoiceController extends Controller
                     })
                     ->make(true);
             } else {
+                $data = SubcontractorInvoice::latest()->get();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('bank', function($row){
+                        $bank = BankDetails::where('id', $row->bank_id)->first();
+                        
+                        return $bank->bsb_no;
+                    })
+                    ->addColumn('subcontractor', function($row){
+                        $u = User::where('id', $row->subcontractor_id)->first();
+                        
+                        return $u->name;
+                    })
+                    ->addColumn('action', function($row){
+                        $btn = '<a href="" data-toggle="tooltip" class="mr-1 btn btn-primary btn-sm">Edit</a>';
+                        $btn .= '<a href="" data-toggle="tooltip" class="btn btn-danger btn-sm">Delete</a>';
+
+                        return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            } 
+        }
+        $clients = Client::pluck('company_name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
+
+        $jobs = Jobs::pluck('address', 'id');
+        $banks = BankDetails::pluck('bsb_no', 'id');
+
+        $filter_assigned = $filter->where('u.roles', 'subcontractor')->selectRaw('DISTINCT u.name, ja.assigned_id')->get();
+        return view('invoices.index', compact('clients', 'jobs', 'filter_assigned', 'banks'));
+
+    }
+
+    public function clients_invoice(Request $request)
+    {
+        //this is for client's invoice
+        if ($request->ajax()) {
+            if ($request->name == 'generate') {
+                $data = DB::table('jobs as j')
+                    ->leftJoin('invoices as i', 'i.job_id', '=', 'j.id')
+                    ->leftJoin('clients as c', 'c.id', '=', 'j.client_id')
+                    ->selectRaw('j.id, j.client_id, j.status, j.address, j.start_date_time, j.end_date_time, i.invoice_id, i.invoice_url, c.company_name')
+                    ->get();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('invoice', function($row){
+                        if($row->invoice_id) {
+                            $inv = "<a href='".$row->invoice_url."' target='_blank'> ".$row->invoice_id."</a>";
+                        } else {
+                            $inv = '<a href="javascript:void(0)" data-compid="'.$row->client_id.'"  data-company="'.$row->company_name.'"  data-id="'.$row->id.'" data-toggle="tooltip" class="btn btn-secondary btn-xs generateBtn"><i class="fa-solid fa-gear"></i>Generate</a>';
+
+                        }
+                        return $inv;
+                    })
+                    ->addColumn('client', function($row){
+                        $client = Client::where('id', $row->client_id)->first();
+                        return $client->company_name;
+                    })
+                    ->addColumn('assigned', function($row){
+                        $assigned = DB::table('job_assignee as ja')
+                            ->leftJoin('users as u', 'ja.assigned_id', '=', 'u.id')
+                            ->where('ja.job_id', $row->id)
+                            ->select('u.name')
+                            ->get();
+                        $display = "";
+
+                        if($assigned->count() > 0) {
+                            $count=0;
+                            foreach($assigned as $a) {
+                                if($count > 0)
+                                    $display .=', ';
+    
+                                $display .=$a->name;
+                                $count++;
+                            }
+
+                        } 
+                        
+                        return $display;
+                    })
+                    ->addColumn('action', function($row){
+                        $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editJob">Edit</a>';
+                        $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteJob">Delete</a>';
+
+                        return $btn;
+                    })
+                    ->rawColumns(['action', 'assigned', 'invoice'])
+                    ->make(true);
+            } else {
                 $data = Invoice::where('job_id', '>', 0)->get();
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -186,13 +275,8 @@ class InvoiceController extends Controller
                     ->make(true);
             } 
         }
-        $clients = Client::pluck('company_name', 'id');
-        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
-
-        $jobs = Jobs::pluck('address', 'id');
        
-        $filter_assigned = $filter->where('u.roles', 'subcontractor')->selectRaw('DISTINCT u.name, ja.assigned_id')->get();
-        return view('invoices.index', compact('clients', 'jobs', 'filter_assigned'));
+        return view('invoices.clients_invoice');
 
     }
     public function generatePDF(Request $request)
@@ -205,6 +289,7 @@ class InvoiceController extends Controller
             ->whereNotNull('tl.end_time')
             ->whereNotNull('ja.assigned_id')
             ->whereNotNull('j.id')
+            ->whereNull('tl.subbies_invoice_id')
             ->where('u.roles', 'subcontractor');
 
         if ($request->from_date && $request->to_date) {
@@ -223,25 +308,36 @@ class InvoiceController extends Controller
             $data = $data->where('j.id', $request->job);
         }
         
-        $data = $data->selectRaw('j.id, j.address, j.po_number, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
+        $data = $data->selectRaw('j.id, tl.id as tl_id, j.address, j.po_number, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
                     client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');// $this->convert_customer_data_to_html($data);
         // dd($data->get());
         $data = $data->get();
         $first = $data->first();
         $po_number = $first->po_number;
+        $bank_details = BankDetails::where('id', $request->bank)->first()->toArray();
+        $user = User::where('id', $request->assigned)->first()->toArray();
         $dataArr = array(
             'first' => $first,
             'data' => $data,
+            'bank' => $bank_details,
+            'user' => $user,
+            'invoice' => $request->invoice
         );
-        // dd($dataArr);
-        //uncomment later
-        // view()->share('dataArr',$dataArr);       
-        // $pdf = PDF::loadView('invoices.pdf_view');
-        // $pdf->download('pdf_view.pdf');
+        $sub_invoice = SubcontractorInvoice::updateOrCreate(['invoice_id' => $request->invoice],
+        [
+            'subcontractor_id' => $request->assigned,
+            'bank_id' => $request->bank,
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date
+        ]);     
+        
+        foreach($data as $d) {
+            TimeLog::where('id',$d->tl_id)->update(['subbies_invoice_id'=>$request->invoice]);
+        }
+
 
         $pdf = \App::make('dompdf.wrapper');
         $pdf =PDF::loadView('invoices.pdf_view',compact('dataArr'));
-
         return $pdf->stream('pdf_view.pdf');
         // return view('invoices.pdf_view', compact('dataArr'));
 
