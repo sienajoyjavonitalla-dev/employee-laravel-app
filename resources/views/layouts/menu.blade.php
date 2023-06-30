@@ -1,5 +1,5 @@
 <!-- Main Sidebar Container -->
-<aside style="min-height: 150%;" class="main-sidebar main-sidebar-custom sidebar-dark-primary elevation-4 sidebar-wrapper">
+<aside class="main-sidebar main-sidebar-custom sidebar-dark-primary elevation-4 sidebar-wrapper">
     <!-- Brand Logo -->
     <a href="/timeclock" class="brand-link">
         <img src="favicon.ico" alt="uprise Logo" class="brand-image img-circle">
