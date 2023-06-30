@@ -321,7 +321,7 @@ class JobsController extends Controller
                     ->where('tl.job_id', $job_id)
                     ->selectRaw('u.name, travel_allowance, date, jobs.id, title, po_number, 
                         clients.address, assigned_id, job_id, tl.start_time, tl.end_time,  
-                        client_id, client_name, company_name, lunch_break, rate_per_hour, ot_rate_per_hour, 
+                        client_id, client_name, company_name, lunch_break, clients.rate_per_hour, clients.ot_rate_per_hour, 
                         TIMESTAMPDIFF(HOUR, tl.start_time, tl.end_time), jobs.address as job_address')
                     ->get();
         if($timelogs->count() == 0) {

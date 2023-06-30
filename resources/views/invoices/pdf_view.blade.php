@@ -80,13 +80,43 @@ body {
     <title>Pdf Download</title>
   </head>
   <body>
-    <div class='box'>
-        <h5 class='flex-right'>Issue Date: {{ date("Y-m-d") }}</h5>
-    </div>
+    <h3 style="text-align: center;">{{ $dataArr['user']['name']}}</h3>
     <div class='box'>
         <div class='box1'>
-            <span><h4 class='m-0'>Uprise Rigging Pty Ltd</h4></span>
             <h5 class='weight-normal' style="text-align: left;">
+                Address: {{ $dataArr['user']['address']}}<br/>
+                ABN:{{ $dataArr['user']['abn']}}<br/>
+            </h5>
+        </div>
+        <div class='box2'>
+        </div>
+        <div class='box3'>
+            <h5 class='flex-right weight-normal'>
+                Phone: {{ $dataArr['user']['contact_no']}}<br/>
+                Email: {{ $dataArr['user']['email']}}<br/>
+            </h5>
+        </div>
+    </div>
+    <h3 style="text-align: center;">Invoice</h3>
+    <div class='box'>
+        <div class='box1'>
+            <h5 class='weight-normal' style="text-align: left;">
+                Invoice #: {{ $dataArr['invoice'] }}
+            </h5>
+        </div>
+        <div class='box2'>
+        </div>
+        <div class='box3'>
+            <h5 class='flex-right weight-normal'>
+                Issue Date: {{ date("Y-m-d") }}
+            </h5>
+        </div>
+    </div>
+
+    <div class='box'>
+        <div class='box1'>
+            <h5 class='weight-normal' style="text-align: left;">
+                Uprise Rigging Pty Ltd<br/>
                 www.upriserigging.com<br/>
                 Yan Yean Rd, Doreen VIC3754<br/>
                 ABN: 79 647 093 310<br/>
@@ -184,10 +214,16 @@ body {
             <div class='box3'>        
                 <div><span class='title'>Subtotal</span> <span>{{$sub_ta}}</span></div> 
                 <div><span class='title'>Tax</span> <span>{{$tax}}</span></div>
-                <div><span class='title'>Total Amount</span> <span>{{$sub_ta + $tax}}</span></div>
-                <div><span class='title'>Balance Due</span> <span>{{$sub_ta+ $tax}}</span></div>
+                <div><span class='title'>Total Amount Due</span> <span>{{$sub_ta + $tax}}</span></div>
             </div>
         </div>
+        <br/><br/>
+        Please remit to:<br/>
+        BSB Number: {{$dataArr['bank']['bsb_no']}}<br/>
+        Account Number: {{$dataArr['bank']['acct_no']}}<br/>
+        Reference: {{$dataArr['invoice']}}<br/>
+        Total Due: {{$sub_ta+ $tax}}
+
     </span> 
   </body>
 </html>

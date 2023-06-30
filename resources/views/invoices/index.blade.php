@@ -2,25 +2,26 @@
 
 @section('content')
 <div class="card p-3 shadow" >
-        <h2>Invoices</h2>
+        <h4>Subcontractors Invoice Management</h4>
         <div class="tab-pane fade active show" id="nav-invoice" role="tabpanel" aria-labelledby="nav-invoice-tab">
             <nav>
                 <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
-                    <button class="nav-link active" id="nav-list-tab" data-bs-toggle="tab" data-bs-target="#nav-list" type="button" role="tab" aria-controls="nav-list" aria-selected="true">Clients</button>
-                    <button class="nav-link" id="nav-generate-tab" data-bs-toggle="tab" data-bs-target="#nav-generate" type="button" role="tab" aria-controls="nav-generate" aria-selected="false">Subcontractors</button>
+                    <button class="nav-link active" id="nav-list-tab" data-bs-toggle="tab" data-bs-target="#nav-list" type="button" role="tab" aria-controls="nav-list" aria-selected="true">List</button>
+                    <button class="nav-link" id="nav-generate-tab" data-bs-toggle="tab" data-bs-target="#nav-generate" type="button" role="tab" aria-controls="nav-generate" aria-selected="false">Invoice</button>
                 </div>
             </nav>
             <div class="tab-content p-3 border bg-light" id="nav-tabContent">
                 <div class="tab-pane fade active show" id="nav-list" role="tabpanel" aria-labelledby="nav-list-tab">
-                <h5 class="mb-5">Clients Invoice List</h5>    
+                <h5 class="mb-5">Invoice List</h5>    
                 <table class="table table-bordered table-hover invoice-table">
                         <thead class="thead-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Status</th>
-                                <th>URL</th>
-                                <th>Is Emailed?</th>
-                                <th>Job</th>
+                                <th>Invoice ID</th>
+                                <th>Subcontractor</th>
+                                <th>Bank</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Created At</th>
                                 <th width="280px">Action</th>
                             </tr>
                         </thead>
@@ -29,7 +30,7 @@
                     </table>
                 </div>
                 <div class="tab-pane fade" id="nav-generate" role="tabpanel" aria-labelledby="nav-generate-tab">
-                <h5 class="mb-4">Subcontractor's Invoice</h5>    
+                <h5 class="mb-4">Generate Invoice</h5>    
                 <div class="row">
                         <div class="col-lg-12 align-items-center p-4">
                             <div class="container">
@@ -79,6 +80,8 @@
                             <button class="w-auto mb-4 mt-4 btn btn-success filter"><i class="fas fa-search"></i> Filter</button>
                             <!-- <a href="{{ route('invoices.generate.pdf') }}" class="btn btn-primary"><i class="fas fa-print"></i> Generate Invoice</a> -->
                             <a href="javascript:void(0)" class="btn btn-primary generate" id="generate_btn"><i class="fas fa-print"></i> Generate Invoice</a>
+                            
+                            
                             <!-- <a href="{{ route('invoices.generate.pdf') }}" class="btn btn-primary"><i class="fas fa-print"></i> Generate Invoice</a> -->
                             <!-- <a href="{{ route('invoices.generate.pdf',['download'=>'pdf']) }}" class="btn btn-primary"><i class="fas fa-print"></i> Generate Invoice</a> -->
 
@@ -109,6 +112,47 @@
             </div>
         </div>
 	</div>
+    <div class="modal fade" id="generateModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modelHeading">Download</h4>
+            </div>
+
+            <div class="modal-body">
+                <form id="generateForm" name="generateForm" class="form-horizontal pb-1">
+
+                    <div class="form-group">
+                        <label for="invoice_id" class="col-sm-6 control-label">Invoice ID</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="invoice_id" name="invoice_id" value="{{rand(1000, 1000000)}}" >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bank_id" class="col-sm-6 control-label">Bank Details</label>
+                        <div class="col-sm-12">
+                            <select class="form-control" name="bank_id" id="bank_id" required="">
+                                <option value="">-- Select --</option>
+                                @foreach ($banks as $key => $value)
+                                    <option value="{{ $key }}"> 
+                                        {{ $value }} 
+                                    </option>
+                                @endforeach    
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <a href="javascript:void(0)" class="btn btn-primary " id="download"><i class="fas fa-download"></i> Download</a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @stop
 
@@ -128,10 +172,11 @@
         ajax: "{{ route('invoices.index', ['name'=>'list']) }}",
         columns: [
             {data: 'invoice_id', name: 'invoice_id'},
-            {data: 'status', name: 'status'},
-            {data: 'online_invoice_url', name: 'online_invoice_url'},
-            {data: 'emailed', name: 'emailed'},
-            {data: 'id', name: 'id'},
+            {data: 'subcontractor', name: 'subcontractor'},
+            {data: 'bank', name: 'bank'},
+            {data: 'from_date', name: 'from_date'},
+            {data: 'to_date', name: 'to_date'},
+            {data: 'created_at', name: 'created_at'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
@@ -205,17 +250,28 @@
             toastr.error('Both Date is required!');
         }
     });
-
     $('.generate').click(function (e) {
-        
+
+        if($('#assigned').val()) 
+            $('#generateModal').modal('show');
+        else 
+            toastr.error('Please select a subcontractor!')
+
+    });
+
+    $('#download').click(function (e) {
         var from_date = ($('input[name="daterange"]').data('daterangepicker').startDate.format('YYYY-MM-DD'));
         var to_date = ($('input[name="daterange"]').data('daterangepicker').endDate.format('YYYY-MM-DD'));
         var client = $('#client').val();
         var job = $('#job').val();
         var assigned = $('#assigned').val();
+        var invoice = $('#invoice_id').val();
+        var bank = $('#bank_id').val();
 
+        $('#generateModal').modal('hide');
         
-        var uri = "/generatePDF?assigned="+ assigned +"&job="+job+"&from_date="+from_date+"&to_date="+to_date;
+        var uri = "/generatePDF?assigned="+ assigned +"&job="+job+"&from_date="+from_date+"&to_date="+to_date+"&invoice="+invoice+"&bank="+bank;
+        
         var encoded = encodeURI(uri);
         window.location.href=encoded;
       

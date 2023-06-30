@@ -4,8 +4,9 @@
 <div class="row">
     <div class="col-lg-12 align-items-center p-4">
         <div class="container">
-        <a class="btn btn-success mb-4" href="javascript:void(0)" id="createNewTimeLog"> Create New TimeLog</a>
-
+        @if(auth()->user()->roles == 'admin')
+            <a class="btn btn-success mb-4" href="javascript:void(0)" id="createNewTimeLog"> Create New TimeLog</a>
+        @endif
 
         <table class="table table-bordered table-hover data-table">
             <thead class="thead-light">
@@ -64,12 +65,7 @@
                             </select>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="lunch_break" class="col-sm-6 control-label">Lunch Break</label>
-                        <input class="form-check-input" type="checkbox" id="lunch_break" name="lunch_break" value=""  checked="false">
-                    </div>
-
+                   
                     <div class="form-group">
                         <label for="start_time" class="col-sm-6 control-label">Start Time</label>
                         <div class="col-sm-12">
@@ -90,6 +86,11 @@
                             <input type="text" class="form-control" id="date" name="date" value="" required="">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="lunch_break" class="col-sm-6 control-label">Lunch Break</label>
+                        <input class="form-check-input" type="checkbox" id="lunch_break" name="lunch_break" value=""  checked="false">
+                    </div>
+
                     <div class="form-group">
                         <label for="timesheet" class="col-sm-6 control-label">Timesheet</label>
                         <div class="col-sm-12">
@@ -147,6 +148,8 @@
         $('#id').val('');
         $('.job_container').hide();
         $('#job_id').attr('disabled', false); 
+        $('#assigned_id').attr('disabled', false); 
+
 
         $('#timelogForm').trigger("reset");
 
@@ -157,7 +160,13 @@
 
     $('body').on('click', '.editTimeLog', function () {
         $('#job_id').attr('disabled', true); 
-
+        $('#assigned_id').attr('disabled', true); 
+        if( '{{Auth::user()->roles}}' != 'admin' ) {
+            $('#assigned_id').attr('disabled', true); 
+            $('#start_time').attr('disabled', true); 
+            $('#end_time').attr('disabled', true); 
+            $('#date').attr('disabled', true); 
+        }
       var timelogs = $(this).data('id');
       $.get("{{ route('timelogs.index') }}" +'/' + timelogs +'/edit', function (data) {
           $('#modelHeading').html("Edit TimeLog");
@@ -185,6 +194,13 @@
       
     $('#saveBtn').click(function (e) {
         $('#job_id').attr('disabled', false); 
+        $('#assigned_id').attr('disabled', false); 
+        if( '{{Auth::user()->roles}}' != 'admin' ) {
+            $('#assigned_id').attr('disabled', false); 
+            $('#start_time').attr('disabled', false); 
+            $('#end_time').attr('disabled', false); 
+            $('#date').attr('disabled', false); 
+        }
 
         var formData = new FormData($('#timelogForm')[0]);
         e.preventDefault();
