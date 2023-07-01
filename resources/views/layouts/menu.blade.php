@@ -3,7 +3,7 @@
     <!-- Brand Logo -->
     <a href="/timeclock" class="brand-link">
         <img src="favicon.ico" alt="uprise Logo" class="brand-image img-circle">
-        <span class="brand-text font-weight-light">Uprise Rigging Ltd.</span>
+        <span class="brand-text font-weight-light">Uprise Rigging Pty Ltd.</span>
     </a>
 
     <!-- Sidebar -->

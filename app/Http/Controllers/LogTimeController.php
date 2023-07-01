@@ -145,18 +145,35 @@ class LogTimeController extends Controller
             }
             
         } else if($request->type == 'out'){
-            $found_tl = TimeLog::where('assigned_id', Auth::user()->id)->whereNull('end_time')->first();
+            $found_tl = TimeLog::where('assigned_id', Auth::user()->id)->whereNull('end_time')->where('job_id', $request->job_id)->first();
 
-            if( $found_tl->lunch_break == null ){
+            if( $request->lunch_break == null ){
                 return response()->json(['error'=>'Lunch break should have a value!']);
-            } else if($found_tl && $found_tl->lunch_break) {
+            } else if($found_tl && ($request->lunch_break == "1" || $request->lunch_break == "0" )) {
+
+                if($request->signed) {
+                    $folderPath = public_path('signature/');
+                    $image_parts = explode(";base64,", $request->signed);
+                    $image_type_aux = explode("image/", $image_parts[0]);
+                    $image_type = $image_type_aux[1];
+                    $image_base64 = base64_decode($image_parts[1]);
+                    $signature = uniqid() . '.'.$image_type;
+                    $file = $folderPath . $signature;
+                    file_put_contents($file, $image_base64);
+                    $found_tl->signature = $signature;
+                }
+            
+                if($request->authorized) {
+                    $found_tl->authorized = $request->authorized;
+                }
+           
+                $found_tl->lunch_break = $request->lunch_break;
                 $found_tl->end_time = Carbon::now()->toTimeString();
                 $found_tl->save();
             } 
             
         } else {
-           
-            if($request->lunch_break) {
+            if($request->lunch_break == "1" || $request->lunch_break == "0" ) {
                 $found_tl = TimeLog::where('assigned_id', Auth::user()->id)
                     ->whereNull('end_time')
                     ->where('job_id', $request->job_id)
@@ -204,11 +221,6 @@ class LogTimeController extends Controller
 
     public function timesheet(Request $request)
     {
-        if(Auth::user()->roles != 'admin')
-        {
-            return redirect('/timeclock');
-        }
-
         $data = DB::table('time_logs as tl')
             ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
             ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
@@ -256,7 +268,8 @@ class LogTimeController extends Controller
                         $total_hr = 0;
                         $start_time = new Carbon($row->start_time);
                         $end_time =new Carbon($row->end_time);
-                        $total_hr = $start_time->diffInHours($end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
                         if($row->lunch_break) {
                             $total_hr = $total_hr - .5;
                         }
@@ -269,7 +282,8 @@ class LogTimeController extends Controller
                         $total_hr = 0;
                         $start_time = new Carbon($row->start_time);
                         $end_time =new Carbon($row->end_time);
-                        $total_hr = $start_time->diffInHours($end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
                         $pay = 0;
                         
                         if($row->lunch_break) {
@@ -292,7 +306,8 @@ class LogTimeController extends Controller
                         $total_hr = 0;
                         $start_time = new Carbon($row->start_time);
                         $end_time =new Carbon($row->end_time);
-                        $total_hr = $start_time->diffInHours($end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
                         $ot_pay = 0;
 
                         if($row->lunch_break) {
@@ -308,7 +323,8 @@ class LogTimeController extends Controller
                         $total_hr = 0;
                         $start_time = new Carbon($row->start_time);
                         $end_time =new Carbon($row->end_time);
-                        $total_hr = $start_time->diffInHours($end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
                         $total_amount=0;
                         if($row->lunch_break) {
                             $total_hr = $total_hr - .5;
