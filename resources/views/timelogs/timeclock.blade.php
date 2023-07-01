@@ -244,6 +244,7 @@
                     $('#saveBtn').html('Save');
                     if(data.success) {
                         toastr.success(data.success, 'SUCCESS');
+                        window.location.reload(); 
                     } else {
                         toastr.error(data.error, 'ERROR');
                     }
