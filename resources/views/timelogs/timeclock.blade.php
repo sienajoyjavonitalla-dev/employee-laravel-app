@@ -73,8 +73,8 @@
                         <div class="col-sm-12">
                             <select class="form-control" name="lunch_break" id="lunch_break" required="" value="{{$clock_in ? $clock_in->lunch_break : '' }}" autocomplete="off">
                                 <option value="" >-- Select --</option>
-                                <option value="0" selected="{{$clock_in->lunch_break == 0 ? 'selected' : '' }}"> No</option>
-                                <option value="1" selected="{{$clock_in->lunch_break == 1 ? 'selected' : '' }}"> Yes</option>
+                                <option value="0" selected="{{$clock_in->lunch_break == '0' ? 'selected' : '' }}"> No</option>
+                                <option value="1" selected="{{$clock_in->lunch_break == '1' ? 'selected' : '' }}"> Yes</option>
                             </select>
                         </div>
                     </div>
@@ -168,16 +168,20 @@
 
         $('#clock-out').click(function (e) {
 
-            var dataToSend = {
-                'type': 'out',
-                '_token': '{{ csrf_token() }}'
-            };
+            // var dataToSend = {
+            //     'type': 'out',
+            //     '_token': '{{ csrf_token() }}'
+            // };
+            var formData = new FormData($('#timelogForm')[0]);
+            formData.append('type', 'out');
 
             $.ajax({
                 url: "clock_in_out",
                 type: "POST",
                 dataType: 'json',
-                data: dataToSend,
+                processData: false,
+                contentType: false,
+                data: formData,
                 success: function (data) {
                     if(data.success) {
                         toastr.success(data.success, 'SUCCESS');
@@ -208,9 +212,7 @@
                 success: function (data) {
                     $('#saveBtn').html('Save');
                     if(data.success) {
-                        $('#timelogForm').trigger("reset");
                         toastr.success(data.success, 'SUCCESS');
-                        window.location.reload();        
                     } else {
                         toastr.error(data.error, 'ERROR');
                     }
