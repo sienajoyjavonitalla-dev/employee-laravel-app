@@ -13,6 +13,7 @@ const mix = require('laravel-mix');
 
 mix.js('resources/js/app.js', 'public/js')
     .js('resources/js/signaturePad.js', 'public/js')
+    .js('resources/js/sigPad.js', 'public/js')
     .css('resources/css/app.css', 'public/css')
     .css('resources/css/custom.css', 'public/css')
     .css('resources/css/sidebar-menu.css', 'public/css')

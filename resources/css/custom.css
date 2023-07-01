@@ -36,3 +36,21 @@
         float: left;
     }
 }
+
+.sigpad-wrapper {
+    position: relative;
+    width: 350;
+    height: 180;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#sigpad {
+    border: 1px solid #000;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: #fff;
+}
