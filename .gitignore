@@ -18,3 +18,5 @@ yarn-error.log
 /.vscode
 /public/vendor
 /resources/lang/vendor
+/public/img
+/public/signature

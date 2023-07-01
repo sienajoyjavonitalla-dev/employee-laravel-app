@@ -33,6 +33,7 @@
 
             <div class="modal-body">
                 <form id="clientForm" name="clientForm" class="form-horizontal">
+                @csrf
 
                    <input type="hidden" name="client_id" id="client_id">
                    <div class="form-group">

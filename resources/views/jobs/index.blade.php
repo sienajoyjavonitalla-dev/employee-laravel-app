@@ -36,6 +36,7 @@
 
             <div class="modal-body">
                 <form id="jobForm" name="jobForm" class="form-horizontal">
+                @csrf
 
                    <input type="hidden" name="job_id" id="job_id">
 
@@ -119,6 +120,7 @@
 
             <div class="modal-body">
                 <form id="assignForm" name="assignForm" class="form-horizontal pb-1">
+                @csrf
 
                     <div class="form-group">
                         <input type="hidden" class="form-control" id="job_assignee_id" name="job_assignee_id" value="" >
@@ -404,7 +406,7 @@
         success: function (data) {
             $('#assignForm').trigger("reset");
             $('#assignModal').modal('hide');
-            $('#saveAssBtn').html('Save Changes');
+            $('#saveAssBtn').html('Add');
 
             if(data.success) {
                 table.draw();
@@ -416,7 +418,8 @@
             
         },
         error: function (data) {
-            $('#saveAssBtn').html('Save Changes');
+            console.log('Error:', data);
+            $('#saveAssBtn').html('Add');
             toastr.error('Error Saving!');
 
         }

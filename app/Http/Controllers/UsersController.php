@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use DataTables;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
@@ -16,6 +17,11 @@ class UsersController extends Controller
     
     public function index(Request $request)
     {
+        if(Auth::user()->roles != 'admin')
+        {
+            return redirect('/timeclock');
+        }
+
         if ($request->ajax()) {
 
             $data = User::latest()->get();
@@ -56,6 +62,8 @@ class UsersController extends Controller
             if($request->password != null) {
                 $user->password = Hash::make($request->password);
             }
+            $user->rate_per_hour = $request->rate_per_hour;
+            $user->ot_rate_per_hour = $request->ot_rate_per_hour;
             $user->save();
         } else {
             User::create(
@@ -63,8 +71,9 @@ class UsersController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'roles' => $request->roles
-
+                'roles' => $request->roles,
+                'rate_per_hour' => $request->rate_per_hour,
+                'ot_rate_per_hour' => $request->ot_rate_per_hour
             ]);   
         }
              
@@ -82,5 +91,10 @@ class UsersController extends Controller
         User::find($id)->delete();
 
         return response()->json(['success'=>'User deleted successfully.']);
+    }
+
+
+    public function how_tos() {
+        return view('users.how_tos');
     }
 }

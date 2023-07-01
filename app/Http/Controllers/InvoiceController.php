@@ -7,11 +7,15 @@ use App\Models\Jobs;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Models\BankDetails;
 use App\Models\TimeLog;
+use App\Models\SubcontractorInvoice;
 use DataTables;
 use Carbon\Carbon;
 use PDF;
 use DB;
+use Illuminate\Support\Facades\Auth;
+
 class InvoiceController extends Controller
 {
     public function __construct()
@@ -21,34 +25,49 @@ class InvoiceController extends Controller
     
     public function index(Request $request)
     {
+        //this is for subcontractor's invoice
+        $data = DB::table('time_logs as tl')
+            ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
+            ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
+            ->leftJoin('job_assignee as ja', 'j.id', '=', 'ja.job_id')
+            ->leftJoin('users as u', 'u.id', '=', 'ja.assigned_id')
+            ->whereNotNull('tl.end_time')
+            ->whereNotNull('ja.assigned_id')
+            ->whereNotNull('j.id')
+            ->whereNull('tl.subbies_invoice_id')
+            ->where('u.roles', 'subcontractor');
+
+        $filter = $data;
+
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
+        }
+
+        if ($request->filled('client')) {
+            $data = $data->where('j.client_id', $request->client);
+        }
+
+        if ($request->filled('assigned')) {
+            $data = $data->where('ja.assigned_id', $request->assigned);
+        }
+
+        if ($request->filled('job')) {
+            $data = $data->where('j.id', $request->job);
+        }
+
+        
+        
         if ($request->ajax()) {
             if ($request->name == 'generate') {
-
-                $data = DB::table('time_logs as tl')->leftJoin('jobs as jobs', 'job_id', '=', 'jobs.id')
-                    ->leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id');
-
-                if ($request->filled('from_date') && $request->filled('to_date')) {
-                    $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
-                        
-                }
-
-                if ($request->filled('client')) {
-                    $data = $data->where('client_id', $request->client);
-                }
-
-                if ($request->filled('assigned')) {
-                    $data = $data->where('assigned_id', $request->assigned);
-                }
-
-                $data = $data->selectRaw('jobs.id, title, po_number, assigned_id, job_id, tl.start_time, tl.end_time, date, client_id, company_name, rate_per_hour, ot_rate_per_hour, lunch_break');
-                
+                $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
+                    client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date')->get();
                 return Datatables::of($data)
                     ->addIndexColumn()
-                    ->addColumn('employee', function($row){
-                        $qry = User::where('id', $row->assigned_id)->first();
-                        $user = $qry->name;
-                        return $user;
-                    })
+                    // ->addColumn('employee', function($row){
+                    //     $qry = User::where('id', $row->assigned_id)->first();
+                    //     $user = $qry->name;
+                    //     return $user;
+                    // })
                     ->addColumn('hrs_worked', function($row){
                         $total_hr = 0;
                         $start_time = new Carbon($row->start_time);
@@ -76,10 +95,12 @@ class InvoiceController extends Controller
                         if($total_hr > 4 && $total_hr <= 8 ) {
                             $ot_pay=0;
                             $pay = $total_hr * $row->rate_per_hour;
-                        } else if($total_hr <= 4) {
+                        } else if($total_hr > 0 && $total_hr <= 4) {
                             $pay = 4 * $row->rate_per_hour;
+                        } else if($total_hr > 8) {
+                            $total_hr = 8;
+                            $pay = 8 * $row->rate_per_hour;
                         }
-
                         
                         return $pay;
                     })
@@ -89,6 +110,10 @@ class InvoiceController extends Controller
                         $end_time =new Carbon($row->end_time);
                         $total_hr = $start_time->diffInHours($end_time);
                         $ot_pay = 0;
+
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
                         if($total_hr > 8) {
                             $ot_hours= $total_hr - 8;
                             $ot_pay = $ot_hours * $row->ot_rate_per_hour;
@@ -97,21 +122,25 @@ class InvoiceController extends Controller
                     })
                     ->addColumn('total', function($row){
                         $total_hr = 0;
-                    $start_time = new Carbon($row->start_time);
-                    $end_time =new Carbon($row->end_time);
-                    $total_hr = $start_time->diffInHours($end_time);
-                    if($row->lunch_break) {
-                        $total_hr = $total_hr - .5;
-                    }    
-                    if($total_hr > 4) {
+                        $start_time = new Carbon($row->start_time);
+                        $end_time =new Carbon($row->end_time);
+                        $total_hr = $start_time->diffInHours($end_time);
+                        $total_amount=0;
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }    
+                        if($total_hr > 4) {
                             $ot_pay=0;
                             $pay = $total_hr * $row->rate_per_hour;
                             if($total_hr > 8) {
                                 $ot_hours= $total_hr - 8;
                                 $ot_pay = $ot_hours * $row->ot_rate_per_hour;
+                                $total_hr = 8;
+                                $pay = $total_hr * $row->rate_per_hour;
+
                             }
                             $total_amount = $ot_pay + $pay;
-                        } else if($total_hr <= 4) {
+                        } else if($total_hr > 0 && $total_hr <= 4) {
                             $pay = 4 * $row->rate_per_hour;
                             $total_amount = $pay;
                         }
@@ -120,7 +149,97 @@ class InvoiceController extends Controller
                     })
                     ->make(true);
             } else {
-                $data = Invoice::latest()->get();
+                $data = SubcontractorInvoice::latest()->get();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('bank', function($row){
+                        $bank = BankDetails::where('id', $row->bank_id)->first();
+                        
+                        return $bank->bsb_no;
+                    })
+                    ->addColumn('subcontractor', function($row){
+                        $u = User::where('id', $row->subcontractor_id)->first();
+                        
+                        return $u->name;
+                    })
+                    ->addColumn('action', function($row){
+                        $btn = '<a href="" data-toggle="tooltip" class="mr-1 btn btn-primary btn-sm">Edit</a>';
+                        $btn .= '<a href="" data-toggle="tooltip" class="btn btn-danger btn-sm">Delete</a>';
+
+                        return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            } 
+        }
+        $clients = Client::pluck('company_name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
+
+        $jobs = Jobs::pluck('address', 'id');
+        $banks = BankDetails::pluck('bsb_no', 'id');
+
+        $filter_assigned = $filter->where('u.roles', 'subcontractor')->selectRaw('DISTINCT u.name, ja.assigned_id')->get();
+        return view('invoices.index', compact('clients', 'jobs', 'filter_assigned', 'banks'));
+
+    }
+
+    public function clients_invoice(Request $request)
+    {
+        //this is for client's invoice
+        if ($request->ajax()) {
+            if ($request->name == 'generate') {
+                $data = DB::table('jobs as j')
+                    ->leftJoin('invoices as i', 'i.job_id', '=', 'j.id')
+                    ->leftJoin('clients as c', 'c.id', '=', 'j.client_id')
+                    ->selectRaw('j.id, j.client_id, j.status, j.address, j.start_date_time, j.end_date_time, i.invoice_id, i.invoice_url, c.company_name')
+                    ->get();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('invoice', function($row){
+                        if($row->invoice_id) {
+                            $inv = "<a href='".$row->invoice_url."' target='_blank'> ".$row->invoice_id."</a>";
+                        } else {
+                            $inv = '<a href="javascript:void(0)" data-compid="'.$row->client_id.'"  data-company="'.$row->company_name.'"  data-id="'.$row->id.'" data-toggle="tooltip" class="btn btn-secondary btn-xs generateBtn"><i class="fa-solid fa-gear"></i>Generate</a>';
+
+                        }
+                        return $inv;
+                    })
+                    ->addColumn('client', function($row){
+                        $client = Client::where('id', $row->client_id)->first();
+                        return $client->company_name;
+                    })
+                    ->addColumn('assigned', function($row){
+                        $assigned = DB::table('job_assignee as ja')
+                            ->leftJoin('users as u', 'ja.assigned_id', '=', 'u.id')
+                            ->where('ja.job_id', $row->id)
+                            ->select('u.name')
+                            ->get();
+                        $display = "";
+
+                        if($assigned->count() > 0) {
+                            $count=0;
+                            foreach($assigned as $a) {
+                                if($count > 0)
+                                    $display .=', ';
+    
+                                $display .=$a->name;
+                                $count++;
+                            }
+
+                        } 
+                        
+                        return $display;
+                    })
+                    ->addColumn('action', function($row){
+                        $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editJob">Edit</a>';
+                        $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteJob">Delete</a>';
+
+                        return $btn;
+                    })
+                    ->rawColumns(['action', 'assigned', 'invoice'])
+                    ->make(true);
+            } else {
+                $data = Invoice::where('job_id', '>', 0)->get();
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('online_invoice_url', function($row){
@@ -142,8 +261,12 @@ class InvoiceController extends Controller
                         return $url;
                     })
                     ->addColumn('action', function($row){
-                        $btn = '<a href="" data-toggle="tooltip" class="mr-1 btn btn-warning btn-sm">Authorize</a>';
-                        $btn .= '<a href="" data-toggle="tooltip" class="mr-1 btn btn-primary btn-sm">Update</a>';
+                        $btn='';
+                        if($row->status != 'AUTHORISED') {
+                            $btn = '<a href="" data-toggle="tooltip" class="mr-1 btn btn-warning btn-sm">Authorize</a>';
+                            $btn .= '<a href="" data-toggle="tooltip" class="mr-1 btn btn-primary btn-sm">Update</a>';
+                        }
+                        
                         $btn .= '<a href="" data-toggle="tooltip" class="btn btn-danger btn-sm">Void</a>';
 
                         return $btn;
@@ -152,57 +275,70 @@ class InvoiceController extends Controller
                     ->make(true);
             } 
         }
-        $clients = Client::pluck('company_name', 'id');
-        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
-
-        $jobs = Jobs::pluck('id');
-        return view('invoices.index', compact('clients', 'jobs'));
+       
+        return view('invoices.clients_invoice');
 
     }
     public function generatePDF(Request $request)
     {
-        // if(!$request->client || !$request->po_number) {
-        //     return response()->json(['error'=>'Enter Client or PO number .']);
-        // }
-        $data = DB::table('time_logs as tl')->leftJoin('jobs as jobs', 'job_id', '=', 'jobs.id')
-                ->leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id')
-                ->leftJoin('users as u', 'jobs.employee_id', '=', 'u.id');
+        $data = DB::table('time_logs as tl')
+            ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
+            ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
+            ->leftJoin('job_assignee as ja', 'j.id', '=', 'ja.job_id')
+            ->leftJoin('users as u', 'u.id', '=', 'ja.assigned_id')
+            ->whereNotNull('tl.end_time')
+            ->whereNotNull('ja.assigned_id')
+            ->whereNotNull('j.id')
+            ->whereNull('tl.subbies_invoice_id')
+            ->where('u.roles', 'subcontractor');
 
         if ($request->from_date && $request->to_date) {
             $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
         }
 
         if ($request->client) {
-            $data = $data->where('client_id', $request->client);
-        } else {
-            return back()->with('error', 'No client selected!');
-
-        }
-
-        if ($request->po_number) {
-            $data = $data->where('po_number', $request->po_number);
+            $data = $data->where('j.client_id', $request->client);
         }
 
         if ($request->assigned) {
-            $data = $data->where('assigned_id', $request->assigned);
+            $data = $data->where('ja.assigned_id', $request->assigned);
         }
 
-        $data = $data->selectRaw('name, travel_allowance, date, jobs.id, title, po_number, clients.address, assigned_id, job_id, tl.start_time, tl.end_time, date, client_id, client_name, company_name, lunch_break, rate_per_hour, ot_rate_per_hour, TIMESTAMPDIFF(HOUR, tl.start_time, tl.end_time), jobs.address as job_address');
-        // $this->convert_customer_data_to_html($data);
+        if ($request->job) {
+            $data = $data->where('j.id', $request->job);
+        }
+        
+        $data = $data->selectRaw('j.id, tl.id as tl_id, j.address, j.po_number, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
+                    client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');// $this->convert_customer_data_to_html($data);
+        // dd($data->get());
         $data = $data->get();
         $first = $data->first();
         $po_number = $first->po_number;
+        $bank_details = BankDetails::where('id', $request->bank)->first()->toArray();
+        $user = User::where('id', $request->assigned)->first()->toArray();
         $dataArr = array(
             'first' => $first,
             'data' => $data,
+            'bank' => $bank_details,
+            'user' => $user,
+            'invoice' => $request->invoice
         );
-        // dd($data);
-        //uncomment later
-        view()->share('dataArr',$dataArr);       
-        $pdf = PDF::loadView('invoices.pdf_view');
-        return $pdf->download('pdf_view.pdf');
+        $sub_invoice = SubcontractorInvoice::updateOrCreate(['invoice_id' => $request->invoice],
+        [
+            'subcontractor_id' => $request->assigned,
+            'bank_id' => $request->bank,
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date
+        ]);     
+        
+        foreach($data as $d) {
+            TimeLog::where('id',$d->tl_id)->update(['subbies_invoice_id'=>$request->invoice]);
+        }
 
 
+        $pdf = \App::make('dompdf.wrapper');
+        $pdf =PDF::loadView('invoices.pdf_view',compact('dataArr'));
+        return $pdf->stream('pdf_view.pdf');
         // return view('invoices.pdf_view', compact('dataArr'));
 
     }

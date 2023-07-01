@@ -14,13 +14,24 @@
                 <div class="modal-body">
 
                     <form id="clientForm" name="clientForm" class="form-horizontal">
-
-                        <label class="col-sm-6 control-label" id="modal-header-title"></label>
+                    @csrf
 
                         <div class="form-group">
-                            <label for="abn" class="col-sm-6 control-label">Client</label>
+                            <label for="event-po-number" class="col-sm-6 control-label">Client</label>
                             <div class="col-sm-12">
                                 <input type="text" class="form-control" id="event-client-name" name="event-client-name" value="" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-po-number" class="col-sm-6 control-label">PO Number</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="event-po-number" name="event-po-number" value="" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-description" class="col-sm-6 control-label">Description</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="event-description" name="event-description" value="" disabled="true">
                             </div>
                         </div>
                         <div class="form-group">
@@ -30,17 +41,29 @@
                                 </textarea>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="address" class="col-sm-6 control-label">Status</label>
-                            <div class="col-sm-12">
-                                <input type="text" class="form-control" id="event-status" name="event-status" value="" maxlength="50" disabled="true">
-                            </div>
-                        </div>
                     </form>
 
                     <hr>
-                    <p class="invoice-link"><a href="#">INVOICE LINK</a></p>
+
+                    <div class="row pl-4 pr-4">
+                        <div class="col-sm-6">
+                            <p class="invoice-link btn btn-info float-left" id="invoice-link-section">
+                                <a href="#" id="invoice-link" target="_blank">
+                                    INVOICE LINK
+                                </a>
+                            </p>
+                        </div>
+
+                        @if(Auth::user()->roles == 'admin')
+                        <div class="col-sm-6">
+                            <p class="invoice-link btn btn-danger float-right">
+                                <a href="#" id="job-delete">
+                                    Delete
+                                </a>
+                            </p>
+                        </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -51,25 +74,38 @@
 
         <script> 
 
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
             document.addEventListener('DOMContentLoaded', function () {
 
                 var calendarEl = document.getElementById('calendar');
                 var events = @json($events);
 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
-                    initialView: 'dayGridMonth',
+                    initialView: 'dayGridFourWeek',
+                    views: {
+                        dayGridFourWeek: {
+                        type: 'dayGrid',
+                        duration: { weeks: 2}
+                        }
+                    },
+                    // initialView: 'dayGridMonth',
                     events: events,
-                    height: "98vh",
+                    height: "90svh",
                     eventContent : function(info){
 
                         data = info.event.extendedProps;
-                        status = "ONGOING";
+                        status = "ASSIGNED";
 
                         if(data.status == "open") status = "OPEN";
                         if(data.status == "completed") status = "COMPLETE";
 
-                        htmlString =    "<b>Job #" + data.job_id + "</b><br>" +
-                                        data.client + "<br> <i>" + status + "</i>";
+                        htmlString =    "<b>#" + data.job_id + "</b> " + " - <i>" + status + "</i><br>" +
+                                        data.client;
 
                         return {html : htmlString};
                     },
@@ -77,15 +113,34 @@
 
                         data = info.event.extendedProps;
 
-                        modalHeader = document.getElementById("modal-header-title");
+                        modalHeading = document.getElementById("modelHeading");
                         eventClientName = document.getElementById("event-client-name");
+                        eventDescription = document.getElementById("event-description");
+                        eventPONumber = document.getElementById("event-po-number");
                         eventEmployeeName = document.getElementById("event-employee-name");
-                        eventStatus = document.getElementById("event-status");
-                        eventComment = document.getElementById("event-comment")
+                        eventComment = document.getElementById("event-comment");
+                        invoiceLinkSection = document.getElementById("invoice-link-section");
+                        invoiceLink = document.getElementById("invoice-link");
 
-                        modalHeader.innerHTML = "JOB ID #" + info.event.title;
+                        jobTitleStatus = '<span class="job-title-status" style="background-color:'
+                                        + info.event.backgroundColor + '">'
+                                        + data.status + '</span>';
+
+                                    
+                        modalHeading.innerHTML = "JOB ID #" + info.event.title + jobTitleStatus;
                         eventClientName.value = data.client;
-                        eventStatus.value = data.status;
+                        eventDescription.value = data.description;
+                        eventPONumber.value = data.poNumber;
+
+                        if(data.invoiceUrl)
+                        {
+                            invoiceLink.href = data.invoiceUrl;
+                            invoiceLinkSection.style.display = "unset";
+                        } 
+                        else
+                        {
+                            invoiceLinkSection.style.display = "none";
+                        }
 
                         employees = "";
 
@@ -95,15 +150,37 @@
                                 employees += item.name + " (" + item.jobTitle + ")\n";
                             });
                         } 
-                        else
-                        {
-
-                        }
+                        
                         eventEmployeeName.value = employees;
 
                         $('#ajaxModel').modal('show');
                     }
                 });
+
+                $('#job-delete').click(function(){
+                    deleteJob = confirm("Are you sure you want to delete this job?");
+
+                    if(deleteJob == true) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: '/jobs/'+data.job_id,
+
+                            success: function (data) {
+                                event= calendar.getEventById(data.id);
+
+                                event.remove();
+
+                                toastr.success('Deleted successfully!');
+                                $('#ajaxModel').modal('hide');
+                            },
+                            error: function (data) {
+                                toastr.error('Error!');
+
+                            }
+                        });
+                    }
+                });
+
 
                 calendar.render();
             });

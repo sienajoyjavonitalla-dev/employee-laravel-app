@@ -80,48 +80,58 @@ body {
     <title>Pdf Download</title>
   </head>
   <body>
+    <h3 style="text-align: center;">{{ $dataArr['user']['name']}}</h3>
     <div class='box'>
         <div class='box1'>
-            <img src="uprise_rigging.png" alt="uprise Logo" class="brand-image img-circle">
+            <h5 class='weight-normal' style="text-align: left;">
+                Address: {{ $dataArr['user']['address']}}<br/>
+                ABN:{{ $dataArr['user']['abn']}}<br/>
+            </h5>
         </div>
         <div class='box2'>
         </div>
         <div class='box3'>
-            <span class='flex-right'><h3 class='m-0'>Uprise Rigging Pty Ltd</h3></span>
             <h5 class='flex-right weight-normal'>
-                Yan Yean Rd, Doreen VIC3754<br/>
-                Phone: 0426964330<br/>
-                admin@upriserigging.com<br/>
-                www.upriserigging.com<br/>
-                ABN: 79 647 093 310<br/>
+                Phone: {{ $dataArr['user']['contact_no']}}<br/>
+                Email: {{ $dataArr['user']['email']}}<br/>
             </h5>
         </div>
     </div>
-    <div>
-        <h4>Tax Invoice</h4>
-        <table id="invoice">
-            <tr>
-                <th>Purchase Order #</th>
-                <th>Invoice #</th>
-                <th>Issue Date</th>
-                <th>Due Date</th>
-            </tr>
-            <tr>
-                <td>{{$dataArr['first']->po_number}}</td>
-                <td></td>
-                <td>{{ date("Y-m-d") }}</td>
-                <td>{{ date("Y-m-d") }}</td>
-            </tr>
-        </table>
+    <h3 style="text-align: center;">Invoice</h3>
+    <div class='box'>
+        <div class='box1'>
+            <h5 class='weight-normal' style="text-align: left;">
+                Invoice #: {{ $dataArr['invoice'] }}
+            </h5>
+        </div>
+        <div class='box2'>
+        </div>
+        <div class='box3'>
+            <h5 class='flex-right weight-normal'>
+                Issue Date: {{ date("Y-m-d") }}
+            </h5>
+        </div>
     </div>
-    <h4>
-        Bill to
-    </h4>
-    <span>
-        {{$dataArr['first']->client_name}} <br/>
-        {{$dataArr['first']->company_name}} <br/>
-        {{$dataArr['first']->address}} <br/>
-    </span>
+
+    <div class='box'>
+        <div class='box1'>
+            <h5 class='weight-normal' style="text-align: left;">
+                Uprise Rigging Pty Ltd<br/>
+                www.upriserigging.com<br/>
+                Yan Yean Rd, Doreen VIC3754<br/>
+                ABN: 79 647 093 310<br/>
+            </h5>
+        </div>
+        <div class='box2'>
+        </div>
+        <div class='box3'>
+            <h5 class='flex-right weight-normal' style="padding-top: 1rem;">
+                Phone: 0426964330<br/>
+                admin@upriserigging.com<br/>
+            </h5>
+        </div>
+    </div>
+    
     <br/>
     <span>
         <table id="invoice">
@@ -130,7 +140,9 @@ body {
                 <th>Description</th>
                 <th>Unit</th>
                 <th>Qty</th>
-                <th>Unit Price ($)<br/>Excluding Tax</th>
+                <th>Rate</th>
+                <th>OT Hrs</th>
+                <th>OT Rate</th>
                 <th>Tax</th>
                 <th>Amount ($)<br/>Excluding Tax</th>
             </tr>
@@ -138,9 +150,10 @@ body {
                 $subtotal = 0;
             @endphp
 
-            @foreach ($dataArr['data'] as $index=>$data)
+            @foreach ($dataArr['data'] as $data)
                 @php
                     $total_hr = 0;
+                    $ot_hours =0;
                     $start_time = new Carbon\Carbon($data->start_time);
                     $end_time =new Carbon\Carbon($data->end_time);
                     $total_hr = $start_time->diffInHours($end_time);
@@ -153,6 +166,9 @@ body {
                             if($total_hr > 8) {
                                 $ot_hours= $total_hr - 8;
                                 $ot_pay = $ot_hours * $data->ot_rate_per_hour;
+                                $total_hr = 8;
+                                $pay = $total_hr * $data->rate_per_hour;
+
                             }
                             $total_amount = $ot_pay + $pay;
                         } else if($total_hr <= 4) {
@@ -163,11 +179,13 @@ body {
                         $subtotal += $total_amount;
                 @endphp
             <tr>
-                <td>Service</td>
+                <td>{{$data->job_title}}</td>
                 <td>{{ $data->date . ' ' . $data->name }}</td>
                 <td>Hour</td>
                 <td>{{ $total_hr }}</td>
                 <td>{{ $data->rate_per_hour }}</td>
+                <td>{{ $ot_hours }}</td>
+                <td>{{ $data->ot_rate_per_hour }}</td>
                 <td>GST</td>
                 <td>{{ $total_amount }}</td>
 
@@ -178,26 +196,34 @@ body {
                 <td>Travel Allowance</td>
                 <td>Per Day</td>
                 <td>{{$dataArr['data']->count()}}</td>
-                <td>{{$dataArr['first']->travel_allowance}}</td>
+                <td>50</td>
+                <td></td>
+                <td></td>
                 <td>GST</td>
-                <td>{{ $dataArr['data']->count() * $dataArr['first']->travel_allowance }}</td>
+                <td>{{ $dataArr['data']->count() * 50 }}</td>
             </tr>
         </table>
         @php
-            $sub_ta = $subtotal + ($dataArr['data']->count() * $dataArr['first']->travel_allowance);
+            $sub_ta = $subtotal + ($dataArr['data']->count() * 50);
             $tax = $sub_ta *.1;
         @endphp   
         <div class="box" > 
             <div class='notes-box'>
-                <div><h4 class='title'>Notes: </h4><span> {{$dataArr['first']->job_address}}</span></div> 
+                <div><h4 class='title'>Notes: </h4><span> {{$dataArr['first']->address ?? ''}}</span></div> 
             </div>
             <div class='box3'>        
                 <div><span class='title'>Subtotal</span> <span>{{$sub_ta}}</span></div> 
                 <div><span class='title'>Tax</span> <span>{{$tax}}</span></div>
-                <div><span class='title'>Total Amount</span> <span>{{$sub_ta + $tax}}</span></div>
-                <div><span class='title'>Balance Due</span> <span>{{$sub_ta+ $tax}}</span></div>
+                <div><span class='title'>Total Amount Due</span> <span>{{$sub_ta + $tax}}</span></div>
             </div>
         </div>
+        <br/><br/>
+        Please remit to:<br/>
+        BSB Number: {{$dataArr['bank']['bsb_no']}}<br/>
+        Account Number: {{$dataArr['bank']['acct_no']}}<br/>
+        Reference: {{$dataArr['invoice']}}<br/>
+        Total Due: {{$sub_ta+ $tax}}
+
     </span> 
   </body>
 </html>

@@ -146,6 +146,9 @@ class JobsController extends Controller
                         $end_time =new Carbon($row->end_time);
                         $total_hr = $start_time->diffInHours($end_time);
                         $ot_pay = 0;
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
                         if($total_hr > 8) {
                             $ot_hours= $total_hr - 8;
                             $ot_pay = $ot_hours * $row->ot_rate_per_hour;
@@ -217,7 +220,19 @@ class JobsController extends Controller
 
     public function assigned_delete(Request $request, JobAssignee $assign)
     {
-        JobAssignee::find($assign->id)->delete();
+        $d = JobAssignee::find($assign->id);
+        $job_id = $d->job_id;
+        $d->delete();
+
+        $ja = JobAssignee::where('job_id', $job_id)->get();
+
+        if($ja->count() == 0) {
+            $j = Jobs::where('id', $job_id)->first();
+            $j->status = 'open';
+            $j->save();
+        }
+
+
 
         return response()->json(['success'=>'Deleted successfully.']);
 
@@ -276,6 +291,9 @@ class JobsController extends Controller
     public function store_assigned(Request $request)
     {
         $job = Jobs::where('id', $request->job_assignee_id)->first();
+        $job->status = 'assigned';
+        $job->save();
+
         $assigned = JobAssignee::where('job_id', $request->job_assignee_id)->get()->count();
 
         JobAssignee::updateOrCreate(
@@ -303,8 +321,13 @@ class JobsController extends Controller
                     ->where('tl.job_id', $job_id)
                     ->selectRaw('u.name, travel_allowance, date, jobs.id, title, po_number, 
                         clients.address, assigned_id, job_id, tl.start_time, tl.end_time,  
-                        client_id, client_name, company_name, lunch_break, rate_per_hour, ot_rate_per_hour, TIMESTAMPDIFF(HOUR, tl.start_time, tl.end_time), jobs.address as job_address')
+                        client_id, client_name, company_name, lunch_break, clients.rate_per_hour, clients.ot_rate_per_hour, 
+                        TIMESTAMPDIFF(HOUR, tl.start_time, tl.end_time), jobs.address as job_address')
                     ->get();
+        if($timelogs->count() == 0) {
+            return response()->json(['error'=>'No Timelogs, cannot generate!']);
+
+        }
 
         $client_details = Client::where('id', $client_id)->first();
         $job_details = Jobs::where('id', $job_id)->first();
@@ -313,6 +336,7 @@ class JobsController extends Controller
         foreach($timelogs as $tl) {
             $total_hr = 0;
             $total_amount = 0;
+            $ot_hours = 0;
             $start_time = new Carbon($tl->start_time);
             $end_time =new Carbon($tl->end_time);
             $total_hr = $start_time->diffInHours($end_time);
@@ -466,11 +490,19 @@ class JobsController extends Controller
 
         DB::transaction(function() use($id) {
 
+            $jabAssignees = JobAssignee::where('job_id', $id)->get();
+
+            foreach ($jabAssignees as $jabAssignee) {
+                $jabAssignee->delete();
+            }
+
             Jobs::find($id)->delete();
-            Appointment::where('job_id', $id)->delete();
 
         },2);        
 
-        return response()->json(['success'=>'Job deleted successfully.']);
+        return response()->json([
+            'id' => $id,
+            'success'=>'Job deleted successfully.'
+        ]);
     }
 }

@@ -1,8 +1,38 @@
 .fc-event-main {
     padding: 2px;
     overflow: hidden;
+    cursor: pointer;
+}
+
+.fc .fc-popover {
+    z-index: 10;
+}
+
+.fc-daygrid-more-link.fc-more-link {
+    padding-top: 1em;
+}
+
+.job-title-status {
+    margin-left: 2em;
+    padding: 0.2em 0.5em;
+    border-radius: 10px;
+    text-transform: uppercase;
+}
+
+.invoice-link {
+    margin-left: 0.5em;
+}
+
+.invoice-link > a, .invoice-link > a:hover{
+    color: #FFF;
 }
 
 .row{
     width: 98%;
+}
+
+@media only screen and (max-width: 578px) {
+    .invoice-link {
+        float: left;
+    }
 }

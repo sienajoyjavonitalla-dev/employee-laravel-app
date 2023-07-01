@@ -4,6 +4,9 @@
 <div class="row">
     <div class="col-lg-12 align-items-center p-4">
         <div class="container">
+        @if(auth()->user()->roles == 'admin')
+            <a class="btn btn-success mb-4" href="javascript:void(0)" id="createNewTimeLog"> Create New TimeLog</a>
+        @endif
 
         <table class="table table-bordered table-hover data-table">
             <thead class="thead-light">
@@ -33,27 +36,37 @@
 
             <div class="modal-body">
                 <form id="timelogForm" name="timelogForm" class="form-horizontal" enctype="multipart/form-data">
+                    @csrf
                    <input type="hidden" name="id" id="id">
 
                     <div class="form-group">
                         <label for="job_id" class="col-sm-6 control-label">Job</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="job_id" name="job_id" value="" maxlength="50" required="" disabled="true">
+                            <select class="form-control" name="job_id" id="job_id" required="">
+                                <option value="">-- Select --</option>
+                                @foreach ($jobs as $j)
+                                    <option value="{{ $j->id }}"> 
+                                        Job #{{ $j->id . ' - '. $j->company_name}} 
+                                    </option>
+                                @endforeach    
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="assigned_id" class="col-sm-6 control-label">Assign to</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="assigned_id" name="assigned_id" value="" maxlength="50" required="">
+                            <select class="form-control" name="assigned_id" id="assigned_id" required="">
+                                <option value="">-- Select --</option>
+                                @foreach ($users as $key => $value)
+                                    <option value="{{ $key }}"> 
+                                        {{ $value }} 
+                                    </option>
+                                @endforeach    
+                            </select>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="lunch_break" class="col-sm-6 control-label">Lunch Break</label>
-                        <input class="form-check-input" type="checkbox" id="lunch_break" name="lunch_break" value=""  checked="false">
-                    </div>
-
+                   
                     <div class="form-group">
                         <label for="start_time" class="col-sm-6 control-label">Start Time</label>
                         <div class="col-sm-12">
@@ -74,6 +87,11 @@
                             <input type="text" class="form-control" id="date" name="date" value="" required="">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="lunch_break" class="col-sm-6 control-label">Lunch Break</label>
+                        <input class="form-check-input" type="checkbox" id="lunch_break" name="lunch_break" value=""  checked="false">
+                    </div>
+
                     <div class="form-group">
                         <label for="timesheet" class="col-sm-6 control-label">Timesheet</label>
                         <div class="col-sm-12">
@@ -115,7 +133,7 @@
             {data: 'start_time', name: 'start_time'},
             {data: 'end_time', name: 'end_time'},
             {data: 'date', name: 'date'},
-            {data: 'timesheet', name: 'timesheet'},
+            {data: 'timesheet_url', name: 'timesheet_url'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
@@ -126,14 +144,36 @@
         order: [[6, 'asc']]
     });
 
-    $('body').on('click', '.editTimeLog', function () {
+    $('#createNewTimeLog').click(function () {
+        $('#saveBtn').val("create-timelog");
+        $('#id').val('');
+        $('.job_container').hide();
+        $('#job_id').attr('disabled', false); 
+        $('#assigned_id').attr('disabled', false); 
 
+
+        $('#timelogForm').trigger("reset");
+
+        $('#modelHeading').html("Create New Timelog");
+        $('#ajaxModel').modal('show');
+
+    });
+
+    $('body').on('click', '.editTimeLog', function () {
+        $('#job_id').attr('disabled', true); 
+        $('#assigned_id').attr('disabled', true); 
+        if( '{{Auth::user()->roles}}' != 'admin' ) {
+            $('#assigned_id').attr('disabled', true); 
+            $('#start_time').attr('disabled', true); 
+            $('#end_time').attr('disabled', true); 
+            $('#date').attr('disabled', true); 
+        }
       var timelogs = $(this).data('id');
       $.get("{{ route('timelogs.index') }}" +'/' + timelogs +'/edit', function (data) {
           $('#modelHeading').html("Edit TimeLog");
           $('#saveBtn').val("edit-timelog");
           $('#ajaxModel').modal('show');
-
+          $('.job_container').show();
           $('#id').val(data.id);
           $('#job_id').val(data.job_id);
           $('#assigned_id').val(data.assigned_id);
@@ -154,6 +194,15 @@
 
       
     $('#saveBtn').click(function (e) {
+        $('#job_id').attr('disabled', false); 
+        $('#assigned_id').attr('disabled', false); 
+        if( '{{Auth::user()->roles}}' != 'admin' ) {
+            $('#assigned_id').attr('disabled', false); 
+            $('#start_time').attr('disabled', false); 
+            $('#end_time').attr('disabled', false); 
+            $('#date').attr('disabled', false); 
+        }
+
         var formData = new FormData($('#timelogForm')[0]);
         e.preventDefault();
 
