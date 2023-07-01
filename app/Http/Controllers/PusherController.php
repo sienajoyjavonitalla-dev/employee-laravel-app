@@ -34,8 +34,6 @@ class PusherController extends Controller
 
     public function receive(Request $request)
     {
-        Log::info("receive: ".$request->get('name')." ".$request->get('message'));
-
         return view('pusher.receive', [
             'message' => $request->get('message'),
             'name' => $request->get('name')
@@ -55,14 +53,10 @@ class PusherController extends Controller
                 'user_id' => $user->id
             ]);
 
-            Log::info("broadcast: ".$user->id." ".$user->name." ".$msgToSend);
-
             broadcast(new PusherEvent($msgToSend, $user->name, $user->id))->toOthers();
 
             return $message;
         });
-        
-        Log::info('->>> ' . $message->message);
 
         return view('pusher.broadcast', [
             'message' => $message->message,

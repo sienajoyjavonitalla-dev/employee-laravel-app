@@ -229,8 +229,6 @@
 
             var formData = new FormData($('#timelogForm')[0]);
             formData.append('signed', imgdata);
-            
-            console.log(imgdata);
 
             $(this).html('Saving..');
             $.ajax({
