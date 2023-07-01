@@ -70,6 +70,8 @@
                         </a>
                     </li>
                 @endif
+                @if(auth()->user()->roles == 'admin')
+
                 <li class="nav-item admin-only has-treeview {{ request()->is('fulltimetimesheet') ? ' menu-open' : '' }}">
                     <a class="nav-link {{ request()->is('timesheet') ? ' active' : '' }}" href="#">
                         <i class="fa-fw fas fa-id-card"></i>
@@ -150,6 +152,7 @@
                     </a>
                 </li>
 
+                @endif
                 
                 
                 <li class="nav-item">
