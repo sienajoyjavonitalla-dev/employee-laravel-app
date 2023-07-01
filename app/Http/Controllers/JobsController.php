@@ -108,7 +108,8 @@ class JobsController extends Controller
                         $total_hr = 0;
                         $start_time = new Carbon($row->start_time);
                         $end_time =new Carbon($row->end_time);
-                        $total_hr = $start_time->diffInHours($end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
                         if($row->lunch_break) {
                             $total_hr = $total_hr - .5;
                         }
@@ -121,7 +122,8 @@ class JobsController extends Controller
                         $total_hr = 0;
                         $start_time = new Carbon($row->start_time);
                         $end_time =new Carbon($row->end_time);
-                        $total_hr = $start_time->diffInHours($end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
                         $pay = 0;
                         
                         if($row->lunch_break) {
@@ -144,7 +146,8 @@ class JobsController extends Controller
                         $total_hr = 0;
                         $start_time = new Carbon($row->start_time);
                         $end_time =new Carbon($row->end_time);
-                        $total_hr = $start_time->diffInHours($end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
                         $ot_pay = 0;
                         if($row->lunch_break) {
                             $total_hr = $total_hr - .5;
@@ -159,7 +162,8 @@ class JobsController extends Controller
                         $total_hr = 0;
                         $start_time = new Carbon($row->start_time);
                         $end_time =new Carbon($row->end_time);
-                        $total_hr = $start_time->diffInHours($end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
                         $total_amount=0;
                         if($row->lunch_break) {
                             $total_hr = $total_hr - .5;
@@ -339,7 +343,8 @@ class JobsController extends Controller
             $ot_hours = 0;
             $start_time = new Carbon($tl->start_time);
             $end_time =new Carbon($tl->end_time);
-            $total_hr = $start_time->diffInHours($end_time);
+            $total_mins = $start_time->diffInMinutes($end_time);
+            $total_hr = round($total_mins / 60, 2);
             if($tl->lunch_break) {
                 $total_hr = $total_hr - .5;
             }
