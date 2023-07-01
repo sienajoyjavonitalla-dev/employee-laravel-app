@@ -70,10 +70,11 @@
                         <div class="col-sm-12">
                             <div class="sigpad-wrapper">
                                 <!-- <img id="sigPadImg" src=""/> -->
-                                <canvas id="sigpad" class="signaure-pad" width=350 height=180></canvas>
+                                <canvas id="sigpad" class="signaure-pad" width=300 height=180></canvas>
                             </div>
                             <div>
-                                <button id="clearPad">Clear</button>
+                                <button id="clearPad" class="btn btn-danger mt-2">Clear</button>
+                                <button type="submit" class="btn btn-primary mt-2 ml-4" id="saveBtn" value="create">Save</button>
                             </div>
                         </div>
                     </div>
@@ -92,8 +93,8 @@
                         </div>
                     </div>
 
-                    <div class="col-sm-offset-2 col-sm-10 mt-3 pt-5">
-                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
+                    <div class="col-sm-10 mt-3 pt-5">
+                        <!-- <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button> -->
                     </div>
                 </div>
             </div>
@@ -206,109 +207,53 @@
             });
         })
 
-        $('#saveBtn').click(function (e) {
-
-            const sigCanvas = document.querySelector("#sigpad");
-
-            const signaturePad = new SignaturePad(sigCanvas);
-
-            imgdata = signaturePad.toDataURL('image/png'); 
-
-            console.log(imgdata);
-
-            var formData = new FormData($('#timelogForm')[0]);
-            formData.append("signed", imgdata);
-
-            console.log(formData);
-
-            e.preventDefault();            
-
-            // fetch(imgdata)
-            // .then(res => res.blob())
-            // .then(blob => {
-
-            //     const file = new File([blob], "capture.png", {
-            //         type: 'image/png'
-            //     });
-
-            //     console.log(file);
-
-            //     var formData = new FormData($('#timelogForm')[0]);
-            //     formData.append("signed", file);
-            //     console.log(formData);
-
-            //     $.ajax({
-            //         url: "clock_in_out",
-            //         type: "POST",
-            //         dataType: 'json',
-            //         processData: false,
-            //         contentType: false,
-            //         data: formData,
-            //         success: function (data) {
-            //             $('#saveBtn').html('Save');
-            //             if(data.success) {
-            //                 $('#timelogForm').trigger("reset");
-            //                 toastr.success(data.success, 'SUCCESS');
-            //                 window.location.reload();        
-            //             } else {
-            //                 toastr.error(data.error, 'ERROR');
-            //             }
-            //         },
-            //         error: function (data) {
-            //             $('#saveBtn').html('Save');
-            //             toastr.error('Error Saving!');
-
-            //         }
-            //     });
-            // });
-
-            // $(this).html('Saving..');
-            // $.ajax({
-            //     url: "clock_in_out",
-            //     type: "POST",
-            //     dataType: 'json',
-            //     processData: false,
-            //     contentType: false,
-            //     data: formData,
-            //     success: function (data) {
-            //         $('#saveBtn').html('Save');
-            //         if(data.success) {
-            //             $('#timelogForm').trigger("reset");
-            //             toastr.success(data.success, 'SUCCESS');
-            //             window.location.reload();        
-            //         } else {
-            //             toastr.error(data.error, 'ERROR');
-            //         }
-            //     },
-            //     error: function (data) {
-            //         $('#saveBtn').html('Save');
-            //         toastr.error('Error Saving!');
-
-            //     }
-            // });
-
-        });
+        
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // +++++++++++++++++++++++++++++++++++++++++++++ Sig Pad ++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 
     $(document).ready(function(){        
 
-        const sigCanvas = document.querySelector("#sigpad");
+        var sigCanvas = document.querySelector("#sigpad");
 
-        const signaturePad = new SignaturePad(sigCanvas);
+        var signaturePad = new SignaturePad(sigCanvas);
+
+
+        $('#saveBtn').click(function (e) {
+
+            e.preventDefault(); 
+
+            imgdata = signaturePad.toDataURL('image/png');   
+
+            var formData = new FormData($('#timelogForm')[0]);
+            formData.append('signed', imgdata);
+            
+            console.log(imgdata);
+
+            $(this).html('Saving..');
+            $.ajax({
+                url: "clock_in_out",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (data) {
+                    $('#saveBtn').html('Save');
+                    if(data.success) {
+                        $('#timelogForm').trigger("reset");
+                        toastr.success(data.success, 'SUCCESS');
+                        window.location.reload();        
+                    } else {
+                        toastr.error(data.error, 'ERROR');
+                    }
+                },
+                error: function (data) {
+                    $('#saveBtn').html('Save');
+                    toastr.error('Error Saving!');
+
+                }
+            });
+
+        });
 
         $('#clearPad').click(function(e) {
             e.preventDefault();
