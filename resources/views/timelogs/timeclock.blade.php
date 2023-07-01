@@ -37,6 +37,7 @@
         </div>
         @if(isset($clock_in) && $clock_in->end_time == null)
         <form id="timelogForm" name="timelogForm" class="form-horizontal">
+        @csrf
 
             <input type="hidden" name="job_id" id="job_id" value="{{$job->id}}">
             <div class="row m-2 p-2">
@@ -46,7 +47,7 @@
                     <div class="form-group">
                         <label for="authorized" class="col-sm-6 control-label">Authorized Person</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="authorized" name="authorized" value="{{$clock_in ? $clock_in->authorized : '' }}" required="">
+                            <input type="text" class="form-control" id="authorized" name="authorized" value="{{$clock_in ? $clock_in->authorized : '' }}" >
                         </div>
                     </div>
 

@@ -32,6 +32,7 @@
 
             <div class="modal-body">
                 <form id="userForm" name="userForm" class="form-horizontal">
+                @csrf
 
                    <input type="hidden" name="user_id" id="user_id">
 
