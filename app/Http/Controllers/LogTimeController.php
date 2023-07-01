@@ -147,12 +147,12 @@ class LogTimeController extends Controller
         } else if($request->type == 'out'){
             $found_tl = TimeLog::where('assigned_id', Auth::user()->id)->whereNull('end_time')->first();
 
-            if($found_tl->signature) {
+            if( $found_tl->lunch_break == null ){
+                return response()->json(['error'=>'Lunch break should have a value!']);
+            } else if($found_tl && $found_tl->lunch_break) {
                 $found_tl->end_time = Carbon::now()->toTimeString();
                 $found_tl->save();
-            } else if( $found_tl->lunch_break == null ){
-                return response()->json(['error'=>'Lunch break should have a value!']);
-            }
+            } 
             
         } else {
            
