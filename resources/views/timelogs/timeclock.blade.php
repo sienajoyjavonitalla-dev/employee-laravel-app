@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script src="{{ asset('js/sigPad.js') }}"></script>
+
 @section('content')
 <div class="d-flex flex-column align-items-center">
     <div class="row">
@@ -18,7 +21,7 @@
     </div>
 
     @if($job)
-    <div class="card" style="width: 70%;">
+    <div class="card" style="width: 95%;">
         <div class="card-header fw-bold">
             Job Details
         </div>
@@ -58,10 +61,20 @@
                             <img src="{{url('/signature/'.$clock_in->signature.'')}}" alt="Image"/>
                             
                             @endif
-                            <div id="signaturePad" ></div>
+                            <!-- <div id="signaturePad" ></div> -->
+                            
                             <br/>
-                            <button id="clear" class="btn btn-danger btn-sm">Clear Signature</button>
+                            <!-- <button id="clear" class="btn btn-danger btn-sm">Clear Signature</button> -->
                             <textarea id="signature64" name="signed" style="display:none;"></textarea>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="sigpad-wrapper">
+                                <!-- <img id="sigPadImg" src=""/> -->
+                                <canvas id="sigpad" class="signaure-pad" width=350 height=180></canvas>
+                            </div>
+                            <div>
+                                <button id="clearPad">Clear</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -85,7 +98,7 @@
                 </div>
             </div>
         </form>
-        @include('timelogs.signature-pad')
+        <!-- @include('timelogs.signature-pad') -->
         @endif
     </div>
 
@@ -194,35 +207,115 @@
         })
 
         $('#saveBtn').click(function (e) {
+
+            const sigCanvas = document.querySelector("#sigpad");
+
+            const signaturePad = new SignaturePad(sigCanvas);
+
+            imgdata = signaturePad.toDataURL('image/png'); 
+
+            console.log(imgdata);
+
             var formData = new FormData($('#timelogForm')[0]);
-            e.preventDefault();
+            formData.append("signed", imgdata);
 
-            $(this).html('Saving..');
-            $.ajax({
-                url: "clock_in_out",
-                type: "POST",
-                dataType: 'json',
-                processData: false,
-                contentType: false,
-                data: formData,
-                success: function (data) {
-                    $('#saveBtn').html('Save');
-                    if(data.success) {
-                        $('#timelogForm').trigger("reset");
-                        toastr.success(data.success, 'SUCCESS');
-                        window.location.reload();        
-                    } else {
-                        toastr.error(data.error, 'ERROR');
-                    }
-                },
-                error: function (data) {
-                    $('#saveBtn').html('Save');
-                    toastr.error('Error Saving!');
+            console.log(formData);
 
-                }
-            });
+            e.preventDefault();            
+
+            // fetch(imgdata)
+            // .then(res => res.blob())
+            // .then(blob => {
+
+            //     const file = new File([blob], "capture.png", {
+            //         type: 'image/png'
+            //     });
+
+            //     console.log(file);
+
+            //     var formData = new FormData($('#timelogForm')[0]);
+            //     formData.append("signed", file);
+            //     console.log(formData);
+
+            //     $.ajax({
+            //         url: "clock_in_out",
+            //         type: "POST",
+            //         dataType: 'json',
+            //         processData: false,
+            //         contentType: false,
+            //         data: formData,
+            //         success: function (data) {
+            //             $('#saveBtn').html('Save');
+            //             if(data.success) {
+            //                 $('#timelogForm').trigger("reset");
+            //                 toastr.success(data.success, 'SUCCESS');
+            //                 window.location.reload();        
+            //             } else {
+            //                 toastr.error(data.error, 'ERROR');
+            //             }
+            //         },
+            //         error: function (data) {
+            //             $('#saveBtn').html('Save');
+            //             toastr.error('Error Saving!');
+
+            //         }
+            //     });
+            // });
+
+            // $(this).html('Saving..');
+            // $.ajax({
+            //     url: "clock_in_out",
+            //     type: "POST",
+            //     dataType: 'json',
+            //     processData: false,
+            //     contentType: false,
+            //     data: formData,
+            //     success: function (data) {
+            //         $('#saveBtn').html('Save');
+            //         if(data.success) {
+            //             $('#timelogForm').trigger("reset");
+            //             toastr.success(data.success, 'SUCCESS');
+            //             window.location.reload();        
+            //         } else {
+            //             toastr.error(data.error, 'ERROR');
+            //         }
+            //     },
+            //     error: function (data) {
+            //         $('#saveBtn').html('Save');
+            //         toastr.error('Error Saving!');
+
+            //     }
+            // });
+
         });
     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // +++++++++++++++++++++++++++++++++++++++++++++ Sig Pad ++++++++++++++++++++++++++++++++++++++++++++++++++++ //
+
+    $(document).ready(function(){        
+
+        const sigCanvas = document.querySelector("#sigpad");
+
+        const signaturePad = new SignaturePad(sigCanvas);
+
+        $('#clearPad').click(function(e) {
+            e.preventDefault();
+            signaturePad.clear();
+        });
+    });
+    
 </script>
 
 @stop
