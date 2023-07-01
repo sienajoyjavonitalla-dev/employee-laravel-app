@@ -14,6 +14,8 @@
                 <div class="modal-body">
 
                     <form id="clientForm" name="clientForm" class="form-horizontal">
+                    @csrf
+
                         <div class="form-group">
                             <label for="event-po-number" class="col-sm-6 control-label">Client</label>
                             <div class="col-sm-12">

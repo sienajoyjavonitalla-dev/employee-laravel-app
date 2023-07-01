@@ -30,6 +30,8 @@
 
             <div class="modal-body">
                 <form id="bankForm" name="bankForm" class="form-horizontal" enctype="multipart/form-data">
+                @csrf
+
                    <input type="hidden" name="id" id="id">
 
                     <div class="form-group">

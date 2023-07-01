@@ -42,6 +42,8 @@
         <!-- Footer -->
         <div class="bottom">
             <form>
+            @csrf
+
               <input type="text" id="message" name="message" placeholder="Enter message..." autocomplete="off">
               <button type="submit" id="msgBtn" class="btn btn-secondary" disabled="true">SEND</button>
             </form>

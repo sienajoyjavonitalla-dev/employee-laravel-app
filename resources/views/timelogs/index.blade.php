@@ -36,6 +36,7 @@
 
             <div class="modal-body">
                 <form id="timelogForm" name="timelogForm" class="form-horizontal" enctype="multipart/form-data">
+                    @csrf
                    <input type="hidden" name="id" id="id">
 
                     <div class="form-group">

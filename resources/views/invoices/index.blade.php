@@ -121,6 +121,7 @@
 
             <div class="modal-body">
                 <form id="generateForm" name="generateForm" class="form-horizontal pb-1">
+                @csrf
 
                     <div class="form-group">
                         <label for="invoice_id" class="col-sm-6 control-label">Invoice ID</label>

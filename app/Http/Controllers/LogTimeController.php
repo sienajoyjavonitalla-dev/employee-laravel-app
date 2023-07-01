@@ -150,32 +150,38 @@ class LogTimeController extends Controller
             if($found_tl->signature) {
                 $found_tl->end_time = Carbon::now()->toTimeString();
                 $found_tl->save();
-            } else if($found_tl->signature == null || $found_tl->lunch_break == null || $found_tl->authorized == null){
-                return response()->json(['error'=>'Fill up the form below before clocking out!']);
+            } else if( $found_tl->lunch_break == null ){
+                return response()->json(['error'=>'Lunch break should have a value!']);
             }
             
         } else {
-
-            if($request->authorized && $request->signed && $request->lunch_break) {
-                $folderPath = public_path('signature/');
-                $image_parts = explode(";base64,", $request->signed);
-                $image_type_aux = explode("image/", $image_parts[0]);
-                $image_type = $image_type_aux[1];
-                $image_base64 = base64_decode($image_parts[1]);
-                $signature = uniqid() . '.'.$image_type;
-                $file = $folderPath . $signature;
-                file_put_contents($file, $image_base64);
-                
+           
+            if($request->lunch_break) {
                 $found_tl = TimeLog::where('assigned_id', Auth::user()->id)
                     ->whereNull('end_time')
                     ->where('job_id', $request->job_id)
                     ->first();
-                $found_tl->authorized = $request->authorized;
-                $found_tl->signature = $signature;
+
+                if($request->signed) {
+                    $folderPath = public_path('signature/');
+                    $image_parts = explode(";base64,", $request->signed);
+                    $image_type_aux = explode("image/", $image_parts[0]);
+                    $image_type = $image_type_aux[1];
+                    $image_base64 = base64_decode($image_parts[1]);
+                    $signature = uniqid() . '.'.$image_type;
+                    $file = $folderPath . $signature;
+                    file_put_contents($file, $image_base64);
+                    $found_tl->signature = $signature;
+                }
+                
+                if($request->authorized) {
+                    $found_tl->authorized = $request->authorized;
+                }
+               
                 $found_tl->lunch_break = $request->lunch_break;
                 $found_tl->save();
             } else {
-                return response()->json(['error'=>'Fill up the form completely before saving!']);
+                return response()->json(['error'=>'Lunch break should have a value!']);
             }
             
         }
