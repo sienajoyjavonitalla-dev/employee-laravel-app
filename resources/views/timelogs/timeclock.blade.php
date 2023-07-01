@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script src="{{ asset('js/sigPad.js') }}"></script>
+
 @section('content')
 <div class="d-flex flex-column align-items-center">
     <div class="row">
@@ -18,7 +21,7 @@
     </div>
 
     @if($job)
-    <div class="card" style="width: 70%;">
+    <div class="card" style="width: 95%;">
         <div class="card-header fw-bold">
             Job Details
         </div>
@@ -58,10 +61,21 @@
                             <img src="{{url('/signature/'.$clock_in->signature.'')}}" alt="Image"/>
                             
                             @endif
-                            <div id="signaturePad" ></div>
+                            <!-- <div id="signaturePad" ></div> -->
+                            
                             <br/>
-                            <button id="clear" class="btn btn-danger btn-sm">Clear Signature</button>
+                            <!-- <button id="clear" class="btn btn-danger btn-sm">Clear Signature</button> -->
                             <textarea id="signature64" name="signed" style="display:none;"></textarea>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="sigpad-wrapper">
+                                <!-- <img id="sigPadImg" src=""/> -->
+                                <canvas id="sigpad" class="signaure-pad" width=300 height=180></canvas>
+                            </div>
+                            <div>
+                                <button id="clearPad" class="btn btn-danger mt-2">Clear</button>
+                                <button type="submit" class="btn btn-primary mt-2 ml-4" id="saveBtn" value="create">Save</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -79,13 +93,13 @@
                         </div>
                     </div>
 
-                    <div class="col-sm-offset-2 col-sm-10 mt-3 pt-5">
-                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
+                    <div class="col-sm-10 mt-3 pt-5">
+                        <!-- <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button> -->
                     </div>
                 </div>
             </div>
         </form>
-        @include('timelogs.signature-pad')
+        <!-- @include('timelogs.signature-pad') -->
         @endif
     </div>
 
@@ -197,9 +211,26 @@
             });
         })
 
+        
+    });
+
+    $(document).ready(function(){        
+
+        var sigCanvas = document.querySelector("#sigpad");
+
+        var signaturePad = new SignaturePad(sigCanvas);
+
+
         $('#saveBtn').click(function (e) {
+
+            e.preventDefault(); 
+
+            imgdata = signaturePad.toDataURL('image/png');   
+
             var formData = new FormData($('#timelogForm')[0]);
-            e.preventDefault();
+            formData.append('signed', imgdata);
+            
+            console.log(imgdata);
 
             $(this).html('Saving..');
             $.ajax({
@@ -223,8 +254,15 @@
 
                 }
             });
+
+        });
+
+        $('#clearPad').click(function(e) {
+            e.preventDefault();
+            signaturePad.clear();
         });
     });
+    
 </script>
 
 @stop
