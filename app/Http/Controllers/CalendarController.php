@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\JobAssignee;
 use App\Models\Client;
+use App\Models\CalendarNote;
 use App\Models\User;
 use App\Models\Jobs;
 use App\Constants\StatusColorCodes;
@@ -79,12 +80,30 @@ class CalendarController extends Controller
                     'description' => $appointment->description,
                     'poNumber' => $appointment->po_number,
                     'status' => $status,
-                    'invoiceUrl' => $invoiceUrl
+                    'invoiceUrl' => $invoiceUrl,
+                    'eventType' => 'job'
                 ],
                 'backgroundColor' => StatusColorCodes::$statusColorCodes[$status],
                 'textColor' => '#000',
                 'start' => $appointment->start_date_time,
                 'end' => $newEndDateTime,
+            ];
+        }
+
+        $calendarNotes = CalendarNote::all();
+
+        foreach($calendarNotes as $calendarNote)
+        {
+            $events[] = [
+                'id' => $calendarNote->id,
+                'title' => $calendarNote->id,
+                'extendedProps' => [
+                    'message' => $calendarNote->message,
+                    'eventType' => 'note'
+                ],
+                'backgroundColor' => '#e6db6c',
+                'textColor' => '#000',
+                'start' => $calendarNote->start_date,
             ];
         }
  

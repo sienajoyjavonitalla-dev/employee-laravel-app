@@ -4,6 +4,24 @@
 
     <div id="calendar"></div>
 
+    <div class="modal fade" id="ajaxNoteModel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="clientForm" name="clientForm" class="form-horizontal p-2">
+                    @csrf
+                    <div class="form-group">
+                        <label for="calendar_note" class="col-sm-12 control-label text-center"><h2>Calendar Note</h2></label>
+                        <div class="col-sm-12">
+                            <textarea class="form-control" id="calendar_note" name="calendar_note" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <span id="calendar-note-save" class="btn btn-info calendar-note-btn mr-2 float-right">Save Note</span>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="ajaxModel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -154,6 +172,38 @@
                         eventEmployeeName.value = employees;
 
                         $('#ajaxModel').modal('show');
+                    },
+                    dateClick: function(info){
+
+                        $('#ajaxNoteModel').modal('show');
+
+                        $('#calendar-note-save').click(function(){
+
+                        var note = $('#calendar_note').val();
+
+                        newNote = {
+                            'message' : note
+                        };
+
+                        $.ajax({
+                            type: "POST",
+                            url: '/calendarnote',
+                            data: newNote,
+                            dataType: 'json',
+                            success: function (data) {
+
+                                calendar.addEvent({
+                                    'title' : note,
+                                    'start' : info.dateStr
+                                });
+                                $('#ajaxNoteModel').modal('hide');
+                                toastr.success('Note added.');
+                            },
+                            error: function (data) {
+                                toastr.error('Error!');
+                            }
+                        });
+                        });
                     }
                 });
 
@@ -175,12 +225,10 @@
                             },
                             error: function (data) {
                                 toastr.error('Error!');
-
                             }
                         });
                     }
                 });
-
 
                 calendar.render();
             });

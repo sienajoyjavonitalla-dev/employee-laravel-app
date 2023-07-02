@@ -27,6 +27,7 @@ Route::resource('users', App\Http\Controllers\UsersController::class);
 Route::resource('timelogs', App\Http\Controllers\LogTimeController::class);
 Route::resource('banks', App\Http\Controllers\BankDetailsController::class);
 Route::resource('clients', App\Http\Controllers\ClientsController::class);
+Route::resource('calendarnote', App\Http\Controllers\CalendarNoteContoller::class);
 
 # Route::resource('invoices', InvoiceController::class);
 Route::get('invoices', 'App\Http\Controllers\InvoiceController@index')->name('invoices.index');
@@ -70,3 +71,5 @@ Route::get('xero/get_invoices', 'App\Http\Controllers\XeroController@get_invoice
 Route::get('pusher', 'App\Http\Controllers\PusherController@index')->name('pusher');
 Route::post('pusher/receive', 'App\Http\Controllers\PusherController@receive')->name('pusher.receive');
 Route::post('pusher/broadcast', 'App\Http\Controllers\PusherController@broadcast')->name('pusher.broadcast');
+
+# Calendar Notes
