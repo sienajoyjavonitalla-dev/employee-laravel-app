@@ -156,7 +156,8 @@ body {
                     $ot_hours =0;
                     $start_time = new Carbon\Carbon($data->start_time);
                     $end_time =new Carbon\Carbon($data->end_time);
-                    $total_hr = $start_time->diffInHours($end_time);
+                    $total_mins = $start_time->diffInMinutes($end_time);
+                    $total_hr = round($total_mins / 60, 2);
                         if($data->lunch_break) {
                             $total_hr = $total_hr - .5;
                         }
