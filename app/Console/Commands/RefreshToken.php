@@ -6,7 +6,6 @@ use Illuminate\Console\Command;
 use App\Models\XeroToken;
 use GuzzleHttp\Client;
 use GuzzleHttp\TransferStats;
-use Illuminate\Support\Facades\Log;
 
 class RefreshToken extends Command
 {
@@ -41,43 +40,41 @@ class RefreshToken extends Command
      */
     public function handle()
     {
-        Log::info("XERO REFRESH COMMAND SCHEDULING WORKS");
+        $a = XeroToken::latest()->first();
 
-        // $a = XeroToken::latest()->first();
+        $body = [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $a->refresh_token
+        ];
 
-        // $body = [
-        //     'grant_type' => 'refresh_token',
-        //     'refresh_token' => $a->refresh_token
-        // ];
+        $client = new Client();
+        $response= $client->request('POST', 'https://identity.xero.com/connect/token', [
+            'headers' => [
+                'Authorization' => 'Basic '.base64_encode(env('XERO_CLIENT_ID').':'.env('XERO_CLIENT_SECRET')),
+                'Content-Type' => 'application/x-www-form-urlencoded',
+                'Accept' => 'application/json'
 
-        // $client = new Client();
-        // $response= $client->request('POST', 'https://identity.xero.com/connect/token', [
-        //     'headers' => [
-        //         'Authorization' => 'Basic '.base64_encode(env('XERO_CLIENT_ID').':'.env('XERO_CLIENT_SECRET')),
-        //         'Content-Type' => 'application/x-www-form-urlencoded',
-        //         'Accept' => 'application/json'
+            ],
+            'form_params' => $body
+        ]);
 
-        //     ],
-        //     'form_params' => $body
-        // ]);
+        $results = json_decode($response->getBody()->getContents());
+        $stats = [];
+        if($response->getStatusCode() == 200) {
+            $token = XeroToken::updateOrCreate(['refresh_token' => $results->refresh_token],
+            [
+                'id_token' => $results->id_token,
+                'access_token' => $results->access_token,
+                'expires_in' => $results->expires_in,
+                'token_type' => $results->token_type,
+                'scopes' => $results->scope
+            ]);
 
-        // $results = json_decode($response->getBody()->getContents());
-        // $stats = [];
-        // if($response->getStatusCode() == 200) {
-        //     $token = XeroToken::updateOrCreate(['refresh_token' => $results->refresh_token],
-        //     [
-        //         'id_token' => $results->id_token,
-        //         'access_token' => $results->access_token,
-        //         'expires_in' => $results->expires_in,
-        //         'token_type' => $results->token_type,
-        //         'scopes' => $results->scope
-        //     ]);
+            $stats = ['success' => 'Success'];
+        } else {
+            $stats = ['error' => 'error'];
 
-        //     $stats = ['success' => 'Success'];
-        // } else {
-        //     $stats = ['error' => 'error'];
-
-        // }
+        }
 
         return 0;
     }
