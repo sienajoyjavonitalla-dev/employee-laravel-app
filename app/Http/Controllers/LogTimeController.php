@@ -294,6 +294,7 @@ class LogTimeController extends Controller
                             $ot_pay=0;
                             $pay = $total_hr * $row->rate_per_hour;
                         } else if($total_hr > 0 && $total_hr <= 4) {
+                            $total_hr = 4;
                             $pay = 4 * $row->rate_per_hour;
                         } else if($total_hr > 8) {
                             $total_hr = 8;
@@ -341,6 +342,7 @@ class LogTimeController extends Controller
                             }
                             $total_amount = $ot_pay + $pay;
                         } else if($total_hr > 0 && $total_hr <= 4) {
+                            $total_hr = 4;
                             $pay = 4 * $row->rate_per_hour;
                             $total_amount = $pay;
                         }

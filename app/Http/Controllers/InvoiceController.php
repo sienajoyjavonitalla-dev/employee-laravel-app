@@ -100,6 +100,7 @@ class InvoiceController extends Controller
                             $pay = $total_hr * $row->rate_per_hour;
                         } else if($total_hr > 0 && $total_hr <= 4) {
                             $pay = 4 * $row->rate_per_hour;
+                            $total_hr = 4;
                         } else if($total_hr > 8) {
                             $total_hr = 8;
                             $pay = 8 * $row->rate_per_hour;
@@ -146,6 +147,7 @@ class InvoiceController extends Controller
                             }
                             $total_amount = $ot_pay + $pay;
                         } else if($total_hr > 0 && $total_hr <= 4) {
+                            $total_hr = 4;
                             $pay = 4 * $row->rate_per_hour;
                             $total_amount = $pay;
                         }
