@@ -12,7 +12,7 @@ class XeroController extends Controller
 {
     public function get_started() {
         // $url = 'https://login.xero.com/identity/connect/authorize?response_type=code&client_id='.env('XERO_CLIENT_ID').'&redirect_uri='.urlencode(env('XERO_REDIRECT_URL')).'&scope=openid profile email accounting.transactions&state=123';
-        $url = 'https://login.xero.com/identity/connect/authorize?response_type=code&client_id='.env('XERO_CLIENT_ID').'&redirect_uri='.env('XERO_REDIRECT_URL').'&scope=openid profile email accounting.transactions&state=123';
+        $url = 'https://login.xero.com/identity/connect/authorize?response_type=code&client_id='.env('XERO_CLIENT_ID').'&redirect_uri='.env('XERO_REDIRECT_URL').'&scope=openid profile email offline_access accounting.transactions&state=123';
         
         return Redirect::to($url);
     }
@@ -70,7 +70,6 @@ class XeroController extends Controller
         ]);
 
         $results = json_decode($response->getBody()->getContents());
-        dd($results);
         $stats = [];
         if($response->getStatusCode() == 200) {
         }
