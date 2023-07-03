@@ -337,7 +337,8 @@
         var generate_table = $('.generate-table').DataTable({
             processing: true,
             serverSide: true,
-            pageLength: 4,
+            paging: false,
+            // pageLength: 4,
             ajax: {
 
                 url: "{{ route('jobs.index', ['name'=>'generate']) }}",

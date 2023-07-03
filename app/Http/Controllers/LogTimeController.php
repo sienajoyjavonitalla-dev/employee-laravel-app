@@ -83,7 +83,7 @@ class LogTimeController extends Controller
             ->leftJoin('job_assignee as ja', 'ja.job_id', '=', 'jobs.id')
             ->where('ja.assigned_id', Auth::user()->id)
             ->whereDate('start_date_time', '<=', Carbon::now()->toDateString())
-            // ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())
+            ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())
             ->selectRaw('jobs.address, clients.company_name, jobs.id, ja.job_title as title, jobs.start_date_time, jobs.end_date_time, jobs.start_time, jobs.end_time')
             ->first();
         return view('timelogs.timeclock', compact('clock_in', 'job'));
@@ -294,6 +294,7 @@ class LogTimeController extends Controller
                             $ot_pay=0;
                             $pay = $total_hr * $row->rate_per_hour;
                         } else if($total_hr > 0 && $total_hr <= 4) {
+                            $total_hr = 4;
                             $pay = 4 * $row->rate_per_hour;
                         } else if($total_hr > 8) {
                             $total_hr = 8;
@@ -341,6 +342,7 @@ class LogTimeController extends Controller
                             }
                             $total_amount = $ot_pay + $pay;
                         } else if($total_hr > 0 && $total_hr <= 4) {
+                            $total_hr = 4;
                             $pay = 4 * $row->rate_per_hour;
                             $total_amount = $pay;
                         }
