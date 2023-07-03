@@ -40,7 +40,7 @@ Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out
 
 # Calendar
 Route::get('calendar', 'App\Http\Controllers\CalendarController@index')->name('calendar');
-Route::get('how_tos', 'App\Http\Controllers\UsersController@how_tos')->name('calendar');
+Route::get('how_tos', 'App\Http\Controllers\UsersController@how_tos')->name('how_tos');
 
 Route::get('laravel-signature-pad','App\Http\Controllers\LogTimeController@signature');
 Route::get('timesheet', 'App\Http\Controllers\LogTimeController@timesheet')->name('timesheet');
