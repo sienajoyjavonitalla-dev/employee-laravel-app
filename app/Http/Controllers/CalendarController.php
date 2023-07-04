@@ -100,13 +100,7 @@ class CalendarController extends Controller
                     'id' => $calendarNote->id,
                     'title' => $calendarNote->id,
                     'extendedProps' => [
-                        'job_id' => $calendarNote->id,
-                        'employee' => 'n/a',
-                        'client' => 'n/a',
-                        'description' => 'n/a',
-                        'poNumber' => 'n/a',
-                        'status' => 'assigned',
-                        'invoiceUrl' => 'n/a',
+                        'note_date' => $calendarNote->note_date,
                         'eventType' => 'note',
                         'message' => $calendarNote->message
                     ],

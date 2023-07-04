@@ -14,32 +14,30 @@ class CalendarNoteContoller extends Controller
 
     public function store(Request $request)
     {
-        // $calendarNote = new CalendarNote($request->message);
-
-        $calendarNote = CalendarNote::create([
+        $calendarNote = CalendarNote::updateOrCreate([
+            'id' => $request->id
+        ],[
             'message' => $request->message,
             'note_date' => $request->note_date
         ]);
 
         return response()->json([
+            'id' => $calendarNote->id,
             'message' => $calendarNote->message,
             'note_date' => $calendarNote->note_date
         ]);
     }
 
-    public function show($id)
-    {
-        //
-    }
-
-
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
     public function destroy($id)
     {
-        //
+        $calendarNote = CalendarNote::find($id);
+
+        $deletedNoteId = $calendarNote->id;
+
+        $calendarNote->delete();
+
+        return response()->json([
+            'id' => $deletedNoteId
+        ]);
     }
 }
