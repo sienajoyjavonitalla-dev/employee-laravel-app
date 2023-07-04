@@ -497,6 +497,8 @@ class JobsController extends Controller
                     }
                     
                 }
+                //send attachments to xero
+                $this->sendAttachments($job_id, $i->InvoiceID);
 
             }
             return response()->json(['success'=>'Invoice created successfully.']);
@@ -508,22 +510,44 @@ class JobsController extends Controller
 
     }
 
-    public function sendAttachments() {
-        //sample
-        $invoice_id = "2d916afe-5362-4cda-99bd-1ef05f7c5fec";
-        $filename = "202306282025pdf_view(49).pdf";
+    public function sendAttachments($job_id, $invoice_id) {
+        $a = XeroToken::latest()->first();
 
+        // Path to the zip file
+        $rarFilePath = public_path($job_id.'.zip');
+        $filename = $job_id.'.zip';
+        // $invoice_id = "2d916afe-5362-4cda-99bd-1ef05f7c5fec";
+
+        // Read the contents of the RAR file
+        $fileContents = file_get_contents($rarFilePath);
+
+        $body = [
+            $fileContents
+        ];
+
+        // Create a Guzzle HTTP client
         $client = new GClient();
 
-        $response= $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices/'.$invoice_id.'/Attachments/'.$filename, [
+        // Create a Guzzle HTTP request with the RAR file in the request body
+        $response = $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices/'.$invoice_id.'/Attachments/'.$filename,  [
             'headers' => [
                 'Authorization' => 'Bearer '.$a->access_token,
-                'Content-Type' => 'application/json',
+                'Content-Type' => 'application/octet-stream',
                 'xero-tenant-id' => env('XERO_TENANT_ID'),
                 'Accept' => 'application/json'
             ],
-            'body' => $body
+            'multipart' => [
+                [
+                    'name'     => $job_id,
+                    'filename' => $filename,
+                    'contents' => fopen( $rarFilePath, 'r' ),
+                ]
+            ]
         ]);
+
+
+        $results = json_decode($response->getBody()->getContents());
+        
 
     }
 
