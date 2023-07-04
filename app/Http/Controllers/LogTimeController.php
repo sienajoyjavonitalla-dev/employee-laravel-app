@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use DB;
 use App\Models\Client;
+use Illuminate\Support\Facades\File; 
 
 class LogTimeController extends Controller
 {
@@ -32,7 +33,7 @@ class LogTimeController extends Controller
             return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('timesheet_url', function($row){
-                        return "<a href=".url('/img/'.$row->timesheet)." target='_blank'>".$row->timesheet."</a>";
+                        return "<a href=".url('timesheets/'.$row->job_id.'/'.$row->timesheet)." target='_blank'>".$row->timesheet."</a>";
                     })
 
                     ->addColumn('assigned_to', function($row){
@@ -59,7 +60,7 @@ class LogTimeController extends Controller
         $users = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
         $jobs = DB::table('jobs as j')
             ->leftJoin('clients as c', 'c.id', '=', 'j.client_id')
-            ->where('j.status', '!=', 'complete')
+            // ->where('j.status', '!=', 'complete')
             ->selectRaw('j.id, c.company_name, j.start_date_time, j.end_date_time')
             ->get();
         return view('timelogs.index',compact('users', 'jobs'));
@@ -94,10 +95,46 @@ class LogTimeController extends Controller
         $filename = '';
 
         if($request->file('timesheet')){
+           $path = public_path().'/timesheets/'.$request->job_id;
+           
+           //delete the old file
+           if($request->id) {
+                $tl=TimeLog::where('id', $request->id)->first();
+                if($tl->timesheet) {
+                    File::delete($path.'/'.$tl->timesheet);
+                }
+
+            }
+           //make a directory for the timesheets and save
+            $path = public_path().'/timesheets/'.$request->job_id;
+            if (!file_exists($path)) {
+                mkdir($path, 0775, true);
+            }
             $file= $request->file('timesheet');
             $filename= date('YmdHi').$file->getClientOriginalName();
-            $file-> move(public_path('img'), $filename);
-            // $data['image']= $filename;
+            $file->move($path, $filename);
+
+            // zip files
+            $zip_file = $request->job_id.'.zip';
+            $zip = new \ZipArchive();
+            $zip->open($zip_file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+            $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
+            foreach ($files as $name => $file)
+            {
+                // We're skipping all subfolders
+                if (!$file->isDir()) {
+                    $filePath     = $file->getRealPath();
+
+                    // extracting filename with substr/strlen
+                    $relativePath = 'timesheets/' . substr($filePath, strlen($path) + 1);
+
+                    $zip->addFile($filePath, $relativePath);
+                }
+            }
+            $zip->close();
+            // $this->execute('echo test');
+
         } else {
             if($request->id) {
                 $tl=TimeLog::where('id', $request->id)->first();

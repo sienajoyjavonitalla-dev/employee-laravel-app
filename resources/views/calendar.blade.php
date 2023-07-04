@@ -4,6 +4,31 @@
 
     <div id="calendar"></div>
 
+    <div class="modal fade" id="ajaxNoteModel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="clientForm" name="clientForm" class="form-horizontal p-2">
+                    @csrf
+                    <div class="form-group">
+                        <label for="calendar_note" class="col-sm-12 control-label text-center"><h2>Calendar Note</h2></label>
+                        <div class="col-sm-12">
+                            <textarea class="form-control" id="calendar_note" name="calendar_note" rows="6" placeholder="Type notes to save"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row ml-1">
+                        <div class="col-sm-6 mt-4 mb-1">
+                            <span id="calendar-note-dete" class="btn btn-danger calendar-note-btn btn-block float-left">Delete Note</span>
+                        </div>
+                        <div class="col-sm-6 mt-4 mb-1">
+                            <span id="calendar-note-save" class="btn btn-info calendar-note-btn btn-block float-right">Save Note</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="ajaxModel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -95,17 +120,25 @@
                     },
                     // initialView: 'dayGridMonth',
                     events: events,
-                    height: "90svh",
+                    height: "90vh",
                     eventContent : function(info){
 
                         data = info.event.extendedProps;
-                        status = "ASSIGNED";
 
-                        if(data.status == "open") status = "OPEN";
-                        if(data.status == "completed") status = "COMPLETE";
+                        var htmlString = "";
 
-                        htmlString =    "<b>#" + data.job_id + "</b> " + " - <i>" + status + "</i><br>" +
-                                        data.client;
+                        if(data.eventType == 'job')
+                        {
+                            status = "ASSIGNED";
+                            htmlString =    "<b>#" + data.job_id + "</b> " + " - <i>" + data.status.toUpperCase() + "</i><br>" +
+                                            data.client;
+
+                        }
+                        else if(data.eventType == 'note')
+                        {
+                            // status = "NOTE";
+                            htmlString = "<b>SEE NOTES</b>";
+                        }
 
                         return {html : htmlString};
                     },
@@ -113,47 +146,149 @@
 
                         data = info.event.extendedProps;
 
-                        modalHeading = document.getElementById("modelHeading");
-                        eventClientName = document.getElementById("event-client-name");
-                        eventDescription = document.getElementById("event-description");
-                        eventPONumber = document.getElementById("event-po-number");
-                        eventEmployeeName = document.getElementById("event-employee-name");
-                        eventComment = document.getElementById("event-comment");
-                        invoiceLinkSection = document.getElementById("invoice-link-section");
-                        invoiceLink = document.getElementById("invoice-link");
-
-                        jobTitleStatus = '<span class="job-title-status" style="background-color:'
-                                        + info.event.backgroundColor + '">'
-                                        + data.status + '</span>';
-
-                                    
-                        modalHeading.innerHTML = "JOB ID #" + info.event.title + jobTitleStatus;
-                        eventClientName.value = data.client;
-                        eventDescription.value = data.description;
-                        eventPONumber.value = data.poNumber;
-
-                        if(data.invoiceUrl)
+                        if(data.eventType == 'job')
                         {
-                            invoiceLink.href = data.invoiceUrl;
-                            invoiceLinkSection.style.display = "unset";
-                        } 
-                        else
-                        {
-                            invoiceLinkSection.style.display = "none";
+                            modalHeading = document.getElementById("modelHeading");
+                            eventClientName = document.getElementById("event-client-name");
+                            eventDescription = document.getElementById("event-description");
+                            eventPONumber = document.getElementById("event-po-number");
+                            eventEmployeeName = document.getElementById("event-employee-name");
+                            eventComment = document.getElementById("event-comment");
+                            invoiceLinkSection = document.getElementById("invoice-link-section");
+                            invoiceLink = document.getElementById("invoice-link");
+
+                            jobTitleStatus = '<span class="job-title-status" style="background-color:'
+                                            + info.event.backgroundColor + '">'
+                                            + data.status + '</span>';
+
+                            modalHeading.innerHTML = "JOB ID #" + info.event.title + jobTitleStatus;
+                            eventClientName.value = data.client;
+                            eventDescription.value = data.description;
+                            eventPONumber.value = data.poNumber;
+
+                            if(data.invoiceUrl)
+                            {
+                                invoiceLink.href = data.invoiceUrl;
+                                invoiceLinkSection.style.display = "unset";
+                            } 
+                            else
+                            {
+                                invoiceLinkSection.style.display = "none";
+                            }
+
+                            employees = "";
+
+                            if(data.employee.length > 0)
+                            {
+                                data.employee.forEach(function(item){
+                                    employees += item.name + " (" + item.jobTitle + ")\n";
+                                });
+                            } 
+
+                            eventEmployeeName.value = employees;
+
+                            $('#ajaxModel').modal('show');
                         }
+                        else if(data.eventType == 'note')
+                        {   
+                            noteID = info.event.id;
 
-                        employees = "";
+                            calendarNote = document.getElementById("calendar_note");
 
-                        if(data.employee.length > 0)
-                        {
-                            data.employee.forEach(function(item){
-                                employees += item.name + " (" + item.jobTitle + ")\n";
+                            calendarNote.value = data.message;
+
+                            $('#calendar-note-save').unbind();
+
+                            $('#calendar-note-save').click(function(){
+
+                                note = $('#calendar_note').val();
+ 
+                                newNote = {
+                                    'id' : info.event.id,
+                                    'message' : note,
+                                    'note_date' : data.note_date
+                                };
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: '/calendarnote',
+                                    data: newNote,
+                                    dataType: 'json',
+                                    success: function (data) {
+
+                                        eventTemp = calendar.getEventById(data.id);
+
+                                        eventTemp.setExtendedProp('message', data.message);
+                                        eventTemp.setProp('start', data.note_date);
+
+                                        $('#calendar_note').val(data.message);
+                                        $('#ajaxNoteModel').modal('hide');
+                                        toastr.success('Note edited.');
+                                    },
+                                    error: function (data) {
+                                        toastr.error('Error!');
+                                    }
+                                });           
+
+                                $(this).unbind();
                             });
-                        } 
-                        
-                        eventEmployeeName.value = employees;
 
-                        $('#ajaxModel').modal('show');
+                            $('#ajaxNoteModel').modal('show');
+                        }
+                    },
+                    dateClick: function(info){
+
+                        $('#calendar-note-save').unbind();
+
+                        calendarNote = $('#calendar_note').val("");
+
+                        $('#ajaxNoteModel').modal('show');
+
+                        $('#calendar-note-save').click(function(){
+
+                            calendarNote = $('#calendar_note').val();
+
+                            if( calendarNote.length > 0)
+                            {
+                                newNote = {
+                                    'message' : calendarNote,
+                                    'note_date' : info.dateStr
+                                };
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: '/calendarnote',
+                                    data: newNote,
+                                    dataType: 'json',
+                                    success: function (data) {
+
+                                        newEvent = calendar.getEventById(data.id);
+
+                                        calendar.addEvent({
+                                            'id' : data.id,
+                                            'title' : 'Noooootes',
+                                            'backgroundColor' : '#e6db6c',
+                                            'textColor' : '#000',
+                                            'start' : info.dateStr,
+                                            'extendedProps' : {
+                                                'job_id' : '',
+                                                'eventType' : 'note',
+                                                'message' : data.message,
+                                                'note_date' : data.note_date
+                                            }
+                                        });
+
+                                        $('#ajaxNoteModel').modal('hide');
+                                        toastr.success('Note added.');
+                                    },
+                                    error: function (data) {
+                                        toastr.error('Error!');
+                                    }
+                                });
+                            }
+
+                            $(this).unbind();
+                        });
                     }
                 });
 
@@ -175,12 +310,33 @@
                             },
                             error: function (data) {
                                 toastr.error('Error!');
-
                             }
                         });
                     }
                 });
 
+                $('#calendar-note-dete').click(function(){
+                    deleteJob = confirm("Delete Note?");
+
+                    if(deleteJob == true) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: '/calendarnote/'+noteID,
+
+                            success: function (data) {
+
+                                event = calendar.getEventById(data.id);
+                                event.remove();
+
+                                toastr.success('Note deleted.');
+                                $('#ajaxNoteModel').modal('hide');
+                            },
+                            error: function (data) {
+                                toastr.error('Error!');
+                            }
+                        });
+                    }
+                });
 
                 calendar.render();
             });
