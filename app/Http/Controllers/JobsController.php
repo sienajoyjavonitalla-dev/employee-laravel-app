@@ -37,9 +37,10 @@ class JobsController extends Controller
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('invoice', function($row){
+                        $inv = '';
                         if($row->invoice_id) {
                             $inv = "<a href='".$row->invoice_url."' target='_blank'> ".$row->invoice_id."</a>";
-                        } else {
+                        } else if($row->status == 'complete'){
                             $inv = '<a href="javascript:void(0)" data-compid="'.$row->client_id.'"  data-company="'.$row->company_name.'"  data-id="'.$row->id.'" data-toggle="tooltip" class="btn btn-secondary btn-xs generateBtn"><i class="fa-solid fa-gear"></i>Generate</a>';
 
                         }
@@ -47,7 +48,7 @@ class JobsController extends Controller
                     })
                     ->addColumn('client', function($row){
                         $client = Client::where('id', $row->client_id)->first();
-                        return $client->company_name;
+                        return $client->company_name ?? '';
                     })
                     ->addColumn('assigned', function($row){
                         $assigned = DB::table('job_assignee as ja')
@@ -74,13 +75,19 @@ class JobsController extends Controller
                         
                         return $display;
                     })
+                    ->addColumn('stat_change', function($row){
+                        $display = $row->status;
+                        if($row->status == 'assigned')
+                            $display .= '<a href="javascript:void(0)"  data-id="'.$row->id.'" data-toggle="tooltip" data-placement="bottom" title="Complete Job" class="btn-xs text-success completeBtn"><i class="fas fa-check"></i></a>';
+                        return $display;
+                    })
                     ->addColumn('action', function($row){
                         $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editJob">Edit</a>';
-                        $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteJob">Delete</a>';
+                        $btn .= ' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteJob">Delete</a>';
 
                         return $btn;
                     })
-                    ->rawColumns(['action', 'assigned', 'invoice'])
+                    ->rawColumns(['action', 'assigned', 'invoice', 'stat_change'])
                     ->make(true);
             } else if ($request->name == 'generate') {
                 $data = DB::table('time_logs as tl')
@@ -318,6 +325,15 @@ class JobsController extends Controller
 
     }
 
+    public function complete_job(Request $request)
+    {
+        $job = Jobs::where('id', $request->job_id)->first();
+        $job->status = 'complete';
+        $job->save();
+
+        return response()->json(['success'=>'Job is set to Completed successfully.']);
+    }
+
     public function generateInvoice(Request $req) {
         $job_id = $req->job_id;
         $client_id = $req->client_id;
@@ -490,6 +506,59 @@ class JobsController extends Controller
 
         }
 
+    }
+
+    public function sendAttachments() {
+        //sample
+        $invoice_id = "2d916afe-5362-4cda-99bd-1ef05f7c5fec";
+        $filename = "202306282025pdf_view(49).pdf";
+
+        $client = new GClient();
+
+        $response= $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices/'.$invoice_id.'/Attachments/'.$filename, [
+            'headers' => [
+                'Authorization' => 'Bearer '.$a->access_token,
+                'Content-Type' => 'application/json',
+                'xero-tenant-id' => env('XERO_TENANT_ID'),
+                'Accept' => 'application/json'
+            ],
+            'body' => $body
+        ]);
+
+    }
+
+    public function sendRequestWithRarFile()
+    {
+        $a = XeroToken::latest()->first();
+
+        // Path to the RAR file
+
+        $rarFilePath = public_path('img\uprisee.rar');
+        $filename = 'uprisee.rar';
+        $invoice_id = "2d916afe-5362-4cda-99bd-1ef05f7c5fec";
+
+        // Read the contents of the RAR file
+        $fileContents = file_get_contents($rarFilePath);
+
+        $body = [
+            $fileContents
+          ];
+
+        // Create a Guzzle HTTP client
+        $client = new GClient();
+
+        // Create a Guzzle HTTP request with the RAR file in the request body
+        $request = $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices/'.$invoice_id.'/Attachments/'.$filename,  [
+            'headers' => [
+                'Authorization' => 'Bearer '.$a->access_token,
+                'Content-Type' => 'application/octet-stream',
+                'xero-tenant-id' => env('XERO_TENANT_ID'),
+                'Accept' => 'application/json'
+            ],
+            'form_params' => $body]);
+
+        $results = json_decode($response->getBody()->getContents());
+        dd($results);
     }
 
     public function edit($id)
