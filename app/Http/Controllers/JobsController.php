@@ -85,7 +85,8 @@ class JobsController extends Controller
             } else if ($request->name == 'generate') {
                 $data = DB::table('time_logs as tl')
                     ->leftJoin('jobs as jobs', 'job_id', '=', 'jobs.id')
-                    ->leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id');
+                    ->leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id')
+                    ->whereNotNull('tl.end_time');
 
                 
                 if ($request->filled('company_id')) {
@@ -97,6 +98,7 @@ class JobsController extends Controller
                 }
 
                 $data = $data->selectRaw('jobs.id, title, po_number, assigned_id, job_id, tl.start_time, tl.end_time, date, client_id, company_name, rate_per_hour, ot_rate_per_hour, lunch_break');
+                // dd($data->toSql());
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('employee', function($row){
@@ -113,7 +115,7 @@ class JobsController extends Controller
                         if($row->lunch_break) {
                             $total_hr = $total_hr - .5;
                         }
-                        return $total_hr;
+                        return $total_hr > 0 ? $total_hr : 0;
                     })
                     ->addColumn('with_lunch', function($row){
                         return $row->lunch_break ? 'Yes':'No';
@@ -134,6 +136,7 @@ class JobsController extends Controller
                             $ot_pay=0;
                             $pay = $total_hr * $row->rate_per_hour;
                         } else if($total_hr > 0 && $total_hr <= 4) {
+                            $total_hr = 4;
                             $pay = 4 * $row->rate_per_hour;
                         } else if($total_hr > 8) {
                             $total_hr = 8;
@@ -156,7 +159,7 @@ class JobsController extends Controller
                             $ot_hours= $total_hr - 8;
                             $ot_pay = $ot_hours * $row->ot_rate_per_hour;
                         }
-                        return $ot_pay;
+                        return round($ot_pay, 2);
                     })
                     ->addColumn('total', function($row){
                         $total_hr = 0;
@@ -180,6 +183,7 @@ class JobsController extends Controller
                             }
                             $total_amount = $ot_pay + $pay;
                         } else if($total_hr > 0 && $total_hr <= 4) {
+                            $total_hr = 4;
                             $pay = 4 * $row->rate_per_hour;
                             $total_amount = $pay;
                         }
@@ -323,6 +327,7 @@ class JobsController extends Controller
                     ->leftJoin('users as u', 'tl.assigned_id', '=', 'u.id')
                     ->where('client_id', $client_id)
                     ->where('tl.job_id', $job_id)
+                    ->whereNotNull('tl.end_time')
                     ->selectRaw('u.name, travel_allowance, date, jobs.id, title, po_number, 
                         clients.address, assigned_id, job_id, tl.start_time, tl.end_time,  
                         client_id, client_name, company_name, lunch_break, clients.rate_per_hour, clients.ot_rate_per_hour, 
@@ -361,17 +366,20 @@ class JobsController extends Controller
                 $total_amount = $pay;
             } else if($total_hr > 0 && $total_hr <= 4) {
                 $pay = 4 * $tl->rate_per_hour;
+                $total_hr = 4;
                 $total_amount = $pay;
             }
             
-            array_push($line_items, (object)[
-                'Description'=> $tl->date . ' ' . $tl->name,
-                'Quantity'=> $total_hr,
-                'UnitAmount'=> $tl->rate_per_hour,
-                'AccountCode'=> '200',
-                'TaxType'=> 'OUTPUT',
-                'LineAmount'=> $total_amount
-            ]);
+            if($total_hr > 0) {
+                array_push($line_items, (object)[
+                    'Description'=> $tl->date . ' ' . $tl->name,
+                    'Quantity'=> $total_hr,
+                    'UnitAmount'=> $tl->rate_per_hour,
+                    'AccountCode'=> '200',
+                    'TaxType'=> 'OUTPUT',
+                    'LineAmount'=> $total_amount
+                ]);
+            }
             
             //ot pay add line item
             if($ot_hours > 0) {
