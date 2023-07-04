@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use DB;
 use App\Models\Client;
+use Illuminate\Support\Facades\File; 
 
 class LogTimeController extends Controller
 {
@@ -94,7 +95,17 @@ class LogTimeController extends Controller
         $filename = '';
 
         if($request->file('timesheet')){
+           $path = public_path().'/timesheets/'.$request->job_id;
            
+           //delete the old file
+           if($request->id) {
+                $tl=TimeLog::where('id', $request->id)->first();
+                if($tl->timesheet) {
+                    File::delete($path.'/'.$tl->timesheet);
+                }
+
+            }
+           //make a directory for the timesheets and save
             $path = public_path().'/timesheets/'.$request->job_id;
             if (!file_exists($path)) {
                 mkdir($path, 0775, true);
@@ -103,7 +114,25 @@ class LogTimeController extends Controller
             $filename= date('YmdHi').$file->getClientOriginalName();
             $file->move($path, $filename);
 
-            shell_exec('rar a -o+ '.$request->job_id.'.rar '. $path);
+            // zip files
+            $zip_file = $request->job_id.'.zip';
+            $zip = new \ZipArchive();
+            $zip->open($zip_file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+            $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
+            foreach ($files as $name => $file)
+            {
+                // We're skipping all subfolders
+                if (!$file->isDir()) {
+                    $filePath     = $file->getRealPath();
+
+                    // extracting filename with substr/strlen
+                    $relativePath = 'timesheets/' . substr($filePath, strlen($path) + 1);
+
+                    $zip->addFile($filePath, $relativePath);
+                }
+            }
+            $zip->close();
             // $this->execute('echo test');
 
         } else {
