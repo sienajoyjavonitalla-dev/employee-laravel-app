@@ -113,17 +113,25 @@
                     },
                     // initialView: 'dayGridMonth',
                     events: events,
-                    height: "90svh",
+                    height: "90vh",
                     eventContent : function(info){
 
                         data = info.event.extendedProps;
-                        status = "ASSIGNED";
 
-                        if(data.status == "open") status = "OPEN";
-                        if(data.status == "completed") status = "COMPLETE";
+                        var htmlString = "";
 
-                        htmlString =    "<b>#" + data.job_id + "</b> " + " - <i>" + status + "</i><br>" +
-                                        data.client;
+                        if(data.eventType == 'job')
+                        {
+                            status = "ASSIGNED";
+                            htmlString =    "<b>#" + data.job_id + "</b> " + " - <i>" + data.status.toUpperCase() + "</i><br>" +
+                                            data.client;
+
+                        }
+                        else if(data.eventType == 'note')
+                        {
+                            status = "NOTE";
+                            htmlString =    "<b>NOTES</b>";
+                        }
 
                         return {html : htmlString};
                     },
@@ -175,35 +183,57 @@
                     },
                     dateClick: function(info){
 
-                        $('#ajaxNoteModel').modal('show');
+                        if('{{Auth::user()->roles}}' == 'admin')
+                        {
+                            $('#ajaxNoteModel').modal('show');
 
-                        $('#calendar-note-save').click(function(){
+                            $('#calendar-note-save').click(function(){
 
-                        var note = $('#calendar_note').val();
+                                var note = $('#calendar_note').val();
 
-                        newNote = {
-                            'message' : note
-                        };
+                                newNote = {
+                                    'message' : note,
+                                    'note_date' : info.dateStr
+                                };
 
-                        $.ajax({
-                            type: "POST",
-                            url: '/calendarnote',
-                            data: newNote,
-                            dataType: 'json',
-                            success: function (data) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: '/calendarnote',
+                                    data: newNote,
+                                    dataType: 'json',
+                                    success: function (data) {
 
-                                calendar.addEvent({
-                                    'title' : note,
-                                    'start' : info.dateStr
-                                });
-                                $('#ajaxNoteModel').modal('hide');
-                                toastr.success('Note added.');
-                            },
-                            error: function (data) {
-                                toastr.error('Error!');
-                            }
-                        });
-                        });
+                                        calendar.addEvent({
+                                            'title' : 'Noooootes',
+                                            'backgroundColor' : '#e6db6c',
+                                            'textColor' : '#000',
+                                            'start' : info.dateStr,
+                                            'extendedProps' : {
+                                                'job_id' : '',
+                                                // 'employee' : 'n/a',
+                                                // 'client' : 'n/a',
+                                                // 'description' : 'n/a',
+                                                // 'poNumber' : 'n/a',
+                                                // 'status' : 'assigned',
+                                                // 'invoiceUrl' : 'n/a',
+                                                'eventType' : 'note',
+                                                'message' : note
+                                            }
+                                        });
+
+                                        $('#ajaxNoteModel').modal('hide');
+                                        toastr.success('Note added.');
+                                    },
+                                    error: function (data) {
+                                        toastr.error('Error!');
+                                    }
+                                });                                
+
+                                $('#calendar_note').val('');
+
+                                $(this).unbind();
+                            });
+                        }
                     }
                 });
 

@@ -90,22 +90,32 @@ class CalendarController extends Controller
             ];
         }
 
-        $calendarNotes = CalendarNote::all();
-
-        foreach($calendarNotes as $calendarNote)
+        if( Auth::user()->roles == 'admin' )
         {
-            $events[] = [
-                'id' => $calendarNote->id,
-                'title' => $calendarNote->id,
-                'extendedProps' => [
-                    'message' => $calendarNote->message,
-                    'eventType' => 'note'
-                ],
-                'backgroundColor' => '#e6db6c',
-                'textColor' => '#000',
-                'start' => $calendarNote->start_date,
-            ];
-        }
+            $calendarNotes = CalendarNote::all();
+
+            foreach($calendarNotes as $calendarNote)
+            {
+                $events[] = [
+                    'id' => $calendarNote->id,
+                    'title' => $calendarNote->id,
+                    'extendedProps' => [
+                        'job_id' => $calendarNote->id,
+                        'employee' => 'n/a',
+                        'client' => 'n/a',
+                        'description' => 'n/a',
+                        'poNumber' => 'n/a',
+                        'status' => 'assigned',
+                        'invoiceUrl' => 'n/a',
+                        'eventType' => 'note',
+                        'message' => $calendarNote->message
+                    ],
+                    'backgroundColor' => '#e6db6c',
+                    'textColor' => '#000',
+                    'start' => $calendarNote->note_date,
+                ];
+            }
+        }        
  
         return view('calendar', compact('events'));
     }

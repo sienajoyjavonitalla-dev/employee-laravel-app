@@ -17,12 +17,13 @@ class CalendarNoteContoller extends Controller
         // $calendarNote = new CalendarNote($request->message);
 
         $calendarNote = CalendarNote::create([
-            'message' => $request->message
+            'message' => $request->message,
+            'note_date' => $request->note_date
         ]);
 
         return response()->json([
             'message' => $calendarNote->message,
-            'date_creted' => $calendarNote->created_at
+            'note_date' => $calendarNote->note_date
         ]);
     }
 
