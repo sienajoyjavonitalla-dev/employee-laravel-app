@@ -224,7 +224,7 @@
             {data: 'id', name: 'id'},
             {data: 'invoice', name: 'invoice'},
             {data: 'client', name: 'client'},
-            {data: 'status', name: 'status'},
+            {data: 'stat_change', name: 'stat_change'},
             {data: 'address', name: 'address'},
             {data: 'start_date_time', name: 'start_date_time'},
             {data: 'end_date_time', name: 'end_date_time'},
@@ -232,8 +232,9 @@
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "20%", "targets": [7] },
-            { "width": "15%", "targets": [4, 8] },
+            { "width": "20%", "targets": [7, 8] },
+            { "width": "15%", "targets": [4] },
+            { "width": "10%", "targets": [3] },
         ],
         order: [[5, 'desc']]
     });
@@ -366,6 +367,34 @@
 
     });
 
+    $('body').on('click', '.completeBtn', function () {
+        var job_id = $(this).data('id');
+        var response = confirm("Are You sure want to complete the Job?");
+
+        if (response == true) {
+            $.ajax({
+                data:{
+                    job_id: job_id, 
+                },
+                url: "{{ route('complete.job') }}",
+                type: "POST",
+                dataType: 'json',
+                success: function (data) {
+                    if(data.success) {
+                        table.draw();
+                        toastr.success(data.success, 'SUCCESS');
+                    } else {
+                        toastr.error(data.success, 'ERROR');
+
+                    }
+                    
+                },
+                error: function (data) {
+                    toastr.error('Error Saving!');
+                }
+            });
+        }
+    });
 
     $('#saveBtn').click(function (e) {
 
@@ -400,30 +429,30 @@
         $(this).html('Saving..');
 
         $.ajax({
-        data: $('#assignForm').serialize(),
-        url: "{{ route('assign.store') }}",
-        type: "POST",
-        dataType: 'json',
-        success: function (data) {
-            $('#assignForm').trigger("reset");
-            $('#assignModal').modal('hide');
-            $('#saveAssBtn').html('Add');
+            data: $('#assignForm').serialize(),
+            url: "{{ route('assign.store') }}",
+            type: "POST",
+            dataType: 'json',
+            success: function (data) {
+                $('#assignForm').trigger("reset");
+                $('#assignModal').modal('hide');
+                $('#saveAssBtn').html('Add');
 
-            if(data.success) {
-                table.draw();
-                toastr.success('Assigned Job successfully!');
-            } else {
-                toastr.error('Job Assigned is full already!');
+                if(data.success) {
+                    table.draw();
+                    toastr.success('Assigned Job successfully!');
+                } else {
+                    toastr.error('Job Assigned is full already!');
+
+                }
+                
+            },
+            error: function (data) {
+                console.log('Error:', data);
+                $('#saveAssBtn').html('Add');
+                toastr.error('Error Saving!');
 
             }
-            
-        },
-        error: function (data) {
-            console.log('Error:', data);
-            $('#saveAssBtn').html('Add');
-            toastr.error('Error Saving!');
-
-        }
         });
     });
 
