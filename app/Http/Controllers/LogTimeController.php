@@ -97,13 +97,13 @@ class LogTimeController extends Controller
            
             $path = public_path().'/timesheets/'.$request->job_id;
             if (!file_exists($path)) {
-                mkdir($path, 0777, true);
+                mkdir($path, 0775, true);
             }
             $file= $request->file('timesheet');
             $filename= date('YmdHi').$file->getClientOriginalName();
             $file->move($path, $filename);
 
-            shell_exec('rar a -o+ '.$request->job_id.'.rar'. $path);
+            shell_exec('rar a -o+ '.$request->job_id.'.rar '. $path);
             // $this->execute('echo test');
 
         } else {
