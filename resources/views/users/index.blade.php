@@ -193,12 +193,11 @@
 
                 success: function (data) {
                     table.draw();
-                    toastr.success('Deleted successfully!');
+                    toastr.success(data.responseText);
 
                 },
                 error: function (data) {
-                    toastr.error('Error!');
-
+                    toastr.error(data.responseText);
                 }
             });
         }
