@@ -290,7 +290,7 @@ class LogTimeController extends Controller
             $data = $data->where('u.roles', $request->user_type);
         }
 
-        $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
+        $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.job_id, tl.start_time, tl.end_time, date, 
                 client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
         if ($request->ajax()) {
                 
@@ -386,6 +386,11 @@ class LogTimeController extends Controller
                         
                         return $total_amount;
                     })
+                    ->addColumn('signature', function($row){
+                        return "<a href=".url('signature/'.$row->signature)." target='_blank'>".url('signature/'.$row->signature)."</a>";
+                        
+                    })
+                    ->rawColumns(['signature'])
                     ->make(true);
         }
         $clients = Client::pluck('company_name', 'id');
