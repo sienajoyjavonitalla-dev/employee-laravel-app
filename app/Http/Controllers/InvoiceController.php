@@ -211,10 +211,6 @@ class InvoiceController extends Controller
                         }
                         return $inv;
                     })
-                    ->addColumn('client', function($row){
-                        $client = Client::where('id', $row->client_id)->first();
-                        return $client->company_name;
-                    })
                     ->addColumn('assigned', function($row){
                         $assigned = DB::table('job_assignee as ja')
                             ->leftJoin('users as u', 'ja.assigned_id', '=', 'u.id')
