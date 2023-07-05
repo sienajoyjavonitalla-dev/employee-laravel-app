@@ -65,6 +65,7 @@
                         <th>Pay</th>
                         <th>OT Pay</th>
                         <th>Total Pay</th>
+                        <th>Authorized signature</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -155,6 +156,7 @@
                 {data: 'pay', name: 'pay'},
                 {data: 'ot_pay', name: 'ot_pay'},
                 {data: 'total', name: 'total'},
+                {data: 'signature', name: 'signature'},
             ],
             "columnDefs": [
                 { "width": "2%", "targets": [7] }
