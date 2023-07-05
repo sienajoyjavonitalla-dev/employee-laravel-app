@@ -58,6 +58,8 @@ Route::post('assign', 'App\Http\Controllers\JobsController@store_assigned')->nam
 Route::get('assign/{job}', 'App\Http\Controllers\JobsController@assigned_index')->name('assign.index');
 Route::post('assign/{assign}/delete', 'App\Http\Controllers\JobsController@assigned_delete')->name('assign.delete');
 Route::post('complete/job', 'App\Http\Controllers\JobsController@complete_job')->name('complete.job');
+Route::get('userjobs', 'App\Http\Controllers\JobsController@user_jobs')->name('user.jobs');
+
 
 # Invoice
 Route::get('generatePDF', 'App\Http\Controllers\InvoiceController@generatePDF')->name('invoices.generate.pdf');

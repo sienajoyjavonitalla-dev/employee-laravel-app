@@ -44,12 +44,24 @@
                         <p>Chat</p>
                     </a>
                 </li>
+                @if(auth()->user()->roles == 'admin')
+
                 <li class="nav-item">
                     <a href="/jobs" class="nav-link  {{ request()->is('jobs') ? 'active' : '' }}">
                         <i class="fas fa-briefcase nav-icon"></i>
                         <p>Jobs</p>
                     </a>
                 </li>
+                @endif
+                @if(auth()->user()->roles != 'admin')
+                <li class="nav-item">
+                    <a href="/userjobs" class="nav-link  {{ request()->is('userjobs') ? 'active' : '' }}">
+                        <i class="fas fa-briefcase nav-icon"></i>
+                        <p>Jobs</p>
+                    </a>
+                </li>
+                @endif
+
                 <li class="nav-item">
                     <a href="/timeclock" class="nav-link  {{ request()->is('timeclock') ? 'active' : '' }}">
                         <i class="fas fa-clock nav-icon"></i>
