@@ -240,55 +240,58 @@
 
                         $('#calendar-note-save').unbind();
 
-                        calendarNote = $('#calendar_note').val("");
+                        if('{{Auth::user()->roles}}' == 'admin')
+                        {
+                            calendarNote = $('#calendar_note').val("");
 
-                        $('#ajaxNoteModel').modal('show');
+                            $('#ajaxNoteModel').modal('show');
 
-                        $('#calendar-note-save').click(function(){
+                            $('#calendar-note-save').click(function(){
 
-                            calendarNote = $('#calendar_note').val();
+                                calendarNote = $('#calendar_note').val();
 
-                            if( calendarNote.length > 0)
-                            {
-                                newNote = {
-                                    'message' : calendarNote,
-                                    'note_date' : info.dateStr
-                                };
+                                if( calendarNote.length > 0)
+                                {
+                                    newNote = {
+                                        'message' : calendarNote,
+                                        'note_date' : info.dateStr
+                                    };
 
-                                $.ajax({
-                                    type: "POST",
-                                    url: '/calendarnote',
-                                    data: newNote,
-                                    dataType: 'json',
-                                    success: function (data) {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: '/calendarnote',
+                                        data: newNote,
+                                        dataType: 'json',
+                                        success: function (data) {
 
-                                        newEvent = calendar.getEventById(data.id);
+                                            newEvent = calendar.getEventById(data.id);
 
-                                        calendar.addEvent({
-                                            'id' : data.id,
-                                            'title' : 'Noooootes',
-                                            'backgroundColor' : '#e6db6c',
-                                            'textColor' : '#000',
-                                            'start' : info.dateStr,
-                                            'extendedProps' : {
-                                                'job_id' : '',
-                                                'eventType' : 'note',
-                                                'message' : data.message,
-                                                'note_date' : data.note_date
-                                            }
-                                        });
+                                            calendar.addEvent({
+                                                'id' : data.id,
+                                                'title' : 'Noooootes',
+                                                'backgroundColor' : '#e6db6c',
+                                                'textColor' : '#000',
+                                                'start' : info.dateStr,
+                                                'extendedProps' : {
+                                                    'job_id' : '',
+                                                    'eventType' : 'note',
+                                                    'message' : data.message,
+                                                    'note_date' : data.note_date
+                                                }
+                                            });
 
-                                        $('#ajaxNoteModel').modal('hide');
-                                        toastr.success('Note added.');
-                                    },
-                                    error: function (data) {
-                                        toastr.error('Error!');
-                                    }
-                                });
-                            }
+                                            $('#ajaxNoteModel').modal('hide');
+                                            toastr.success('Note added.');
+                                        },
+                                        error: function (data) {
+                                            toastr.error('Error!');
+                                        }
+                                    });
+                                }
 
-                            $(this).unbind();
-                        });
+                                $(this).unbind();
+                            });
+                        }
                     }
                 });
 
