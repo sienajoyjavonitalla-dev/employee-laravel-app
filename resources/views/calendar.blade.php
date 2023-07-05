@@ -14,17 +14,16 @@
                         <div class="col-sm-12">
                             <textarea class="form-control" id="calendar_note" name="calendar_note" rows="6" placeholder="Type notes to save"></textarea>
                         </div>
-                    </div>
-
-                    <div class="row ml-1">
-                        <div class="col-sm-6 mt-4 mb-1">
-                            <span id="calendar-note-dete" class="btn btn-danger calendar-note-btn btn-block float-left">Delete Note</span>
-                        </div>
-                        <div class="col-sm-6 mt-4 mb-1">
-                            <span id="calendar-note-save" class="btn btn-info calendar-note-btn btn-block float-right">Save Note</span>
-                        </div>
-                    </div>
+                    </div>                    
                 </form>
+                <div class="row ml-1">
+                    <div class="col-sm-6 mt-4 mb-1">
+                        <button id="calendar-note-dete" class="btn btn-danger calendar-note-btn btn-block float-left">Delete Note</button>
+                    </div>
+                    <div class="col-sm-6 mt-4 mb-1">
+                        <button id="calendar-note-save" class="btn btn-info calendar-note-btn btn-block float-right">Save Note</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -81,11 +80,11 @@
 
                         @if(Auth::user()->roles == 'admin')
                         <div class="col-sm-6">
-                            <p class="invoice-link btn btn-danger float-right">
+                            <button class="invoice-link btn btn-danger float-right">
                                 <a href="#" id="job-delete">
                                     Delete
                                 </a>
-                            </p>
+                            </button>
                         </div>
                         @endif
                     </div>
@@ -109,6 +108,8 @@
 
                 var calendarEl = document.getElementById('calendar');
                 var events = @json($events);
+
+                var noteID = '';
 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     initialView: 'dayGridFourWeek',
@@ -136,7 +137,6 @@
                         }
                         else if(data.eventType == 'note')
                         {
-                            // status = "NOTE";
                             htmlString = "<b>SEE NOTES</b>";
                         }
 
@@ -190,11 +190,10 @@
                             $('#ajaxModel').modal('show');
                         }
                         else if(data.eventType == 'note')
-                        {   
+                        {
                             noteID = info.event.id;
 
                             calendarNote = document.getElementById("calendar_note");
-
                             calendarNote.value = data.message;
 
                             $('#calendar-note-save').unbind();
@@ -237,6 +236,8 @@
                         }
                     },
                     dateClick: function(info){
+
+                        noteID = null;
 
                         $('#calendar-note-save').unbind();
 
@@ -295,7 +296,10 @@
                     }
                 });
 
-                $('#job-delete').click(function(){
+                $('#job-delete').click(function(e){
+
+                    e.preventDefault();
+
                     deleteJob = confirm("Are you sure you want to delete this job?");
 
                     if(deleteJob == true) {
@@ -318,27 +322,35 @@
                     }
                 });
 
-                $('#calendar-note-dete').click(function(){
+                $('#calendar-note-dete').click(function(e){
+
+                    e.preventDefault();
+
                     deleteJob = confirm("Delete Note?");
 
-                    if(deleteJob == true) {
-                        $.ajax({
-                            type: "DELETE",
-                            url: '/calendarnote/'+noteID,
+                    if(deleteJob)
+                    {
+                        if(noteID != null) {
+                            $.ajax({
+                                type: "DELETE",
+                                url: '/calendarnote/'+noteID,
 
-                            success: function (data) {
+                                success: function (data) {
 
-                                event = calendar.getEventById(data.id);
-                                event.remove();
+                                    event = calendar.getEventById(data.id);
+                                    event.remove();
 
-                                toastr.success('Note deleted.');
-                                $('#ajaxNoteModel').modal('hide');
-                            },
-                            error: function (data) {
-                                toastr.error('Error!');
-                            }
-                        });
-                    }
+                                    toastr.success('Note deleted.');
+                                    $('#ajaxNoteModel').modal('hide');
+                                },
+                                error: function (data) {
+                                    toastr.error('Error!');
+                                }
+                            });
+                        } else {
+                            toastr.error('Note does not exist.');
+                        }
+                    }           
                 });
 
                 calendar.render();
