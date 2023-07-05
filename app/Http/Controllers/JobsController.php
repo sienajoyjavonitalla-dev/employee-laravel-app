@@ -16,6 +16,7 @@ use App\Models\JobAssignee;
 use Carbon\Carbon;
 use GuzzleHttp\Client as GClient;
 use GuzzleHttp\TransferStats;
+use Illuminate\Support\Facades\Auth;
 
 class JobsController extends Controller
 {
@@ -230,6 +231,53 @@ class JobsController extends Controller
         $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
 
         return view('jobs.index', compact('clients', 'assigned'));
+
+    }
+
+    public function user_jobs(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $data = DB::table('jobs as j')
+                ->leftJoin('job_assignee as ja', 'ja.job_id', '=', 'j.id')
+                ->leftJoin('clients as c', 'c.id', '=', 'j.client_id')
+                ->where('ja.assigned_id', Auth::user()->id)
+                ->selectRaw('j.id, j.client_id, j.status, j.address, j.start_date_time, j.end_date_time, c.company_name')
+                ->get();
+
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->addColumn('client', function($row){
+                    $client = Client::where('id', $row->client_id)->first();
+                    return $client->company_name ?? '';
+                })
+                ->addColumn('assigned', function($row){
+                    $assigned = DB::table('job_assignee as ja')
+                        ->leftJoin('users as u', 'ja.assigned_id', '=', 'u.id')
+                        ->where('ja.job_id', $row->id)
+                        ->select('u.name')
+                        ->get();
+                    $display = "";
+
+                    if($assigned->count() > 0) {
+                        $count=0;
+                        foreach($assigned as $a) {
+                            if($count > 0)
+                                $display .=', ';
+
+                            $display .=$a->name;
+                            $count++;
+                        }
+                    } 
+
+                    return $display;
+                })
+                
+                ->rawColumns(['assigned'])
+                ->make(true);
+        }
+
+        return view('jobs.user_jobs');
 
     }
 
