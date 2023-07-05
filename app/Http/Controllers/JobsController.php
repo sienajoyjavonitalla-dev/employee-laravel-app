@@ -406,6 +406,8 @@ class JobsController extends Controller
         $job_details = Jobs::where('id', $job_id)->first();
 
         $line_items = [];
+        $count_travel = 0;
+
         foreach($timelogs as $tl) {
             $total_hr = 0;
             $total_amount = 0;
@@ -433,8 +435,10 @@ class JobsController extends Controller
                 $total_hr = 4;
                 $total_amount = $pay;
             }
-            
+
             if($total_hr > 0) {
+                $count_travel = $count_travel + 1;
+
                 array_push($line_items, (object)[
                     'Description'=> $tl->date . ' ' . $tl->name,
                     'Quantity'=> $total_hr,
@@ -458,6 +462,17 @@ class JobsController extends Controller
             }
             
         } 
+
+        if($count_travel > 0) {
+            array_push($line_items, (object)[
+                'Description'=> 'Travel Allowance',
+                'Quantity'=> $count_travel,
+                'UnitAmount'=> $client_details->travel_allowance,
+                'AccountCode'=> '200',
+                'TaxType'=> 'OUTPUT',
+                'LineAmount'=> ($count_travel * $client_details->travel_allowance)
+            ]);
+        }
 
         $body = [
             'Invoices'=> [

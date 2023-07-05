@@ -128,7 +128,7 @@
         columns: [
             {data: 'id', name: 'id'},
             {data: 'invoice', name: 'invoice'},
-            {data: 'client', name: 'client'},
+            {data: 'company_name', name: 'company_name'},
             {data: 'status', name: 'status'},
             {data: 'address', name: 'address'},
             {data: 'start_date_time', name: 'start_date_time'},
