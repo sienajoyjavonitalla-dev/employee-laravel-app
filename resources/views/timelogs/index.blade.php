@@ -100,6 +100,22 @@
                     </div>
                     <div class="form-group col-sm-10">Uploaded file: <input type="text" disabled id="existingTimesheet" value=""></div>
                     
+                    <div class="form-group">
+                        <label for="authorized" class="col-sm-6 control-label">Authorized Person</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="authorized" name="authorized" value="" >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signature" class="col-sm-6 control-label">Upload Signature</label>
+                        <div class="col-sm-12">
+                            <input type="file" id="signature" name="signature" value="">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-10">Uploaded file: <input type="text" disabled id="existingSignature" value=""></div>
+                    
+
                     <div class="col-sm-offset-2 col-sm-10">
                         <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
                     </div>
@@ -128,7 +144,7 @@
 
         columns: [
             {data: 'job_id', name: 'job_id'},
-            {data: 'name', name: 'name'},
+            {data: 'assigned_to', name: 'assigned_to'},
             {data: 'with_lunch', name: 'with_lunch'},
             {data: 'start_time', name: 'start_time'},
             {data: 'end_time', name: 'end_time'},
@@ -168,8 +184,8 @@
             $('#end_time').attr('disabled', true); 
             $('#date').attr('disabled', true); 
         }
-      var timelogs = $(this).data('id');
-      $.get("{{ route('timelogs.index') }}" +'/' + timelogs +'/edit', function (data) {
+        var timelogs = $(this).data('id');
+        $.get("{{ route('timelogs.index') }}" +'/' + timelogs +'/edit', function (data) {
           $('#modelHeading').html("Edit TimeLog");
           $('#saveBtn').val("edit-timelog");
           $('#ajaxModel').modal('show');
@@ -181,6 +197,8 @@
           $('#end_time').val(data.end_time);
           $('#date').val(data.date);
           $('#existingTimesheet').val(data.timesheet);
+          $('#authorized').val(data.authorized);
+          $('#existingSignature').val(data.signature);
 
           if(data.lunch_break == 1) {
             $('#lunch_break').prop('checked',true);

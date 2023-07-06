@@ -25,20 +25,20 @@ class LogTimeController extends Controller
     {
         if ($request->ajax()) {
             if(Auth::user()->roles == 'admin') {
-                $data = DB::table('time_logs as tl')
-                    ->leftJoin('users as u', 'tl.assigned_id', '=', 'u.id')
-                    ->get();
+                $data = TimeLog::latest()->get();
             } else {
-                $data = DB::table('time_logs as tl')
-                    ->leftJoin('users as u', 'tl.assigned_id', '=', 'u.id')
-                    ->where('tl.assigned_id', Auth::user()->id)
-                    ->get();
+                $data = TimeLog::where('assigned_id', Auth::user()->id)->latest()->get();
             }
 
             return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('timesheet_url', function($row){
                         return "<a href=".url('timesheets/'.$row->job_id.'/'.$row->timesheet)." target='_blank'>".$row->timesheet."</a>";
+                    })
+                    ->addColumn('assigned_to', function($row){
+                        $qry = User::where('id', $row->assigned_id)->first();
+                        $user = $qry['name'];
+                        return $user;
                     })
                     ->addColumn('with_lunch', function($row){
                         return $row->lunch_break ? 'Yes':'No';
@@ -105,7 +105,6 @@ class LogTimeController extends Controller
 
             }
            //make a directory for the timesheets and save
-            $path = public_path().'/timesheets/'.$request->job_id;
             if (!file_exists($path)) {
                 mkdir($path, 0775, true);
             }
@@ -141,6 +140,28 @@ class LogTimeController extends Controller
             }
         }
         
+
+        //signature
+        $signature = '';
+        if($request->file('signature')) {
+            $path = public_path().'/signature';
+           
+            //delete the old file
+            if($request->id) {
+                 $tl=TimeLog::where('id', $request->id)->first();
+                 if($tl->timesheet) {
+                     File::delete($path.'/'.$tl->timesheet);
+                 }
+ 
+             }
+            //make a directory for the timesheets and save
+             if (!file_exists($path)) {
+                 mkdir($path, 0775, true);
+             }
+             $file= $request->file('signature');
+             $signature= date('YmdHi').$file->getClientOriginalName();
+             $file->move($path, $signature);
+        }
         TimeLog::updateOrCreate([
             'id' => $request->id
         ],
@@ -151,7 +172,10 @@ class LogTimeController extends Controller
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
             'date' => $request->date,
-            'timesheet' => $filename
+            'timesheet' => $filename,
+            'authorized' => $request->authorized,
+            'signature' => $signature
+
 
         ]);
 
