@@ -40,12 +40,6 @@ class LogTimeController extends Controller
                     ->addColumn('timesheet_url', function($row){
                         return "<a href=".url('timesheets/'.$row->job_id.'/'.$row->timesheet)." target='_blank'>".$row->timesheet."</a>";
                     })
-
-                    ->addColumn('assigned_to', function($row){
-                        $qry = User::where('id', $row->assigned_id)->first();
-                        $user = $qry->name;
-                        return $user;
-                    })
                     ->addColumn('with_lunch', function($row){
                         return $row->lunch_break ? 'Yes':'No';
                     })
