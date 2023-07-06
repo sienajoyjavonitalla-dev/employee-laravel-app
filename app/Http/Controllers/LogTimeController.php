@@ -25,9 +25,14 @@ class LogTimeController extends Controller
     {
         if ($request->ajax()) {
             if(Auth::user()->roles == 'admin') {
-                $data = TimeLog::latest()->get();
+                $data = DB::table('time_logs as tl')
+                    ->leftJoin('users as u', 'tl.assigned_id', '=', 'u.id')
+                    ->get();
             } else {
-                $data = TimeLog::where('assigned_id', Auth::user()->id)->latest()->get();
+                $data = DB::table('time_logs as tl')
+                    ->leftJoin('users as u', 'tl.assigned_id', '=', 'u.id')
+                    ->where('tl.assigned_id', Auth::user()->id)
+                    ->get();
             }
 
             return Datatables::of($data)

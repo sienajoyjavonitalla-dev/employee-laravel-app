@@ -128,7 +128,7 @@
 
         columns: [
             {data: 'job_id', name: 'job_id'},
-            {data: 'assigned_to', name: 'assigned_to'},
+            {data: 'name', name: 'name'},
             {data: 'with_lunch', name: 'with_lunch'},
             {data: 'start_time', name: 'start_time'},
             {data: 'end_time', name: 'end_time'},
