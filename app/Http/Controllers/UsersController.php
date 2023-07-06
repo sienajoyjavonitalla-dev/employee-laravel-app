@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\JobAssignee;
 use DataTables;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -88,9 +89,21 @@ class UsersController extends Controller
 
     public function destroy($id)
     {
-        User::find($id)->delete();
+        $user = User::find($id);
 
-        return response()->json(['success'=>'User deleted successfully.']);
+        $jobAssignees = JobAssignee::where('assigned_id', $user->id)->get();
+
+        $response = [];
+
+        if($jobAssignees->count() > 0)
+        {
+            return response('User still assigned to a job.', 400);
+        }
+        else
+        {
+            $user->delete();
+            return response('User deleted successfully.', 200);
+        }
     }
 
 
