@@ -410,8 +410,12 @@ class LogTimeController extends Controller
                         return $total_amount;
                     })
                     ->addColumn('signature', function($row){
-                        return "<a href=".url('signature/'.$row->signature)." target='_blank'>".url('signature/'.$row->signature)."</a>";
+                        $display='';
                         
+                        if($row->signature)
+                            $display="<a href=".url('signature/'.$row->signature)." target='_blank'>".url('signature/'.$row->signature)."</a>";
+                        
+                        return $display;
                     })
                     ->rawColumns(['signature'])
                     ->make(true);
