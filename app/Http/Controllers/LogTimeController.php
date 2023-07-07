@@ -285,7 +285,7 @@ class LogTimeController extends Controller
             ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
             ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
             ->leftJoin('job_assignee as ja', 'j.id', '=', 'ja.job_id')
-            ->leftJoin('users as u', 'u.id', '=', 'ja.assigned_id')
+            ->leftJoin('users as u', 'u.id', '=', 'tl.assigned_id')
             ->whereNotNull('tl.end_time')
             ->whereNotNull('ja.assigned_id')
             ->whereNotNull('j.id');
@@ -411,7 +411,7 @@ class LogTimeController extends Controller
                     })
                     ->addColumn('signature', function($row){
                         $display='';
-                        
+
                         if($row->signature)
                             $display="<a href=".url('signature/'.$row->signature)." target='_blank'>".url('signature/'.$row->signature)."</a>";
                         
