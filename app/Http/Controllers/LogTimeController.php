@@ -302,7 +302,7 @@ class LogTimeController extends Controller
         }
 
         if ($request->filled('assigned')) {
-            $data = $data->where('ja.assigned_id', $request->assigned);
+            $data = $data->where('tl.assigned_id', $request->assigned);
         }
 
         if ($request->filled('job')) {
