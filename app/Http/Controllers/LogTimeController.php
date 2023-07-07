@@ -425,7 +425,7 @@ class LogTimeController extends Controller
 
         $jobs = Jobs::orderBy('id', 'asc')->pluck('address', 'id');
         if($request->user_type == "full-timer")
-            $filter_assigned = User::where('roles', 'full-timer')->orderBy('name', 'asc')->pluck('name, id');
+            $filter_assigned = User::where('roles', 'full-timer')->orderBy('name', 'asc')->pluck('name', 'id');
         else
             $filter_assigned = User::where('roles', 'subcontractor')->orderBy('name', 'asc')->pluck('name', 'id');
 
