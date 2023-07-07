@@ -17,6 +17,8 @@ use Carbon\Carbon;
 use GuzzleHttp\Client as GClient;
 use GuzzleHttp\TransferStats;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\JobCancelled;
 
 class JobsController extends Controller
 {
@@ -208,6 +210,7 @@ class JobsController extends Controller
         return view('jobs.index', compact('clients', 'assigned'));
 
     }
+
     public function assigned_index(Request $request, Jobs $job)
     {
         if ($request->ajax()) {
@@ -659,10 +662,16 @@ class JobsController extends Controller
 
         DB::transaction(function() use($id) {
 
-            $jabAssignees = JobAssignee::where('job_id', $id)->get();
+            $jobAssignees = JobAssignee::where('job_id', $id)->get();
 
-            foreach ($jabAssignees as $jabAssignee) {
-                $jabAssignee->delete();
+            foreach ($jobAssignees as $jobAssignee) {
+                $jobAssignee->delete();
+                $user = User::find($jobAssignee->assigned_id);
+
+                Mail::to($user)->send(new JobCancelled(
+                    $id,
+                    $user->name
+                ));       
             }
 
             Jobs::find($id)->delete();
