@@ -39,9 +39,9 @@
                     <strong>Assigned Person</strong>
                     <select  name="assigned" id="assigned">
                         <option value="">-- Select --</option>
-                        @foreach ($filter_assigned as $d)
-                            <option value="{{ $d->assigned_id }}"> 
-                                {{ $d->name}} 
+                        @foreach ($filter_assigned as $key => $value)
+                            <option value="{{ $key }}"> 
+                                {{ $value}} 
                             </option>
                         @endforeach    
                     </select>
@@ -118,6 +118,7 @@
     load_data($('input[name="daterange"]').data('daterangepicker').startDate.format('YYYY-MM-DD'), 
     $('input[name="daterange"]').data('daterangepicker').endDate.format('YYYY-MM-DD'), 
     null,null,null, getUrlParameter('user_type'));
+
     function load_data(from_date, to_date, client, job, assigned, user_type) {
         var table = $('.data-table').DataTable({
             dom: 'lBfrtip',

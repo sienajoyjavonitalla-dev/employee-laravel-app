@@ -425,9 +425,9 @@ class LogTimeController extends Controller
 
         $jobs = Jobs::pluck('address', 'id');
         if($request->user_type == "full-timer")
-            $filter_assigned = User::where('roles', 'full-timer')->selectRaw('name, id')->get();
+            $filter_assigned = User::where('roles', 'full-timer')->pluck('name, id');
         else
-            $filter_assigned = User::where('roles', 'subcontractor')->selectRaw('name, id')->get();
+            $filter_assigned = User::where('roles', 'subcontractor')->pluck('name', 'id');
 
         return view('timelogs.timesheet', compact('clients', 'jobs', 'filter_assigned'));
 
