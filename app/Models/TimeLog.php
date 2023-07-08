@@ -19,5 +19,8 @@ class TimeLog extends Model
         'lunch_break',
         'updated_at',
         'created_at',
+        'authorized',
+        'signature',
+
     ];
 }

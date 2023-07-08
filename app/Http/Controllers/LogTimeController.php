@@ -35,10 +35,9 @@ class LogTimeController extends Controller
                     ->addColumn('timesheet_url', function($row){
                         return "<a href=".url('timesheets/'.$row->job_id.'/'.$row->timesheet)." target='_blank'>".$row->timesheet."</a>";
                     })
-
                     ->addColumn('assigned_to', function($row){
                         $qry = User::where('id', $row->assigned_id)->first();
-                        $user = $qry->name;
+                        $user = $qry['name'];
                         return $user;
                     })
                     ->addColumn('with_lunch', function($row){
@@ -106,7 +105,6 @@ class LogTimeController extends Controller
 
             }
            //make a directory for the timesheets and save
-            $path = public_path().'/timesheets/'.$request->job_id;
             if (!file_exists($path)) {
                 mkdir($path, 0775, true);
             }
@@ -142,6 +140,28 @@ class LogTimeController extends Controller
             }
         }
         
+
+        //signature
+        $signature = '';
+        if($request->file('signature')) {
+            $path = public_path().'/signature';
+           
+            //delete the old file
+            if($request->id) {
+                 $tl=TimeLog::where('id', $request->id)->first();
+                 if($tl->timesheet) {
+                     File::delete($path.'/'.$tl->timesheet);
+                 }
+ 
+             }
+            //make a directory for the timesheets and save
+             if (!file_exists($path)) {
+                 mkdir($path, 0775, true);
+             }
+             $file= $request->file('signature');
+             $signature= date('YmdHi').$file->getClientOriginalName();
+             $file->move($path, $signature);
+        }
         TimeLog::updateOrCreate([
             'id' => $request->id
         ],
@@ -152,7 +172,10 @@ class LogTimeController extends Controller
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
             'date' => $request->date,
-            'timesheet' => $filename
+            'timesheet' => $filename,
+            'authorized' => $request->authorized,
+            'signature' => $signature
+
 
         ]);
 
@@ -262,7 +285,7 @@ class LogTimeController extends Controller
             ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
             ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
             ->leftJoin('job_assignee as ja', 'j.id', '=', 'ja.job_id')
-            ->leftJoin('users as u', 'u.id', '=', 'ja.assigned_id')
+            ->leftJoin('users as u', 'u.id', '=', 'tl.assigned_id')
             ->whereNotNull('tl.end_time')
             ->whereNotNull('ja.assigned_id')
             ->whereNotNull('j.id');
@@ -279,7 +302,7 @@ class LogTimeController extends Controller
         }
 
         if ($request->filled('assigned')) {
-            $data = $data->where('ja.assigned_id', $request->assigned);
+            $data = $data->where('tl.assigned_id', $request->assigned);
         }
 
         if ($request->filled('job')) {
@@ -387,20 +410,24 @@ class LogTimeController extends Controller
                         return $total_amount;
                     })
                     ->addColumn('signature', function($row){
-                        return "<a href=".url('signature/'.$row->signature)." target='_blank'>".url('signature/'.$row->signature)."</a>";
+                        $display='';
+
+                        if($row->signature)
+                            $display="<a href=".url('signature/'.$row->signature)." target='_blank'>".url('signature/'.$row->signature)."</a>";
                         
+                        return $display;
                     })
                     ->rawColumns(['signature'])
                     ->make(true);
         }
-        $clients = Client::pluck('company_name', 'id');
-        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
+        $clients = Client::orderBy('company_name', 'asc')->pluck('company_name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->orderBy('name', 'asc')->pluck('name', 'id');
 
-        $jobs = Jobs::pluck('address', 'id');
+        $jobs = Jobs::orderBy('id', 'asc')->pluck('address', 'id');
         if($request->user_type == "full-timer")
-            $filter_assigned = User::where('roles', 'full-timer')->selectRaw('name, id')->get();
+            $filter_assigned = User::where('roles', 'full-timer')->orderBy('name', 'asc')->pluck('name', 'id');
         else
-            $filter_assigned = User::where('roles', 'subcontractor')->selectRaw('name, id')->get();
+            $filter_assigned = User::where('roles', 'subcontractor')->orderBy('name', 'asc')->pluck('name', 'id');
 
         return view('timelogs.timesheet', compact('clients', 'jobs', 'filter_assigned'));
 
