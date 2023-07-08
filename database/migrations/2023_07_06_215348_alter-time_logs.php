@@ -26,7 +26,7 @@ class AlterTimeLogs extends Migration
      */
     public function down()
     {
-        Schema::table('time_logs', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('notes');
         });
     }
