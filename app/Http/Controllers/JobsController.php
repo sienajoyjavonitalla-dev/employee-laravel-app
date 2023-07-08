@@ -17,6 +17,9 @@ use Carbon\Carbon;
 use GuzzleHttp\Client as GClient;
 use GuzzleHttp\TransferStats;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\JobCancelled;
+use App\Mail\JobAssigned;
 
 class JobsController extends Controller
 {
@@ -208,6 +211,7 @@ class JobsController extends Controller
         return view('jobs.index', compact('clients', 'assigned'));
 
     }
+
     public function assigned_index(Request $request, Jobs $job)
     {
         if ($request->ajax()) {
@@ -353,21 +357,32 @@ class JobsController extends Controller
 
     public function store_assigned(Request $request)
     {
-        $job = Jobs::where('id', $request->job_assignee_id)->first();
-        $job->status = 'assigned';
-        $job->save();
+        DB::transaction( function() use ($request){
+            $job = Jobs::where('id', $request->job_assignee_id)->first();
+            $job->status = 'assigned';
+            $job->save();
+    
+            $assigned = JobAssignee::where('job_id', $request->job_assignee_id)->get()->count();
+            
+    
+            $assigned =JobAssignee::updateOrCreate(
+                ['job_id' => $request->job_assignee_id,
+                'assigned_id' => (int)$request->assigned_id],
+                [
+                    'job_id' => $request->job_assignee_id,
+                    'assigned_id' => (int)$request->assigned_id,
+                    'job_title' => $request->job_title
+                ]
+            );
 
-        $assigned = JobAssignee::where('job_id', $request->job_assignee_id)->get()->count();
+            $user = User::find($assigned->assigned_id);
 
-        JobAssignee::updateOrCreate(
-            ['job_id' => $request->job_assignee_id,
-            'assigned_id' => (int)$request->assigned_id],
-            [
-                'job_id' => $request->job_assignee_id,
-                'assigned_id' => (int)$request->assigned_id,
-                'job_title' => $request->job_title
-            ]
-        );
+            Mail::to($user)->send(new JobAssigned(
+                $job->id,
+                $request->job_title,
+                $user->name
+            ));    
+        });     
 
         return response()->json(['success'=>'Job Assigned successfully.']);
 
@@ -659,10 +674,16 @@ class JobsController extends Controller
 
         DB::transaction(function() use($id) {
 
-            $jabAssignees = JobAssignee::where('job_id', $id)->get();
+            $jobAssignees = JobAssignee::where('job_id', $id)->get();
 
-            foreach ($jabAssignees as $jabAssignee) {
-                $jabAssignee->delete();
+            foreach ($jobAssignees as $jobAssignee) {
+                $jobAssignee->delete();
+                $user = User::find($jobAssignee->assigned_id);
+
+                Mail::to($user)->send(new JobCancelled(
+                    $id,
+                    $user->name
+                ));       
             }
 
             Jobs::find($id)->delete();
