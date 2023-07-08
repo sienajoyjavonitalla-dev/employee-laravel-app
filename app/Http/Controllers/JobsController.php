@@ -375,13 +375,13 @@ class JobsController extends Controller
                 ]
             );
 
-            $user = User::find($assigned->assigned_id);
+            // $user = User::find($assigned->assigned_id);
 
-            Mail::to($user)->send(new JobAssigned(
-                $job->id,
-                $request->job_title,
-                $user->name
-            ));    
+            // Mail::to($user)->send(new JobAssigned(
+            //     $job->id,
+            //     $request->job_title,
+            //     $user->name
+            // ));    
         });     
 
         return response()->json(['success'=>'Job Assigned successfully.']);
