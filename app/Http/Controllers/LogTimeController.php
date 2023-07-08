@@ -286,13 +286,17 @@ class LogTimeController extends Controller
         $data = DB::table('time_logs as tl')
             ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
             ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
-            ->leftJoin('job_assignee as ja', 'j.id', '=', 'ja.job_id')
+            ->leftJoin('job_assignee as ja', function($join)
+            {
+                $join->on('tl.job_id', '=', 'ja.job_id');
+                $join->on('tl.assigned_id', '=', 'ja.assigned_id');
+            })
             ->leftJoin('users as u', 'u.id', '=', 'tl.assigned_id')
             ->whereNotNull('tl.end_time')
-            ->whereNotNull('ja.assigned_id')
+            ->whereNotNull('tl.assigned_id')
             ->whereNotNull('j.id');
         if(Auth::user()->roles != 'admin') {
-            $data = $data->where('ja.assigned_id', Auth::user()->id);
+            $data = $data->where('tl.assigned_id', Auth::user()->id);
         }
 
         if ($request->filled('from_date') && $request->filled('to_date')) {
@@ -317,6 +321,7 @@ class LogTimeController extends Controller
 
         $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.job_id, tl.start_time, tl.end_time, date, 
                 client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
+
         if ($request->ajax()) {
                 
                 return Datatables::of($data)
