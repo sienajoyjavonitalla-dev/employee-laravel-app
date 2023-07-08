@@ -19,6 +19,7 @@ use GuzzleHttp\TransferStats;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\JobCancelled;
+use App\Mail\JobAssigned;
 
 class JobsController extends Controller
 {
@@ -356,21 +357,32 @@ class JobsController extends Controller
 
     public function store_assigned(Request $request)
     {
-        $job = Jobs::where('id', $request->job_assignee_id)->first();
-        $job->status = 'assigned';
-        $job->save();
+        DB::transaction( function() use ($request){
+            $job = Jobs::where('id', $request->job_assignee_id)->first();
+            $job->status = 'assigned';
+            $job->save();
+    
+            $assigned = JobAssignee::where('job_id', $request->job_assignee_id)->get()->count();
+            
+    
+            $assigned =JobAssignee::updateOrCreate(
+                ['job_id' => $request->job_assignee_id,
+                'assigned_id' => (int)$request->assigned_id],
+                [
+                    'job_id' => $request->job_assignee_id,
+                    'assigned_id' => (int)$request->assigned_id,
+                    'job_title' => $request->job_title
+                ]
+            );
 
-        $assigned = JobAssignee::where('job_id', $request->job_assignee_id)->get()->count();
+            $user = User::find($assigned->assigned_id);
 
-        JobAssignee::updateOrCreate(
-            ['job_id' => $request->job_assignee_id,
-            'assigned_id' => (int)$request->assigned_id],
-            [
-                'job_id' => $request->job_assignee_id,
-                'assigned_id' => (int)$request->assigned_id,
-                'job_title' => $request->job_title
-            ]
-        );
+            Mail::to($user)->send(new JobAssigned(
+                $job->id,
+                $request->job_title,
+                $user->name
+            ));    
+        });     
 
         return response()->json(['success'=>'Job Assigned successfully.']);
 
