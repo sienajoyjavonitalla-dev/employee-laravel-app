@@ -13,7 +13,7 @@ class AlterTimeLogs extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('time_logs', function (Blueprint $table) {
             $table->string('notes')->nullable();
 
         });
@@ -26,6 +26,8 @@ class AlterTimeLogs extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('time_logs', function (Blueprint $table) {
+            $table->dropColumn('notes');
+        });
     }
 }

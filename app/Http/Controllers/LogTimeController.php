@@ -228,6 +228,7 @@ class LogTimeController extends Controller
                 }
            
                 $found_tl->lunch_break = $request->lunch_break;
+                $found_tl->notes = $request->notes;
                 $found_tl->end_time = Carbon::now()->toTimeString();
                 $found_tl->save();
             } 
@@ -256,6 +257,7 @@ class LogTimeController extends Controller
                 }
                
                 $found_tl->lunch_break = $request->lunch_break;
+                $found_tl->notes = $request->notes;
                 $found_tl->save();
             } else {
                 return response()->json(['error'=>'Lunch break should have a value!']);
