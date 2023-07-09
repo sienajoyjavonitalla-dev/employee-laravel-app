@@ -183,7 +183,7 @@ class InvoiceController extends Controller
         $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
 
         $jobs = Jobs::pluck('address', 'id');
-        $banks = BankDetails::pluck('bsb_no', 'id');
+        $banks = BankDetails::pluck('name', 'id');
 
         $filter_assigned = $filter->where('u.roles', 'subcontractor')->selectRaw('DISTINCT u.name, ja.assigned_id')->get();
         return view('invoices.index', compact('clients', 'jobs', 'filter_assigned', 'banks'));
