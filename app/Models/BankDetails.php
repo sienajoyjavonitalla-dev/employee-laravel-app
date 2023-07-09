@@ -11,6 +11,7 @@ class BankDetails extends Model
 
     protected $fillable = [
         'bsb_no',
-        'acct_no'
+        'acct_no',
+        'name'
     ];
 }

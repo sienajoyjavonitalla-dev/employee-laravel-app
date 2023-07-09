@@ -12,6 +12,7 @@
                 <tr>
                     <th>BSB Number</th>
                     <th>Account Number</th>
+                    <th>Name</th>
                     <th width="280px">Action</th>
                 </tr>
             </thead>
@@ -46,6 +47,12 @@
                             <input type="text" class="form-control" id="acct_no" name="acct_no" value="" required="">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="account_name" class="col-sm-6 control-label">Name</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="account_name" name="account_name" value="" required="">
+                        </div>
+                    </div>
                     
                     <div class="col-sm-offset-2 col-sm-10">
                         <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
@@ -76,6 +83,7 @@
         columns: [
             {data: 'bsb_no', name: 'bsb_no'},
             {data: 'acct_no', name: 'acct_no'},
+            {data: 'name', name: 'name'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ]
         
@@ -100,6 +108,7 @@
           $('#id').val(data.id);
           $('#bsb_no').val(data.bsb_no);
           $('#acct_no').val(data.acct_no);
+          $('#account_name').val(data.name);
 
       })
 
