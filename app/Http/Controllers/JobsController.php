@@ -357,32 +357,34 @@ class JobsController extends Controller
 
     public function store_assigned(Request $request)
     {
-        DB::transaction( function() use ($request){
-            $job = Jobs::where('id', $request->job_assignee_id)->first();
-            $job->status = 'assigned';
-            $job->save();
+        if( $request->assigned_id != null )
+        {
+            DB::transaction( function() use ($request){
+                $job = Jobs::where('id', $request->job_assignee_id)->first();
+                $job->status = 'assigned';
+                $job->save();
+        
+                $assigned = JobAssignee::where('job_id', $request->job_assignee_id)->get()->count();
+                
+                $assigned =JobAssignee::updateOrCreate(
+                    ['job_id' => $request->job_assignee_id,
+                    'assigned_id' => (int)$request->assigned_id],
+                    [
+                        'job_id' => $request->job_assignee_id,
+                        'assigned_id' => (int)$request->assigned_id,
+                        'job_title' => $request->job_title
+                    ]
+                );
     
-            $assigned = JobAssignee::where('job_id', $request->job_assignee_id)->get()->count();
-            
+                // $user = User::find($assigned->assigned_id);
     
-            $assigned =JobAssignee::updateOrCreate(
-                ['job_id' => $request->job_assignee_id,
-                'assigned_id' => (int)$request->assigned_id],
-                [
-                    'job_id' => $request->job_assignee_id,
-                    'assigned_id' => (int)$request->assigned_id,
-                    'job_title' => $request->job_title
-                ]
-            );
-
-            // $user = User::find($assigned->assigned_id);
-
-            // Mail::to($user)->send(new JobAssigned(
-            //     $job->id,
-            //     $request->job_title,
-            //     $user->name
-            // ));    
-        });     
+                // Mail::to($user)->send(new JobAssigned(
+                //     $job->id,
+                //     $request->job_title,
+                //     $user->name
+                // ));    
+            }); 
+        }
 
         return response()->json(['success'=>'Job Assigned successfully.']);
 
