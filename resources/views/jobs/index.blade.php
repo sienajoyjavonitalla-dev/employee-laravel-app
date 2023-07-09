@@ -426,6 +426,12 @@
 
         e.preventDefault();
 
+        if( $('#assigned_id').val() == '' )
+        {
+            toastr.error('Cannot assign empty user.');
+            return;
+        }
+
         $(this).html('Saving..');
 
         $.ajax({

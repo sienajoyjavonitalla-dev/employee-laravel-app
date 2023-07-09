@@ -48,13 +48,13 @@ class BankDetailsController extends Controller
     }
     public function store(Request $request)
     {
-        
-        BankDetails::updateOrCreate([
+        $bankDetails = BankDetails::updateOrCreate([
             'id' => $request->id
         ],
         [
             'bsb_no' => $request->bsb_no,
-            'acct_no' => $request->acct_no
+            'acct_no' => $request->acct_no,
+            'name' => $request->account_name
         ]);
 
         return response()->json(['success'=>'Bank Details saved successfully.']);

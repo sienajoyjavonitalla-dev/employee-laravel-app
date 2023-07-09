@@ -21,6 +21,7 @@ class TimeLog extends Model
         'created_at',
         'authorized',
         'signature',
+        'notes'
 
     ];
 }
