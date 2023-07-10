@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Jobs;
 use App\Models\Appointment;
 use App\Models\XeroToken;
+use App\Models\AdminFootprint;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Models\Client;
@@ -287,22 +288,39 @@ class JobsController extends Controller
 
     public function assigned_delete(Request $request, JobAssignee $assign)
     {
-        $d = JobAssignee::find($assign->id);
-        $job_id = $d->job_id;
-        $d->delete();
+        DB::transaction(function() use ($request, $assign){
 
-        $ja = JobAssignee::where('job_id', $job_id)->get();
+            $d = JobAssignee::find($assign->id);
+            $job_id = $d->job_id;
+            $d->delete();
+    
+            $ja = JobAssignee::where('job_id', $job_id)->get();
+            $job = Jobs::where('id', $job_id)->first();
+            $action_user = User::find($assign->assigned_id);
+            $user = Auth::user();
+    
+            if($ja->count() == 0)
+            {    
+                $job->status = 'open';
+                $job->save();
+            }
 
-        if($ja->count() == 0) {
-            $j = Jobs::where('id', $job_id)->first();
-            $j->status = 'open';
-            $j->save();
-        }
+            $footprint = "$user->name unassiged $action_user->name from job #$job->id";
 
+            AdminFootprint::create([
+                'user_id' => $user->id,
+                'action_type' => 'unassign',
+                'entity_id' => $action_user->id,
+                'entity' => $action_user->name,
+                'entity_target_id' => $job->id,
+                'entity_target' => $d->job_title,
+                'description' => $footprint
+            ]);
+        });
 
+        
 
         return response()->json(['success'=>'Deleted successfully.']);
-
     }
 
     public function show(Jobs $id)
@@ -318,6 +336,8 @@ class JobsController extends Controller
     public function store(Request $request)
     {
         DB::transaction(function() use ($request) {
+
+            $job_check = $request->job_id;
 
             $job = Jobs::updateOrCreate(
                 [
@@ -336,20 +356,26 @@ class JobsController extends Controller
                 ]
             );
 
-            Appointment::updateOrCreate(
-                [
-                    'job_id' => $job->id
-                ],
-                [
-                    'start_time' => $request->start_date_time,
-                    'finish_time' => $request->start_date_time,
-                    'title' => $request->title,
-                    'job_id' => $job->id,
-                    'client_id' => $request->client_id,
-                    'user_id' => $request->employee_id
-                ]
-            );
+            $user = Auth::user();
 
+            $footprint = "";
+            $action = "";
+
+            if( $job_check == null )
+            {
+                $footprint = "$user->name created job #$job->id";
+                $action = "create";
+            } else {
+                $footprint = "$user->name updated job #$job->id";
+                $action = "update";
+            }
+
+            AdminFootprint::create([
+                'user_id' => $user->id,
+                'action_type' => $action,
+                'entity_id' => $job->id,
+                'description' => $footprint
+            ]);
         },2);
 
         return response()->json(['success'=>'Job saved successfully.']);
@@ -383,6 +409,21 @@ class JobsController extends Controller
                 //     $request->job_title,
                 //     $user->name
                 // ));    
+
+                $user = Auth::user();
+                $action_user = User::find($request->assigned_id);
+
+                $footprint = "$user->name assigned $action_user->name to job #$job->id";
+
+                AdminFootprint::create([
+                    'user_id' => $user->id,
+                    'action_type' => 'assign',
+                    'entity_id' => $action_user->id,
+                    'entity' => $action_user->name,
+                    'entity_target_id' => $job->id,
+                    'entity_target' => $job->title,
+                    'description' => $footprint
+                ]);
             }); 
         }
 
@@ -395,6 +436,17 @@ class JobsController extends Controller
         $job = Jobs::where('id', $request->job_id)->first();
         $job->status = 'complete';
         $job->save();
+
+        $user = Auth::user();
+
+        $footprint = "$user->name changed job #$job->id status to Complete";
+
+        AdminFootprint::create([
+            'user_id' => $user->id,
+            'action_type' => 'update',
+            'entity_id' => $job->id,
+            'description' => $footprint
+        ]);
 
         return response()->json(['success'=>'Job is set to Completed successfully.']);
     }
@@ -581,6 +633,18 @@ class JobsController extends Controller
                 $this->sendAttachments($job_id, $i->InvoiceID);
 
             }
+
+            $user = Auth::user();
+
+            $footprint = "$user->name generated an invoice for job #$job_details->id";
+
+            AdminFootprint::create([
+                'user_id' => $user->id,
+                'action_type' => 'create',
+                'entity_id' => $job_details->id,
+                'description' => $footprint
+            ]);
+
             return response()->json(['success'=>'Invoice created successfully.']);
 
         } else {
@@ -688,7 +752,20 @@ class JobsController extends Controller
                 ));       
             }
 
-            Jobs::find($id)->delete();
+            $job = Jobs::find($id);
+            $job->delete();
+
+            $user = Auth::user();
+
+            $footprint = "$user->name deleted job #$job->id";
+
+            AdminFootprint::create([
+                'user_id' => $user->id,
+                'action_type' => 'delete',
+                'entity_id' => $job->id,
+                'entity' => $job->title,
+                'description' => $footprint
+            ]);
 
         },2);        
 
