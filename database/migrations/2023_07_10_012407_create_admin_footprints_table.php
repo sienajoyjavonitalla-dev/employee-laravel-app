@@ -18,10 +18,13 @@ class CreateAdminFootprintsTable extends Migration
             $table->integer('user_id')->index();
             $table->string('action_type');
             $table->integer('entity_id')->index();
-            $table->string('entity');
+            $table->string('entity')->nullable();
+            $table->integer('entity_target_id')->index()->nullable();
+            $table->string('entity_target')->nullable();;
             $table->string('field')->nullable();
             $table->string('prev_value')->nullable();
             $table->string('new_value')->nullable();
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }
