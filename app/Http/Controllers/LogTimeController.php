@@ -75,18 +75,29 @@ class LogTimeController extends Controller
         return view('timelogs.index', ['TimeLogs' => $id]);
     }
 
-    public function timeclock()
+    public function timeclock(Request $request)
     {
         $clock_in = TimeLog::where('assigned_id', Auth::user()->id)->whereNull('end_time')->orderBy('created_at', 'desc')->first();
-       
-        $job = Jobs::leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id')
+        $job = '';
+        if($request->job) {
+            $job = Jobs::leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id')
             ->leftJoin('job_assignee as ja', 'ja.job_id', '=', 'jobs.id')
             ->where('ja.assigned_id', Auth::user()->id)
+            ->where('jobs.id', $request->job)
             ->whereDate('start_date_time', '<=', Carbon::now()->toDateString())
             ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())
             ->selectRaw('jobs.address, clients.company_name, jobs.id, ja.job_title as title, jobs.start_date_time, jobs.end_date_time, jobs.start_time, jobs.end_time')
             ->first();
-        return view('timelogs.timeclock', compact('clock_in', 'job'));
+        }
+        $joblists = Jobs::leftJoin('job_assignee as ja', 'ja.job_id', '=', 'jobs.id')
+            ->where('ja.assigned_id', Auth::user()->id)
+            ->whereDate('start_date_time', '<=', Carbon::now()->toDateString())
+            ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())
+            ->selectRaw('jobs.address, jobs.id')
+            ->get();
+        
+        
+        return view('timelogs.timeclock', compact('clock_in', 'job', 'joblists'));
     }
 
     public function store(Request $request)
@@ -142,7 +153,6 @@ class LogTimeController extends Controller
         
 
         //signature
-        $signature = '';
         if($request->file('signature')) {
             $path = public_path().'/signature';
            
@@ -161,6 +171,11 @@ class LogTimeController extends Controller
              $file= $request->file('signature');
              $signature= date('YmdHi').$file->getClientOriginalName();
              $file->move($path, $signature);
+        }  else {
+            if($request->id) {
+                $tl=TimeLog::where('id', $request->id)->first();
+                $signature = $tl->signature;
+            }
         }
         TimeLog::updateOrCreate([
             'id' => $request->id
@@ -186,12 +201,14 @@ class LogTimeController extends Controller
     {
         if($request->type == 'in') {
             
-            $found_job = Jobs::leftJoin('job_assignee as ja', 'ja.job_id', '=', 'jobs.id')
-            ->where('ja.assigned_id', Auth::user()->id)
-            ->whereDate('start_date_time', '<=', Carbon::now()->toDateString())
-            ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())
-            ->selectRaw('jobs.id')
-            ->first();
+            // $found_job = Jobs::leftJoin('job_assignee as ja', 'ja.job_id', '=', 'jobs.id')
+            // ->where('ja.assigned_id', Auth::user()->id)
+            // ->whereDate('start_date_time', '<=', Carbon::now()->toDateString())
+            // ->whereDate('end_date_time', '>=', Carbon::now()->toDateString())
+            // ->selectRaw('jobs.id')
+            // ->first();
+
+            $found_job = Jobs::where('id', $request->job_id)->first();
 
             if($found_job) {
                 $tl = new TimeLog();
