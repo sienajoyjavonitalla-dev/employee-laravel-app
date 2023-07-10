@@ -15,7 +15,13 @@ class CreateAdminFootprintsTable extends Migration
     {
         Schema::create('admin_footprints', function (Blueprint $table) {
             $table->id();
-            $table->string();
+            $table->integer('user_id')->index();
+            $table->string('action_type');
+            $table->integer('entity_id')->index();
+            $table->string('entity');
+            $table->string('field')->nullable();
+            $table->string('prev_value')->nullable();
+            $table->string('new_value')->nullable();
             $table->timestamps();
         });
     }

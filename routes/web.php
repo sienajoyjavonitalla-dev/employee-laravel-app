@@ -75,4 +75,5 @@ Route::get('pusher', 'App\Http\Controllers\PusherController@index')->name('pushe
 Route::post('pusher/receive', 'App\Http\Controllers\PusherController@receive')->name('pusher.receive');
 Route::post('pusher/broadcast', 'App\Http\Controllers\PusherController@broadcast')->name('pusher.broadcast');
 
-# Calendar Notes
+# Admin Footprints
+Route::get('footprints', 'App\Http\Controllers\AdminFootprintController@index')->name('admin.footprint');

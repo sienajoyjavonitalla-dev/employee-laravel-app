@@ -15,7 +15,16 @@ class AdminFootprintController extends Controller
     
     public function index(Request $request)
     {
+        if( $request->ajax() )
+        {
+            $data = AdminFootprint::latest()->get();
 
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->make(true);
+        }      
+
+        return view('logs.footprint');
     }
 
     public function show(AdminFootprint $id)
@@ -23,23 +32,8 @@ class AdminFootprintController extends Controller
 
     }
 
-    public function create()
-    {
-
-    }
-
     public function store(Request $request)
     {
  
-    }
-
-    public function edit($id)
-    {
-
-    }
-
-    public function destroy($id)
-    {
-
     }
 }
