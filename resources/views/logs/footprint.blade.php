@@ -9,11 +9,7 @@
                     <tr>
                         <th>User</th>
                         <th>Action</th>
-                        <th>Entity</th>
-                        <th>E. ID</th>
-                        <th>Field</th>
-                        <th>Prev Value</th>
-                        <th>New Value</th>
+                        <th>Description</th>
                         <th>Date</th>
                     </tr>
                 </thead>
@@ -43,20 +39,12 @@ $(function () {
         columns: [
             {data: 'user_id', name: 'user_id'},
             {data: 'action_type', name: 'action_type'},
-            {data: 'entity', name: 'entity'},
-            {data: 'entity_id', name: 'entity_id'},
-            {data: 'field', name: 'field'},
-            {data: 'prev_value', name: 'prev_value'},
-            {data: 'new_value', name: 'new_value'},
+            {data: 'description', name: 'description'},
             {data: 'created_at', name: 'created_at'},
-        ],
-        "columnDefs": [
-            { "width": "10%", "targets": [1,2,3,4] },
-            { "width": "20%", "targets": [5,6,7] }
         ],
         order: [[0, 'asc']]
     });
-    
+
 });
 
 </script>
