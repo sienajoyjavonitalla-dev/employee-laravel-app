@@ -186,7 +186,6 @@
 
         $("#job").change(function () {
             var val = this.value;
-            alert(val);
             var uri = "/timeclock?job="+ val;
             var encoded = encodeURI(uri);
             window.location.href=encoded;
