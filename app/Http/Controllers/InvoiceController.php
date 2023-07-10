@@ -160,9 +160,10 @@ class InvoiceController extends Controller
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('bank', function($row){
+
                         $bank = BankDetails::where('id', $row->bank_id)->first();
                         
-                        return $bank->bsb_no;
+                        return $bank ? $bank->name : '';
                     })
                     ->addColumn('subcontractor', function($row){
                         $u = User::where('id', $row->subcontractor_id)->first();
