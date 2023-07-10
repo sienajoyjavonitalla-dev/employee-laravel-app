@@ -36,8 +36,11 @@ Route::get('clients_invoice', 'App\Http\Controllers\InvoiceController@clients_in
 
 
 Route::get('invoices/pdf', 'App\Http\Controllers\InvoiceController@pdf')->name('invoices.pdf');
+
+# Timeclock
 Route::get('timeclock', 'App\Http\Controllers\LogTimeController@timeclock')->name('timeclock');
 Route::post('clock_in_out', 'App\Http\Controllers\LogTimeController@clock_in_out')->name('clock-in-out');
+Route::get('timeclock_filter', 'App\Http\Controllers\LogTimeController@timeclock_filter')->name('timeclock.filter');
 
 # Calendar
 Route::get('calendar', 'App\Http\Controllers\CalendarController@index')->name('calendar');

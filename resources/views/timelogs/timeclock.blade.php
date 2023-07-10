@@ -12,16 +12,41 @@
             <h3>{{date("Y.m.d")}}</h3>
             <hr/>
             @if((isset($clock_in) && $clock_in->end_time) || !isset($clock_in))
-                <button class="btn btn-success btn-lg" id="clock-in"> CLOCK IN </button>
+                <button class="btn btn-success btn-lg" id="clock-in" {{$job ? '' : 'disabled'}}> CLOCK IN </button>
             @elseif(isset($clock_in) && $clock_in->end_time == null)
                 <h6>Last Clock In {{date('h:i:s a', strtotime($clock_in->start_time))}}. {{$clock_in->date}}</h6>
                 <button class="btn btn-danger btn-lg" id="clock-out"> CLOCK OUT </button>
             @endif
         </div>
     </div>
-
+    <div class="row" style="width: 50%;">
+        <!-- <div class="form-group">
+            <label for="job" class="col-sm-6 control-label">Select a Job to Clock In</label>
+            <div class="col-sm-12">
+                <select class="form-control" name="job" id="job" required="">
+                    <option value="" >-- Select --</option>
+                    @foreach($joblists as $jl)
+                    <option value="{{$jl->id}}" > {{'Job # '.$jl->id. ' - ' .$jl->address}}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div> -->
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Select a Job</span>
+            </div>
+            <select class="form-control" name="job" id="job" required="">
+                <option value="" >-- Select --</option>
+                @foreach($joblists as $jl)
+                <option value="{{$jl->id}}" {{$job ? (($job->id == $jl->id) ? 'selected' : '') : ''}}> {{'Job # '.$jl->id. ' - ' .$jl->address}}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+    
     @if($job)
     <div class="card" style="width: 95%;">
+        
         <div class="card-header fw-bold">
             Job Details
         </div>
@@ -87,8 +112,8 @@
                         <div class="col-sm-12">
                             <select class="form-control" name="lunch_break" id="lunch_break" required="" value="{{$clock_in ? $clock_in->lunch_break : '' }}" autocomplete="off">
                                 <option value="" >-- Select --</option>
-                                <option value="0" selected="{{$clock_in->lunch_break == '0' ? 'selected' : '' }}"> No</option>
-                                <option value="1" selected="{{$clock_in->lunch_break == '1' ? 'selected' : '' }}"> Yes</option>
+                                <option value="0" {{($clock_in->lunch_break == '0') ? 'selected' : ''}}> No</option>
+                                <option value="1" {{($clock_in->lunch_break == '1') ? 'selected' : ''}}> Yes</option>
                             </select>
                         </div>
                     </div>
@@ -158,9 +183,17 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-        $('#clock-in').click(function (e) {
 
+        $("#job").change(function () {
+            var val = this.value;
+            var uri = "/timeclock?job="+ val;
+            var encoded = encodeURI(uri);
+            window.location.href=encoded;
+        });
+
+        $('#clock-in').click(function (e) {
             var dataToSend = {
+                'job_id': $("#job").val(),
                 'type': 'in',
                 '_token': '{{ csrf_token() }}'
             };
@@ -185,37 +218,7 @@
             });
         })
 
-        $('#clock-out').click(function (e) {
-
-            // var dataToSend = {
-            //     'type': 'out',
-            //     '_token': '{{ csrf_token() }}'
-            // };
-            var formData = new FormData($('#timelogForm')[0]);
-            formData.append('type', 'out');
-
-            $.ajax({
-                url: "clock_in_out",
-                type: "POST",
-                dataType: 'json',
-                processData: false,
-                contentType: false,
-                data: formData,
-                success: function (data) {
-                    if(data.success) {
-                        toastr.success(data.success, 'SUCCESS');
-                        window.location.reload();        
-                    } else {
-                        toastr.error(data.error, 'ERROR');
-                    }
-                },
-                error: function (data) {
-                    toastr.error('Error Saving!');
-
-                }
-            });
-        })
-
+        
         
     });
 
@@ -229,12 +232,16 @@
         $('#saveBtn').click(function (e) {
 
             e.preventDefault(); 
-
-            imgdata = signaturePad.toDataURL('image/png');   
-
             var formData = new FormData($('#timelogForm')[0]);
-            formData.append('signed', imgdata);
 
+            if (signaturePad.isEmpty()) {
+                console.log("Empty!");
+            } else {
+                imgdata = signaturePad.toDataURL('image/png');   
+
+                formData.append('signed', imgdata);
+            }
+            
             $(this).html('Saving..');
             $.ajax({
                 url: "clock_in_out",
@@ -260,6 +267,45 @@
             });
 
         });
+
+        $('#clock-out').click(function (e) {
+
+            var formData = new FormData($('#timelogForm')[0]);
+            formData.append('type', 'out');
+
+            if (signaturePad.isEmpty()) {
+                console.log("Empty!");
+            } else {
+                imgdata = signaturePad.toDataURL('image/png');   
+
+                formData.append('signed', imgdata);
+            }
+
+            $.ajax({
+                url: "clock_in_out",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (data) {
+                    if(data.success) {
+                        toastr.success(data.success, 'SUCCESS');
+                        $('#timelogForm').trigger("reset");
+                        var uri = "/timeclock";
+                        var encoded = encodeURI(uri);
+                        window.location.href=encoded;
+                    } else {
+                        toastr.error(data.error, 'ERROR');
+                    }
+                },
+                error: function (data) {
+                    toastr.error('Error Saving!');
+
+                }
+            });
+        })
+
 
         $('#clearPad').click(function(e) {
             e.preventDefault();
