@@ -26,14 +26,4 @@ class AdminFootprintController extends Controller
 
         return view('logs.footprint');
     }
-
-    public function show(AdminFootprint $id)
-    {
-
-    }
-
-    public function store(Request $request)
-    {
- 
-    }
 }
