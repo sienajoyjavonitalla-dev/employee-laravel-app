@@ -19,7 +19,7 @@
             @endif
         </div>
     </div>
-    <div class="row" style="width: 50%;">
+    <div class="row" style="width: 100%;">
         <!-- <div class="form-group">
             <label for="job" class="col-sm-6 control-label">Select a Job to Clock In</label>
             <div class="col-sm-12">
