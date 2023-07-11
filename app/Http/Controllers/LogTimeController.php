@@ -103,6 +103,7 @@ class LogTimeController extends Controller
     public function store(Request $request)
     {
         $filename = '';
+        $signature = '';
 
         if($request->file('timesheet')){
            $path = public_path().'/timesheets/'.$request->job_id;
