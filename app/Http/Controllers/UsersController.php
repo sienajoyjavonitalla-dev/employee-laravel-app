@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\JobAssignee;
+use App\Models\AdminFootprint;
 use DataTables;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UsersController extends Controller
 {
@@ -54,30 +56,55 @@ class UsersController extends Controller
 
     public function store(Request $request)
     {
-        if($request->user_id) {
-            
-            $user = User::where('id', $request->user_id)->first();
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->roles = $request->roles;
-            if($request->password != null) {
-                $user->password = Hash::make($request->password);
+        DB::transaction(function() use($request) {
+            $footprint = "";
+
+            $adminUser = Auth::user();
+
+            $user = null;
+            $action_type = "";
+
+            if($request->user_id) {
+                
+                $user = User::where('id', $request->user_id)->first();
+                $user->name = $request->name;
+                $user->email = $request->email;
+                $user->roles = $request->roles;
+
+                if($request->password != null){
+                    $user->password = Hash::make($request->password);
+                }
+
+                $user->rate_per_hour = $request->rate_per_hour;
+                $user->ot_rate_per_hour = $request->ot_rate_per_hour;
+                $user->save();
+
+                $action_type = "update";
+                $footprint = "$adminUser->name updated user $user->name";
+            } else {
+                $user = User::create(
+                [
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'roles' => $request->roles,
+                    'rate_per_hour' => $request->rate_per_hour,
+                    'ot_rate_per_hour' => $request->ot_rate_per_hour
+                ]);
+
+                $action_type = "create";
+                $footprint = "$adminUser->name created user $user->name";
             }
-            $user->rate_per_hour = $request->rate_per_hour;
-            $user->ot_rate_per_hour = $request->ot_rate_per_hour;
-            $user->save();
-        } else {
-            User::create(
-            [
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'roles' => $request->roles,
-                'rate_per_hour' => $request->rate_per_hour,
-                'ot_rate_per_hour' => $request->ot_rate_per_hour
-            ]);   
-        }
-             
+
+            AdminFootprint::create([
+                'user_id' => $adminUser->id,
+                'action_type' => $action_type,
+                'entity_id' => $user->id,
+                'entity' => $user->name,
+                'description' => $footprint
+            ]);
+        });
+
         return response()->json(['success'=>'User saved successfully.']);
     }
 
@@ -100,9 +127,25 @@ class UsersController extends Controller
             return response('User still assigned to a job.', 400);
         }
         else
-        {
-            $user->delete();
-            return response('User deleted successfully.', 200);
+        {   
+            DB::transaction(function() use ($user) {
+
+                $adminUser = Auth::user();
+
+                $footprint = "$adminUser->name deleted $user->name";
+
+                $user->delete();
+
+                AdminFootprint::create([
+                    'user_id' => $adminUser->id,
+                    'action_type' => 'delete',
+                    'entity_id' => $user->id,
+                    'entity' => $user->name,
+                    'description' => $footprint
+                ]);
+
+                return response('User deleted successfully.', 200);
+            });            
         }
     }
 

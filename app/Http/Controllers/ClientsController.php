@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Jobs;
+use App\Models\AdminFootprint;
 use DataTables;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -172,25 +173,54 @@ class ClientsController extends Controller
 
     public function store(Request $request)
     {
-        Client::updateOrCreate([
-            'id' => $request->client_id
-        ],
-        [
-            'client_name' => $request->client_name,
-            'Name' => $request->company_name,
-            'POBOX_AddressLine1' => $request->POBOX_AddressLine1,
-            'POBOX_City' => $request->POBOX_City,
-            'POBOX_Region' => $request->POBOX_Region,
-            'POBOX_PostalCode' => $request->POBOX_PostalCode,
-            'POBOX_Country' => $request->POBOX_Country,
-            'PhoneNumber' => $request->PhoneNumber,
-            'PhoneAreaCode' => $request->PhoneAreaCode,
-            'rate_per_hour' => $request->rate_per_hour,
-            'ot_rate_per_hour' => $request->ot_rate_per_hour,
-            'company_name' => $request->company_name,
-            'travel_allowance' => $request->travel_allowance,
-            'holiday_rate' => $request->holiday_rate
-        ]);
+        DB::transaction(function() use ($request) {
+
+            $isCreate = false;
+            $user = Auth::user();
+
+            if($request->client_id == null)
+            {
+                $isCreate = true;
+            }
+    
+            $client = Client::updateOrCreate([
+                'id' => $request->client_id
+            ],
+            [
+                'client_name' => $request->client_name,
+                'Name' => $request->company_name,
+                'POBOX_AddressLine1' => $request->POBOX_AddressLine1,
+                'POBOX_City' => $request->POBOX_City,
+                'POBOX_Region' => $request->POBOX_Region,
+                'POBOX_PostalCode' => $request->POBOX_PostalCode,
+                'POBOX_Country' => $request->POBOX_Country,
+                'PhoneNumber' => $request->PhoneNumber,
+                'PhoneAreaCode' => $request->PhoneAreaCode,
+                'rate_per_hour' => $request->rate_per_hour,
+                'ot_rate_per_hour' => $request->ot_rate_per_hour,
+                'company_name' => $request->company_name,
+                'travel_allowance' => $request->travel_allowance,
+                'holiday_rate' => $request->holiday_rate
+            ]);
+
+            $action_type = "";
+
+            if( $isCreate ) {
+                $action_type = "create";
+                $footprint = "$user->name created client $client->company_name";
+            } else {
+                $action_type = "update";
+                $footprint = "$user->name updated client $client->company_name";
+            }
+
+            AdminFootprint::create([
+                'user_id' => $user->id,
+                'action_type' => $action_type,
+                'entity_id' => $client->id,
+                'entity' => $client->company_name,
+                'description' => $footprint
+            ]);
+        });
 
         return response()->json(['success'=>'Client saved successfully.']);
     }
@@ -203,7 +233,23 @@ class ClientsController extends Controller
 
     public function destroy($id)
     {
-        Client::find($id)->delete();
+        DB::transaction(function() use ($id) {
+
+            $client = Client::find($id);
+            $client->delete();
+
+            $user = Auth::user();
+
+            $footprint = "$user->name deleted client $client->company_name";
+
+            AdminFootprint::create([
+                'user_id' => $user->id,
+                'action_type' => 'delete',
+                'entity_id' => $client->id,
+                'entity' => $client->company_name,
+                'description' => $footprint
+            ]);
+        });
 
         return response()->json(['success'=>'Client deleted successfully.']);
     }
