@@ -44,7 +44,11 @@ class CalendarController extends Controller
  
         foreach ($appointments as $appointment) {
 
-            $clientName = Client::find($appointment->client_id)->company_name;
+            $client = Client::find($appointment->client_id);
+
+            if( $client == null ) continue;
+
+            $clientName = $client->company_name;
             $jobAssignees = JobAssignee::where('job_id', $appointment->id)->get()->toArray();
             $lineItem = LineItem::where('job_id', $appointment->id)->first();
 
