@@ -42,7 +42,7 @@ $(function () {
             {data: 'description', name: 'description'},
             {data: 'created_at', name: 'created_at'},
         ],
-        order: [[0, 'asc']]
+        order: [[3, 'asc']]
     });
 
 });
