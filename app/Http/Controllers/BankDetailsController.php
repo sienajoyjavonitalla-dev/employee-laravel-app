@@ -100,6 +100,8 @@ class BankDetailsController extends Controller
                 'entity' => $bankDetails->name,
                 'description' => $footprint
             ]);
+
+            $bankDetails->delete();
         });
 
         return response()->json(['success'=>'Bank Details deleted successfully.']);
