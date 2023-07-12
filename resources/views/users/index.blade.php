@@ -62,9 +62,10 @@
                         <div class="col-sm-12">
                             <select  class="form-control" name="roles" id="roles" required="">
                                 <option value="">-- Select --</option>
-                                    <option value="subcontractor"> Subcontractor</option>
-                                    <option value="full-timer"> Full Timer</option>
-                                    <option value="admin"> Admin</option>
+                                <option value="subcontractor"> Subcontractor</option>
+                                <option value="full-timer"> Full Timer</option>
+                                <option value="admin"> Admin</option>
+                                <option value="subadmin"> Subadmin</option>
                             </select>
                             <!-- <input type="text" class="form-control" id="roles" name="roles" value="" maxlength="50" required=""> -->
                         </div>
