@@ -374,18 +374,26 @@ class LogTimeController extends Controller
                         if($row->lunch_break) {
                             $total_hr = $total_hr - .5;
                         }
-                        
+                        $rate = $row->rate_per_hour;
+                        $isWeekend = false;
+                        if($row->date) {
+                            $day = Carbon::createFromFormat('Y-m-d', $row->date );
+                            $isWeekend = $day->isWeekend();
+                            if($isWeekend) {
+                                $rate = $row->ot_rate_per_hour;
+                            }
+                        } 
                         if($total_hr > 4 && $total_hr <= 8 ) {
                             $ot_pay=0;
-                            $pay = $total_hr * $row->rate_per_hour;
+                            $pay = $total_hr * $rate;
                         } else if($total_hr > 0 && $total_hr <= 4) {
                             $total_hr = 4;
-                            $pay = 4 * $row->rate_per_hour;
+                            $pay = 4 * $rate;
                         } else if($total_hr > 8) {
                             $total_hr = 8;
-                            $pay = 8 * $row->rate_per_hour;
+                            $pay = 8 * $rate;
                         }
-                        
+                        $pay = number_format((float)$pay, 2, '.', '');
                         return $pay;
                     })
                     ->addColumn('ot_pay', function($row){
@@ -403,6 +411,8 @@ class LogTimeController extends Controller
                             $ot_hours= $total_hr - 8;
                             $ot_pay = $ot_hours * $row->ot_rate_per_hour;
                         }
+                        $ot_pay = number_format((float)$ot_pay, 2, '.', '');
+
                         return $ot_pay;
                     })
                     ->addColumn('total', function($row){
@@ -414,24 +424,36 @@ class LogTimeController extends Controller
                         $total_amount=0;
                         if($row->lunch_break) {
                             $total_hr = $total_hr - .5;
-                        }    
+                        }  
+                        
+                        $rate = $row->rate_per_hour;
+                        $isWeekend = false;
+                        if($row->date) {
+                            $day = Carbon::createFromFormat('Y-m-d', $row->date );
+                            $isWeekend = $day->isWeekend();
+                            if($isWeekend) {
+                                $rate = $row->ot_rate_per_hour;
+                            }
+                        } 
+
                         if($total_hr > 4) {
                             $ot_pay=0;
-                            $pay = $total_hr * $row->rate_per_hour;
+                            $pay = $total_hr * $rate;
                             if($total_hr > 8) {
                                 $ot_hours= $total_hr - 8;
                                 $ot_pay = $ot_hours * $row->ot_rate_per_hour;
                                 $total_hr = 8;
-                                $pay = $total_hr * $row->rate_per_hour;
+                                $pay = $total_hr * $rate;
 
                             }
                             $total_amount = $ot_pay + $pay;
                         } else if($total_hr > 0 && $total_hr <= 4) {
                             $total_hr = 4;
-                            $pay = 4 * $row->rate_per_hour;
+                            $pay = 4 * $rate;
                             $total_amount = $pay;
                         }
-                        
+                        $total_amount = number_format((float)$total_amount, 2, '.', '');
+
                         return $total_amount;
                     })
                     ->addColumn('signature', function($row){

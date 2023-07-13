@@ -164,8 +164,6 @@
                     </a>
                 </li>
 
-                <hr>
-
                 <li class="nav-item">
                     <a href="/footprints" class="nav-link  {{ request()->is('footprints') ? 'active' : '' }}">
                         <i class="fas fa-database nav-icon"></i>
