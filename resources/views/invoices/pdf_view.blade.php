@@ -161,19 +161,30 @@ body {
                         if($data->lunch_break) {
                             $total_hr = $total_hr - .5;
                         }
+
+                        $rate = $data->rate_per_hour;
+                        $isWeekend = false;
+                        if($data->date) {
+                            $day = Carbon\Carbon::createFromFormat('Y-m-d', $data->date );
+                            $isWeekend = $day->isWeekend();
+                            if($isWeekend) {
+                                $rate = $data->ot_rate_per_hour;
+                            }
+                        } 
+
                         if($total_hr > 4) {
                             $ot_pay=0;
-                            $pay = $total_hr * $data->rate_per_hour;
+                            $pay = $total_hr * $rate;
                             if($total_hr > 8) {
                                 $ot_hours= $total_hr - 8;
                                 $ot_pay = $ot_hours * $data->ot_rate_per_hour;
                                 $total_hr = 8;
-                                $pay = $total_hr * $data->rate_per_hour;
+                                $pay = $total_hr * $rate;
 
                             }
                             $total_amount = $ot_pay + $pay;
                         } else if($total_hr <= 4) {
-                            $pay = 4 * $data->rate_per_hour;
+                            $pay = 4 * $rate;
                             $total_amount = $pay;
                         }
                         
@@ -184,7 +195,7 @@ body {
                 <td>{{ $data->date . ' ' . $data->name }}</td>
                 <td>Hour</td>
                 <td>{{ $total_hr }}</td>
-                <td>{{ $data->rate_per_hour }}</td>
+                <td>{{ $rate }}</td>
                 <td>{{ $ot_hours }}</td>
                 <td>{{ $data->ot_rate_per_hour }}</td>
                 <td>GST</td>

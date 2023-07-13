@@ -144,16 +144,26 @@ class JobsController extends Controller
                             $total_hr = $total_hr - .5;
                         }
                         
+                        $rate = $row->rate_per_hour;
+                        $isWeekend = false;
+                        if($row->date) {
+                            $day = Carbon::createFromFormat('Y-m-d', $row->date );
+                            $isWeekend = $day->isWeekend();
+                            if($isWeekend) {
+                                $rate = $row->ot_rate_per_hour;
+                            }
+                        }
                         if($total_hr > 4 && $total_hr <= 8 ) {
                             $ot_pay=0;
-                            $pay = $total_hr * $row->rate_per_hour;
+                            $pay = $total_hr * $rate;
                         } else if($total_hr > 0 && $total_hr <= 4) {
                             $total_hr = 4;
-                            $pay = 4 * $row->rate_per_hour;
+                            $pay = 4 * $rate;
                         } else if($total_hr > 8) {
                             $total_hr = 8;
-                            $pay = 8 * $row->rate_per_hour;
+                            $pay = 8 * $rate;
                         }
+                        $pay = number_format((float)$pay, 2, '.', '');
                         
                         return $pay;
                     })
@@ -171,6 +181,8 @@ class JobsController extends Controller
                             $ot_hours= $total_hr - 8;
                             $ot_pay = $ot_hours * $row->ot_rate_per_hour;
                         }
+                        $ot_pay = number_format((float)$ot_pay, 2, '.', '');
+
                         return round($ot_pay, 2);
                     })
                     ->addColumn('total', function($row){
@@ -182,23 +194,33 @@ class JobsController extends Controller
                         $total_amount=0;
                         if($row->lunch_break) {
                             $total_hr = $total_hr - .5;
+                        }
+                        $rate = $row->rate_per_hour;
+                        $isWeekend = false;
+                        if($row->date) {
+                            $day = Carbon::createFromFormat('Y-m-d', $row->date );
+                            $isWeekend = $day->isWeekend();
+                            if($isWeekend) {
+                                $rate = $row->ot_rate_per_hour;
+                            }
                         }    
                         if($total_hr > 4) {
                             $ot_pay=0;
-                            $pay = $total_hr * $row->rate_per_hour;
+                            $pay = $total_hr * $rate;
                             if($total_hr > 8) {
                                 $ot_hours= $total_hr - 8;
                                 $ot_pay = $ot_hours * $row->ot_rate_per_hour;
                                 $total_hr = 8;
-                                $pay = $total_hr * $row->rate_per_hour;
+                                $pay = $total_hr * $rate;
 
                             }
                             $total_amount = $ot_pay + $pay;
                         } else if($total_hr > 0 && $total_hr <= 4) {
                             $total_hr = 4;
-                            $pay = 4 * $row->rate_per_hour;
+                            $pay = 4 * $rate;
                             $total_amount = $pay;
                         }
+                        $total_amount = number_format((float)$total_amount, 2, '.', '');
                         
                         return $total_amount;
                     })
@@ -462,7 +484,7 @@ class JobsController extends Controller
                     ->where('tl.job_id', $job_id)
                     ->whereNotNull('tl.end_time')
                     ->selectRaw('u.name, travel_allowance, date, jobs.id, title, po_number, 
-                        clients.address, assigned_id, job_id, tl.start_time, tl.end_time,  
+                        clients.address, assigned_id, job_id, tl.start_time, tl.end_time, tl.date, 
                         client_id, client_name, company_name, lunch_break, clients.rate_per_hour, clients.ot_rate_per_hour, 
                         TIMESTAMPDIFF(HOUR, tl.start_time, tl.end_time), jobs.address as job_address')
                     ->get();
@@ -488,19 +510,27 @@ class JobsController extends Controller
             if($tl->lunch_break) {
                 $total_hr = $total_hr - .5;
             }
-
+            $rate = $tl->rate_per_hour;
+            $isWeekend = false;
+            if($tl->date) {
+                $day = Carbon::createFromFormat('Y-m-d', $tl->date );
+                $isWeekend = $day->isWeekend();
+                if($isWeekend) {
+                    $rate = $tl->ot_rate_per_hour;
+                }
+            }
             if($total_hr > 4) {
                 $ot_pay=0;
-                $pay = $total_hr * $tl->rate_per_hour;
+                $pay = $total_hr * $rate;
                 if($total_hr > 8) {
                     $ot_hours= $total_hr - 8;
                     $ot_pay = $ot_hours * $tl->ot_rate_per_hour;
                     $total_hr = 8;
-                    $pay = $total_hr * $tl->rate_per_hour;
+                    $pay = $total_hr * $rate;
                 }
                 $total_amount = $pay;
             } else if($total_hr > 0 && $total_hr <= 4) {
-                $pay = 4 * $tl->rate_per_hour;
+                $pay = 4 * $rate;
                 $total_hr = 4;
                 $total_amount = $pay;
             }
@@ -511,7 +541,7 @@ class JobsController extends Controller
                 array_push($line_items, (object)[
                     'Description'=> $tl->date . ' ' . $tl->name,
                     'Quantity'=> $total_hr,
-                    'UnitAmount'=> $tl->rate_per_hour,
+                    'UnitAmount'=> $rate,
                     'AccountCode'=> '200',
                     'TaxType'=> 'OUTPUT',
                     'LineAmount'=> $total_amount
