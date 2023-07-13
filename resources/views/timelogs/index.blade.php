@@ -18,6 +18,7 @@
                     <th>End Time</th>
                     <th>Date</th>
                     <th>Timesheet</th>
+                    <th>Notes</th>
                     <th width="280px">Action</th>
                 </tr>
             </thead>
@@ -150,11 +151,11 @@
             {data: 'end_time', name: 'end_time'},
             {data: 'date', name: 'date'},
             {data: 'timesheet_url', name: 'timesheet_url'},
+            {data: 'notes', name: 'notes'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
-            { "width": "20%", "targets": [2] },
-            { "width": "10%", "targets": [4,5] }
+            { "width": "20%", "targets": [1,7] },
 
         ],
         order: [[6, 'asc']]

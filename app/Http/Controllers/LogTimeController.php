@@ -33,7 +33,12 @@ class LogTimeController extends Controller
             return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('timesheet_url', function($row){
-                        return "<a href=".url('timesheets/'.$row->job_id.'/'.$row->timesheet)." target='_blank'>".$row->timesheet."</a>";
+
+                        $timesheet = $row->timesheet;
+
+                        if($timesheet!= "") $timesheet = "open timesheet";
+
+                        return "<a href=".url('timesheets/'.$row->job_id.'/'.$row->timesheet)." target='_blank'>".$timesheet."</a>";
                     })
                     ->addColumn('assigned_to', function($row){
                         $qry = User::where('id', $row->assigned_id)->first();
