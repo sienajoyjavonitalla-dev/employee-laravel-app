@@ -38,12 +38,6 @@
                         <p>Calendar</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="/pusher" class="nav-link  {{ request()->is('pusher') ? 'active' : '' }}">
-                        <i class="fas fa-comments nav-icon"></i>
-                        <p>Chat</p>
-                    </a>
-                </li>
                 @if(auth()->user()->roles == 'admin')
 
                 <li class="nav-item">
@@ -191,30 +185,15 @@
                         @csrf
                     </form>
                 </li>
-                
+                <li class="nav-item" id="chat-icon-gbl">
+                    <a href="#">
+                        <i class="fas fa-comments nav-icon"></i>
+                    </a>
+                </li>                
             </ul>
         </nav>
 
         <link href="{{ asset('css/sidebar-menu.css?v=').time() }}" rel="stylesheet">
-
-        <!-- Sidebar Menu Logout Section-->
-        <!-- <nav class="mt-2 logout-section">
-
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-
-                <li class="nav-item">
-                    <a href="{{ route('logout') }}" class="nav-link" onclick="event.preventDefault();
-                                    document.getElementById('logout-form').submit();">
-                        <i class="nav-icon fas fa-power-off"></i>
-                        <p>{{ __('Logout') }}</p>
-                    </a>
-
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                        @csrf
-                    </form>
-                </li>
-            </ul>
-        </nav> -->
 
     </div>
     <!-- /.sidebar -->
