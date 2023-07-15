@@ -86,8 +86,6 @@
           success: function (data) {
             $('#msgForm').trigger("reset");
             $('#msgBtn').html('Save Changes');
-
-            toastr.success('Sent');
           },
           error: function (data) {
 
@@ -108,8 +106,6 @@
     // Receive Message
     channel.bind('chat', function (data) {
 
-      toastr.success('Received Message');
-
       $.ajax({
 
         data: data,
@@ -119,9 +115,12 @@
         
       }).done(function (res) {
 
-        $(".messages > .message").last().after(function(){
+        if(res.user_id != '{{ Auth::user()->id }}')
+        {
+          $(".messages > .message").last().after(function(){
             return '<div class="left message"><p><span class="message-user-name">'+ res.name +'</span><span class="message-row">'+ res.message +'</span></p></div>';
-        });
+          });
+        }
 
         $(document).scrollTop($(document).height());
 

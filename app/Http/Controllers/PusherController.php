@@ -40,8 +40,9 @@ class PusherController extends Controller
         ]);
 
         return response()->json([
-            'message' => $request->message,
-            'name' => $request->senderName
+            'message' => $message->message,
+            'user_id' => $message->user_id,
+            'name' => $request->senderName,
         ]);
 
     }
