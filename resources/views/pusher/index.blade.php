@@ -76,7 +76,6 @@
 
         $(this).html('Saving..');
 
-
         // Broadcast Message
         $.ajax({
           
@@ -97,8 +96,6 @@
           }
 
         }).done(function (res) {
-
-          console.log(res);
           $(".messages > .message").last().after(function(){
               return '<div class="right message"><p class="message-row-user">'+ res.message +'</p></div>';
           });
@@ -112,7 +109,6 @@
     channel.bind('chat', function (data) {
 
       toastr.success('Received Message');
-      console.log(data);
 
       $.ajax({
 
@@ -123,7 +119,6 @@
         
       }).done(function (res) {
 
-        console.log(res);
         $(".messages > .message").last().after(function(){
             return '<div class="left message"><p><span class="message-user-name">'+ res.name +'</span><span class="message-row">'+ res.message +'</span></p></div>';
         });
