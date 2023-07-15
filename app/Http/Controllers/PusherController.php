@@ -34,14 +34,17 @@ class PusherController extends Controller
 
     public function receive(Request $request)
     {
-        $message = Messages::create([
-            'message' => $request->message,
-            'user_id' => $request->senderId
-        ]);
-
+        if( $request->senderId != Auth::user()->id )
+        {
+            $message = Messages::create([
+                'message' => $request->message,
+                'user_id' => $request->senderId
+            ]);
+        }
+        
         return response()->json([
-            'message' => $message->message,
-            'user_id' => $message->user_id,
+            'message' => $request->message,
+            'user_id' => $request->senderId,
             'name' => $request->senderName,
         ]);
 
