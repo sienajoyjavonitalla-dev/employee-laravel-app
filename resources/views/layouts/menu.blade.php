@@ -25,13 +25,6 @@
         <!-- Sidebar Menu -->
         <nav class="mt-2 sidebar-main-items">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-
-                <!-- <li class="nav-item admin-only">
-                    <a href="/home" class="nav-link  {{ request()->is('home') ? 'active' : '' }}">
-                        <i class="fas fa-home nav-icon"></i>
-                        <p>Dashboard</p>
-                    </a>
-                </li> -->
                 <li class="nav-item">
                     <a href="/calendar" class="nav-link  {{ request()->is('calendar') ? 'active' : '' }}">
                         <i class="fas fa-solid fa-calendar  nav-icon"></i>
@@ -166,7 +159,13 @@
                 </li>
 
                 @endif
-                
+
+                <li class="nav-item">
+                    <a href="/pusher" class="nav-link  {{ request()->is('pusher') ? 'active' : '' }}">
+                        <i class="fas fa-comments nav-icon"></i>
+                        <p>Open Chat</p>
+                    </a>
+                </li>                
                 
                 <li class="nav-item">
                     <a href="/how_tos" class="nav-link  {{ request()->is('how_tos') ? 'active' : '' }}">
@@ -184,12 +183,7 @@
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                         @csrf
                     </form>
-                </li>
-                <li class="nav-item" id="chat-icon-gbl">
-                    <a href="#">
-                        <i class="fas fa-comments nav-icon"></i>
-                    </a>
-                </li>                
+                </li>            
             </ul>
         </nav>
 

@@ -1,69 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Uprise Chat</title>
-  <link rel="icon" href="https://assets.edlin.app/favicon/favicon.ico"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- JavaScript -->
-  <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-  <!-- End JavaScript -->
+@extends('layouts.app')
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="/css/pusherchat.css">
-  <!-- End CSS -->
+@section('content')
+<div class="chat">
 
-</head>
 
-<body>
-    <div class="chat">
+<div class="top">
+    <h2 style="text-align:center">Uprise Rigging Channel</h2>
+</div>
 
-        <!-- Header -->
-        <div class="top">
-            <h2 style="text-align:center">Uprise Rigging Channel</h2>
-        </div>
-        <!-- End Header -->
 
-        <!-- Chat -->
-        <div class="messages" id="messages">
-          @foreach($messages as $message)
 
-            @if($message->user_id != $user_id)
-                @include('pusher.receive', ['message' => $message->message, 'name' => $message->name])            
-            @else
-                @include('pusher.broadcast', ['message' => $message->message, 'name' => $message->name])
-            @endif
+<div class="messages" id="messages">
+  @foreach($messages as $message)
 
-          @endforeach
-        </div>
-        <!-- End Chat -->
+    @if($message->user_id != $user_id)
+        @include('pusher.receive', ['message' => $message->message, 'name' => $message->name])            
+    @else
+        @include('pusher.broadcast', ['message' => $message->message, 'name' => $message->name])
+    @endif
 
-        <!-- Footer -->
-        <div class="bottom">
-            <form>
-            @csrf
+  @endforeach
+</div>
 
-              <input type="text" id="message" name="message" placeholder="Enter message..." autocomplete="off">
-              <button type="submit" id="msgBtn" class="btn btn-secondary" disabled="true">SEND</button>
-            </form>
-        </div>        
-        <!-- End Footer -->
-        <button><a href="/calendar">GO BACK TO CALENDAR</a></button>
-    </div>
-</body>
+
+
+<div class="bottom">
+    <form id="msgForm">
+      @csrf
+      <input type="text" id="user_id" name="user_id" hidden="true" value="{{Auth::user()->id}}">
+      <input type="text" id="message" name="message" placeholder="Enter message..." autocomplete="off">
+      <button type="submit" id="msgBtn" class="btn btn-secondary" disabled="true">SEND</button>
+    </form>
+</div>        
+
+</div>
+@stop
+
+@section('scripts')
+
+<script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+<link rel="stylesheet" href="/css/pusherchat.css">
 
 <script>
+
   const pusher  = new Pusher('{{config('broadcasting.connections.pusher.key')}}', {cluster: 'ap1'});
   const channel = pusher.subscribe('public');
 
-
-
   $('document').ready(function(){
+
     $("#messages").animate({
           scrollTop: $(
             '#messages').get(0).scrollHeight
-      }, 2000);
+    }, 200);
 
     $("#message").on('input', function(e){
 
@@ -74,50 +63,78 @@
         $("#msgBtn").removeAttr('disabled');
       }
     });
-  });
 
-  //Receive messages
-  channel.bind('chat', function (data) {
-
-    $.post("/pusher/receive", {
-      _token:  '{{csrf_token()}}',
-      message: data.message,
-      name: data.senderName,
-      user_id: data.senderId
-    })
-     .done(function (res) {
-       $(".messages > .message").last().after(res);
-
-       $("#messages").animate({
-          scrollTop: $(
-            '#messages').get(0).scrollHeight
-      }, 2000);
-     });
-  });
-
-  //Broadcast messages
-  $("form").submit(function (event) {
-    event.preventDefault();
-
-    $.ajax({
-      url:     "/pusher/broadcast",
-      method:  'POST',
-      headers: {
-        'X-Socket-Id': pusher.connection.socket_id
-      },
-      data:    {
-        _token:  '{{csrf_token()}}',
-        message: $("form #message").val(),
-        user_id: {{ Auth::user()->id }}
-      }
-    }).done(function (res) {
-      $(".messages > .message").last().after(res);
-      $("form #message").val('');
-      $(document).scrollTop($(document).height());
+    $.ajaxSetup({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
     });
 
-    $("form #message").val('');
+    $('#msgBtn').click(function (e) {
+
+        e.preventDefault();
+
+        $(this).html('Saving..');
+
+
+        // Broadcast Message
+        $.ajax({
+          
+          data: $('#msgForm').serialize(),
+          url: "{{ route('pusher.broadcast') }}",
+          type: "POST",
+          dataType: 'json',
+          success: function (data) {
+            $('#msgForm').trigger("reset");
+            $('#msgBtn').html('Save Changes');
+
+            toastr.success('Sent');
+          },
+          error: function (data) {
+
+            $('#msgBtn').html('Save Changes');
+            toastr.error('Not sent!');
+          }
+
+        }).done(function (res) {
+
+          console.log(res);
+          $(".messages > .message").last().after(function(){
+              return '<div class="right message"><p class="message-row-user">'+ res.message +'</p></div>';
+          });
+          $("form #message").val('');
+          $(document).scrollTop($(document).height());
+
+        });
+    });
+
+    // Receive Message
+    channel.bind('chat', function (data) {
+
+      toastr.success('Received Message');
+      console.log(data);
+
+      $.ajax({
+
+        data: data,
+        url: "{{ route('pusher.receive') }}",
+        type: "POST",
+        dataType: 'json',
+        
+      }).done(function (res) {
+
+        console.log(res);
+        $(".messages > .message").last().after(function(){
+            return '<div class="left message"><p><span class="message-user-name">'+ res.name +'</span><span class="message-row">'+ res.message +'</span></p></div>';
+        });
+
+        $(document).scrollTop($(document).height());
+
+      });
+
+    });
+
   });
 
 </script>
-</html>
+@stop

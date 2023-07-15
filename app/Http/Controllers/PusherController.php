@@ -34,19 +34,24 @@ class PusherController extends Controller
 
     public function receive(Request $request)
     {
-        return view('pusher.receive', [
-            'message' => $request->get('message'),
-            'name' => $request->get('name')
+        $message = Messages::create([
+            'message' => $request->message,
+            'user_id' => $request->senderId
+        ]);
+
+        return response()->json([
+            'message' => $request->message,
+            'name' => $request->senderName
         ]);
 
     }
 
     public function broadcast(Request $request)
     {
-        $message = DB::transaction(function() use ($request) {
+        $msgToSend = $request->get('message');
+        $user = User::find($request->get('user_id'));  
 
-            $msgToSend = $request->get('message');
-            $user = User::find($request->get('user_id'));            
+        $message = DB::transaction(function() use ($msgToSend, $user) {
 
             $message = Messages::create([
                 'message' => $msgToSend,
@@ -58,9 +63,11 @@ class PusherController extends Controller
             return $message;
         });
 
-        return view('pusher.broadcast', [
+        return response()->json([
             'message' => $message->message,
-            'name' => User::find($message->user_id)->name
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'success'=>'Job deleted successfully.'
         ]);
     }
 }
