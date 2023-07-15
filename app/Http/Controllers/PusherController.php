@@ -33,15 +33,7 @@ class PusherController extends Controller
     }
 
     public function receive(Request $request)
-    {
-        if( $request->senderId != Auth::user()->id )
-        {
-            $message = Messages::create([
-                'message' => $request->message,
-                'user_id' => $request->senderId
-            ]);
-        }
-        
+    {        
         return response()->json([
             'message' => $request->message,
             'user_id' => $request->senderId,
