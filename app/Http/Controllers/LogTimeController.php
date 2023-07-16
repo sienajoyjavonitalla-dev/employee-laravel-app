@@ -13,6 +13,7 @@ use App\Models\User;
 use DB;
 use App\Models\Client;
 use Illuminate\Support\Facades\File; 
+use PDF;
 
 class LogTimeController extends Controller
 {
@@ -24,11 +25,47 @@ class LogTimeController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            if(Auth::user()->roles == 'admin') {
-                $data = TimeLog::latest()->get();
-            } else {
-                $data = TimeLog::where('assigned_id', Auth::user()->id)->latest()->get();
+            // if(Auth::user()->roles == 'admin') {
+            //     $data = TimeLog::latest()->get();
+            // } else {
+            //     $data = TimeLog::where('assigned_id', Auth::user()->id)->latest()->get();
+            // }
+
+            $data = DB::table('time_logs as tl')
+                ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
+                ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
+                ->leftJoin('job_assignee as ja', function($join)
+                {
+                    $join->on('tl.job_id', '=', 'ja.job_id');
+                    $join->on('tl.assigned_id', '=', 'ja.assigned_id');
+                })
+                ->leftJoin('users as u', 'u.id', '=', 'tl.assigned_id')
+                ->whereNotNull('tl.end_time')
+                ->whereNotNull('tl.assigned_id')
+                ->whereNotNull('j.id');
+                
+            if(Auth::user()->roles != 'admin') {
+                $data = $data->where('tl.assigned_id', Auth::user()->id);
             }
+
+            if ($request->filled('from_date') && $request->filled('to_date')) {
+                $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
+            }
+
+            if ($request->filled('client')) {
+                $data = $data->where('j.client_id', $request->client);
+            }
+
+            if ($request->filled('assigned')) {
+                $data = $data->where('tl.assigned_id', $request->assigned);
+            }
+
+            if ($request->filled('job')) {
+                $data = $data->where('j.id', $request->job);
+            }
+
+            $data = $data->selectRaw('tl.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.notes, tl.timesheet, tl.job_id, tl.start_time, tl.end_time, date, 
+            client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
 
             return Datatables::of($data)
                     ->addIndexColumn()
@@ -36,14 +73,9 @@ class LogTimeController extends Controller
 
                         $timesheet = $row->timesheet;
 
-                        if($timesheet!= "") $timesheet = "open timesheet";
+                        if($timesheet!= "") $timesheet = "OPEN";
 
                         return "<a href=".url('timesheets/'.$row->job_id.'/'.$row->timesheet)." target='_blank'>".$timesheet."</a>";
-                    })
-                    ->addColumn('assigned_to', function($row){
-                        $qry = User::where('id', $row->assigned_id)->first();
-                        $user = $qry['name'];
-                        return $user;
                     })
                     ->addColumn('with_lunch', function($row){
                         return $row->lunch_break ? 'Yes':'No';
@@ -67,7 +99,240 @@ class LogTimeController extends Controller
             // ->where('j.status', '!=', 'complete')
             ->selectRaw('j.id, c.company_name, j.start_date_time, j.end_date_time')
             ->get();
-        return view('timelogs.index',compact('users', 'jobs'));
+
+        $clients = Client::orderBy('company_name', 'asc')->pluck('company_name', 'id');
+        $filter_assigned = User::whereIn('roles', ['full-timer', 'subcontractor'])->orderBy('name', 'asc')->pluck('name', 'id');
+
+        return view('timelogs.index',compact('users', 'jobs', 'clients', 'filter_assigned'));
+
+    }
+
+    public function timesheet(Request $request)
+    {
+        $data = DB::table('time_logs as tl')
+            ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
+            ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
+            ->leftJoin('job_assignee as ja', function($join)
+            {
+                $join->on('tl.job_id', '=', 'ja.job_id');
+                $join->on('tl.assigned_id', '=', 'ja.assigned_id');
+            })
+            ->leftJoin('users as u', 'u.id', '=', 'tl.assigned_id')
+            ->whereNotNull('tl.end_time')
+            ->whereNotNull('tl.assigned_id')
+            ->whereNotNull('j.id');
+        if(Auth::user()->roles != 'admin') {
+            $data = $data->where('tl.assigned_id', Auth::user()->id);
+        }
+
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
+        }
+
+        if ($request->filled('client')) {
+            $data = $data->where('j.client_id', $request->client);
+        }
+
+        if ($request->filled('assigned')) {
+            $data = $data->where('tl.assigned_id', $request->assigned);
+        }
+
+        if ($request->filled('job')) {
+            $data = $data->where('j.id', $request->job);
+        }
+
+        if ($request->user_type == 'full-timer' || $request->user_type == 'subcontractor') {
+            $data = $data->where('u.roles', $request->user_type);
+        }
+
+        $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.job_id, tl.start_time, tl.end_time, date, 
+                client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
+
+        if ($request->ajax()) {
+                
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    // ->addColumn('employee', function($row){
+                    //     $qry = User::where('id', $row->assigned_id)->first();
+                    //     $user = $qry->name;
+                    //     return $user;
+                    // })
+                    ->addColumn('hrs_worked', function($row){
+                        $total_hr = 0;
+                        $start_time = new Carbon($row->start_time);
+                        $end_time =new Carbon($row->end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
+                        return $total_hr;
+                    })
+                    ->addColumn('with_lunch', function($row){
+                        return $row->lunch_break ? 'Yes':'No';
+                    })
+                    ->addColumn('pay', function($row){
+                        $total_hr = 0;
+                        $start_time = new Carbon($row->start_time);
+                        $end_time =new Carbon($row->end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
+                        $pay = 0;
+                        
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
+                        $rate = $row->rate_per_hour;
+                        $isWeekend = false;
+                        if($row->date) {
+                            $day = Carbon::createFromFormat('Y-m-d', $row->date );
+                            $isWeekend = $day->isWeekend();
+                            if($isWeekend) {
+                                $rate = $row->ot_rate_per_hour;
+                            }
+                        } 
+                        if($total_hr > 4 && $total_hr <= 8 ) {
+                            $ot_pay=0;
+                            $pay = $total_hr * $rate;
+                        } else if($total_hr > 0 && $total_hr <= 4) {
+                            $total_hr = 4;
+                            $pay = 4 * $rate;
+                        } else if($total_hr > 8) {
+                            $total_hr = 8;
+                            $pay = 8 * $rate;
+                        }
+                        $pay = number_format((float)$pay, 2, '.', '');
+                        return $pay;
+                    })
+                    ->addColumn('ot_pay', function($row){
+                        $total_hr = 0;
+                        $start_time = new Carbon($row->start_time);
+                        $end_time =new Carbon($row->end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
+                        $ot_pay = 0;
+
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }
+                        if($total_hr > 8) {
+                            $ot_hours= $total_hr - 8;
+                            $ot_pay = $ot_hours * $row->ot_rate_per_hour;
+                        }
+                        $ot_pay = number_format((float)$ot_pay, 2, '.', '');
+
+                        return $ot_pay;
+                    })
+                    ->addColumn('total', function($row){
+                        $total_hr = 0;
+                        $start_time = new Carbon($row->start_time);
+                        $end_time =new Carbon($row->end_time);
+                        $total_mins = $start_time->diffInMinutes($end_time);
+                        $total_hr = round($total_mins / 60, 2);
+                        $total_amount=0;
+                        if($row->lunch_break) {
+                            $total_hr = $total_hr - .5;
+                        }  
+                        
+                        $rate = $row->rate_per_hour;
+                        $isWeekend = false;
+                        if($row->date) {
+                            $day = Carbon::createFromFormat('Y-m-d', $row->date );
+                            $isWeekend = $day->isWeekend();
+                            if($isWeekend) {
+                                $rate = $row->ot_rate_per_hour;
+                            }
+                        } 
+
+                        if($total_hr > 4) {
+                            $ot_pay=0;
+                            $pay = $total_hr * $rate;
+                            if($total_hr > 8) {
+                                $ot_hours= $total_hr - 8;
+                                $ot_pay = $ot_hours * $row->ot_rate_per_hour;
+                                $total_hr = 8;
+                                $pay = $total_hr * $rate;
+
+                            }
+                            $total_amount = $ot_pay + $pay;
+                        } else if($total_hr > 0 && $total_hr <= 4) {
+                            $total_hr = 4;
+                            $pay = 4 * $rate;
+                            $total_amount = $pay;
+                        }
+                        $total_amount = number_format((float)$total_amount, 2, '.', '');
+
+                        return $total_amount;
+                    })
+                    ->addColumn('signature', function($row){
+                        $display='';
+
+                        if($row->signature)
+                            $display="<a href=".url('signature/'.$row->signature)." target='_blank'>".url('signature/'.$row->signature)."</a>";
+                        
+                        return $display;
+                    })
+                    ->rawColumns(['signature'])
+                    ->make(true);
+        }
+        $clients = Client::orderBy('company_name', 'asc')->pluck('company_name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->orderBy('name', 'asc')->pluck('name', 'id');
+
+        $jobs = Jobs::orderBy('id', 'asc')->pluck('address', 'id');
+        if($request->user_type == "full-timer")
+            $filter_assigned = User::where('roles', 'full-timer')->orderBy('name', 'asc')->pluck('name', 'id');
+        else
+            $filter_assigned = User::where('roles', 'subcontractor')->orderBy('name', 'asc')->pluck('name', 'id');
+
+        return view('timelogs.timesheet', compact('clients', 'jobs', 'filter_assigned'));
+
+    }
+
+    public function generateTimesheet(Request $request)
+    {
+        $data = DB::table('time_logs as tl')
+                ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
+                ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
+                ->leftJoin('job_assignee as ja', function($join)
+                {
+                    $join->on('tl.job_id', '=', 'ja.job_id');
+                    $join->on('tl.assigned_id', '=', 'ja.assigned_id');
+                })
+                ->leftJoin('users as u', 'u.id', '=', 'tl.assigned_id')
+                ->whereNotNull('tl.end_time')
+                ->whereNotNull('tl.assigned_id')
+                ->whereNotNull('j.id');
+
+         if ($request->filled('from_date') && $request->filled('to_date')) {
+            $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
+        }
+
+        if ($request->filled('client')) {
+            $data = $data->where('j.client_id', $request->client);
+        }
+
+        if ($request->filled('assigned')) {
+            $data = $data->where('tl.assigned_id', $request->assigned);
+        }
+
+        if ($request->filled('job')) {
+            $data = $data->where('j.id', $request->job);
+        }
+        $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.authorized, tl.notes, tl.timesheet, tl.job_id, tl.start_time, tl.end_time, date, 
+            client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
+
+        // dd($data->get());
+        $data = $data->get();
+        $first = $data->first();
+        $dataArr = array(
+            'first' => $first,
+            'data' => $data,
+        );
+        
+        $pdf = \App::make('dompdf.wrapper');
+        $pdf =PDF::loadView('timelogs.timesheet_pdf',compact('dataArr'));
+        return $pdf->stream('timesheet.pdf');
+        // return view('timelogs.timesheet_pdf', compact('dataArr'));
 
     }
     public function signature()
@@ -304,184 +569,4 @@ class LogTimeController extends Controller
         return response()->json(['success'=>'Log deleted successfully.']);
     }
 
-    public function timesheet(Request $request)
-    {
-        $data = DB::table('time_logs as tl')
-            ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
-            ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
-            ->leftJoin('job_assignee as ja', function($join)
-            {
-                $join->on('tl.job_id', '=', 'ja.job_id');
-                $join->on('tl.assigned_id', '=', 'ja.assigned_id');
-            })
-            ->leftJoin('users as u', 'u.id', '=', 'tl.assigned_id')
-            ->whereNotNull('tl.end_time')
-            ->whereNotNull('tl.assigned_id')
-            ->whereNotNull('j.id');
-        if(Auth::user()->roles != 'admin') {
-            $data = $data->where('tl.assigned_id', Auth::user()->id);
-        }
-
-        if ($request->filled('from_date') && $request->filled('to_date')) {
-            $data = $data->whereBetween('date', [(string)$request->from_date, (string)$request->to_date]);
-        }
-
-        if ($request->filled('client')) {
-            $data = $data->where('j.client_id', $request->client);
-        }
-
-        if ($request->filled('assigned')) {
-            $data = $data->where('tl.assigned_id', $request->assigned);
-        }
-
-        if ($request->filled('job')) {
-            $data = $data->where('j.id', $request->job);
-        }
-
-        if ($request->user_type == 'full-timer' || $request->user_type == 'subcontractor') {
-            $data = $data->where('u.roles', $request->user_type);
-        }
-
-        $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.job_id, tl.start_time, tl.end_time, date, 
-                client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
-
-        if ($request->ajax()) {
-                
-                return Datatables::of($data)
-                    ->addIndexColumn()
-                    // ->addColumn('employee', function($row){
-                    //     $qry = User::where('id', $row->assigned_id)->first();
-                    //     $user = $qry->name;
-                    //     return $user;
-                    // })
-                    ->addColumn('hrs_worked', function($row){
-                        $total_hr = 0;
-                        $start_time = new Carbon($row->start_time);
-                        $end_time =new Carbon($row->end_time);
-                        $total_mins = $start_time->diffInMinutes($end_time);
-                        $total_hr = round($total_mins / 60, 2);
-                        if($row->lunch_break) {
-                            $total_hr = $total_hr - .5;
-                        }
-                        return $total_hr;
-                    })
-                    ->addColumn('with_lunch', function($row){
-                        return $row->lunch_break ? 'Yes':'No';
-                    })
-                    ->addColumn('pay', function($row){
-                        $total_hr = 0;
-                        $start_time = new Carbon($row->start_time);
-                        $end_time =new Carbon($row->end_time);
-                        $total_mins = $start_time->diffInMinutes($end_time);
-                        $total_hr = round($total_mins / 60, 2);
-                        $pay = 0;
-                        
-                        if($row->lunch_break) {
-                            $total_hr = $total_hr - .5;
-                        }
-                        $rate = $row->rate_per_hour;
-                        $isWeekend = false;
-                        if($row->date) {
-                            $day = Carbon::createFromFormat('Y-m-d', $row->date );
-                            $isWeekend = $day->isWeekend();
-                            if($isWeekend) {
-                                $rate = $row->ot_rate_per_hour;
-                            }
-                        } 
-                        if($total_hr > 4 && $total_hr <= 8 ) {
-                            $ot_pay=0;
-                            $pay = $total_hr * $rate;
-                        } else if($total_hr > 0 && $total_hr <= 4) {
-                            $total_hr = 4;
-                            $pay = 4 * $rate;
-                        } else if($total_hr > 8) {
-                            $total_hr = 8;
-                            $pay = 8 * $rate;
-                        }
-                        $pay = number_format((float)$pay, 2, '.', '');
-                        return $pay;
-                    })
-                    ->addColumn('ot_pay', function($row){
-                        $total_hr = 0;
-                        $start_time = new Carbon($row->start_time);
-                        $end_time =new Carbon($row->end_time);
-                        $total_mins = $start_time->diffInMinutes($end_time);
-                        $total_hr = round($total_mins / 60, 2);
-                        $ot_pay = 0;
-
-                        if($row->lunch_break) {
-                            $total_hr = $total_hr - .5;
-                        }
-                        if($total_hr > 8) {
-                            $ot_hours= $total_hr - 8;
-                            $ot_pay = $ot_hours * $row->ot_rate_per_hour;
-                        }
-                        $ot_pay = number_format((float)$ot_pay, 2, '.', '');
-
-                        return $ot_pay;
-                    })
-                    ->addColumn('total', function($row){
-                        $total_hr = 0;
-                        $start_time = new Carbon($row->start_time);
-                        $end_time =new Carbon($row->end_time);
-                        $total_mins = $start_time->diffInMinutes($end_time);
-                        $total_hr = round($total_mins / 60, 2);
-                        $total_amount=0;
-                        if($row->lunch_break) {
-                            $total_hr = $total_hr - .5;
-                        }  
-                        
-                        $rate = $row->rate_per_hour;
-                        $isWeekend = false;
-                        if($row->date) {
-                            $day = Carbon::createFromFormat('Y-m-d', $row->date );
-                            $isWeekend = $day->isWeekend();
-                            if($isWeekend) {
-                                $rate = $row->ot_rate_per_hour;
-                            }
-                        } 
-
-                        if($total_hr > 4) {
-                            $ot_pay=0;
-                            $pay = $total_hr * $rate;
-                            if($total_hr > 8) {
-                                $ot_hours= $total_hr - 8;
-                                $ot_pay = $ot_hours * $row->ot_rate_per_hour;
-                                $total_hr = 8;
-                                $pay = $total_hr * $rate;
-
-                            }
-                            $total_amount = $ot_pay + $pay;
-                        } else if($total_hr > 0 && $total_hr <= 4) {
-                            $total_hr = 4;
-                            $pay = 4 * $rate;
-                            $total_amount = $pay;
-                        }
-                        $total_amount = number_format((float)$total_amount, 2, '.', '');
-
-                        return $total_amount;
-                    })
-                    ->addColumn('signature', function($row){
-                        $display='';
-
-                        if($row->signature)
-                            $display="<a href=".url('signature/'.$row->signature)." target='_blank'>".url('signature/'.$row->signature)."</a>";
-                        
-                        return $display;
-                    })
-                    ->rawColumns(['signature'])
-                    ->make(true);
-        }
-        $clients = Client::orderBy('company_name', 'asc')->pluck('company_name', 'id');
-        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->orderBy('name', 'asc')->pluck('name', 'id');
-
-        $jobs = Jobs::orderBy('id', 'asc')->pluck('address', 'id');
-        if($request->user_type == "full-timer")
-            $filter_assigned = User::where('roles', 'full-timer')->orderBy('name', 'asc')->pluck('name', 'id');
-        else
-            $filter_assigned = User::where('roles', 'subcontractor')->orderBy('name', 'asc')->pluck('name', 'id');
-
-        return view('timelogs.timesheet', compact('clients', 'jobs', 'filter_assigned'));
-
-    }
 }

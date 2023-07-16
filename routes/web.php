@@ -66,6 +66,7 @@ Route::get('userjobs', 'App\Http\Controllers\JobsController@user_jobs')->name('u
 
 # Invoice
 Route::get('generatePDF', 'App\Http\Controllers\InvoiceController@generatePDF')->name('invoices.generate.pdf');
+Route::get('generateTimesheet', 'App\Http\Controllers\LogTimeController@generateTimesheet')->name('timelogs.generate.timesheet');
 
 # Xero
 Route::get('xero/authorize', 'App\Http\Controllers\XeroController@get_started')->name('xero.get_started');

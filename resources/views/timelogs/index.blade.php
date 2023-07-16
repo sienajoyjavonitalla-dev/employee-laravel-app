@@ -4,20 +4,69 @@
 <div class="row">
     <div class="col-lg-12 align-items-center p-4">
         <div class="container">
+        
+        <div class="row">
+            <div class="col-lg-6">
+                <strong>Date Filter </strong>
+                <input type="text" name="daterange" value="" />
+            </div>
+            <div class="col-lg-6">
+                <strong>Job ID </strong>
+                <select class="selectpicker" name="job" id="job">
+                    <option value="">-- Select --</option>
+                    @foreach ($jobs as $j)
+                        <option value="{{ $j->id }}"> 
+                            Job #{{ $j->id . ' - '. $j->company_name}} 
+                        </option>
+                    @endforeach       
+                </select>
+            </div>
+        </div>
         @if(auth()->user()->roles == 'admin')
-            <a class="btn btn-success mb-4" href="javascript:void(0)" id="createNewTimeLog"> Create New TimeLog</a>
+
+        <div class="row mt-3">
+            <div class="col-lg-6">
+                <strong>Client </strong>
+                <select  name="client" id="client">
+                    <option value="">-- Select --</option>
+                    @foreach ($clients as $key => $value)
+                        <option value="{{ $key }}"> 
+                            {{ $value }} 
+                        </option>
+                    @endforeach    
+                </select>
+            </div>
+            <div class="col-lg-6">
+                <strong>Assigned Person</strong>
+                <select  name="assigned" id="assigned">
+                    <option value="">-- Select --</option>
+                    @foreach ($filter_assigned as $key => $value)
+                        <option value="{{ $key }}"> 
+                            {{ $value}} 
+                        </option>
+                    @endforeach    
+                </select>
+            </div>
+            
+        </div>
+        <br/>
+        <a href="javascript:void(0)" class="btn btn-danger generate" id="generate_btn"><i class="fas fa-print"></i> Generate Invoice</a>
+        <a class="btn btn-success mt-4 mb-4" href="javascript:void(0)" id="createNewTimeLog"> Create New TimeLog</a>
         @endif
+
+        <button class="w-auto mb-4 mt-4 btn btn-primary filter"><i class="fas fa-search"></i> Filter</button>
 
         <table class="table table-bordered table-hover data-table">
             <thead class="thead-light">
                 <tr>
                     <th>Job ID</th>
+                    <th>Client</th>
                     <th>Assigned</th>
                     <th>Lunch Break</th>
                     <th>Start Time</th>
                     <th>End Time</th>
                     <th>Date</th>
-                    <th>Timesheet</th>
+                    <th>Attachment</th>
                     <th>Notes</th>
                     <th width="280px">Action</th>
                 </tr>
@@ -136,30 +185,85 @@
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           }
     });
-
-    var table = $('.data-table').DataTable({
-        processing: true,
-        serverSide: true,
-        pageLength: 8,
-        ajax: "{{ route('timelogs.index') }}",
-
-        columns: [
-            {data: 'job_id', name: 'job_id'},
-            {data: 'assigned_to', name: 'assigned_to'},
-            {data: 'with_lunch', name: 'with_lunch'},
-            {data: 'start_time', name: 'start_time'},
-            {data: 'end_time', name: 'end_time'},
-            {data: 'date', name: 'date'},
-            {data: 'timesheet_url', name: 'timesheet_url'},
-            {data: 'notes', name: 'notes'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        "columnDefs": [
-            { "width": "20%", "targets": [1,7] },
-
-        ],
-        order: [[6, 'asc']]
+    $('input[name="daterange"]').daterangepicker({
+        timePicker: true,
+        startDate: moment().subtract(1, 'M'),
+        endDate: moment()
     });
+
+    load_data($('input[name="daterange"]').data('daterangepicker').startDate.format('YYYY-MM-DD'), 
+        $('input[name="daterange"]').data('daterangepicker').endDate.format('YYYY-MM-DD'), 
+        null,null,null);
+
+    function load_data(from_date, to_date, client, job, assigned) {
+
+        var table = $('.data-table').DataTable({
+            processing: true,
+            serverSide: true,
+            pageLength: 8,
+            ajax: {
+
+                url: "{{ route('timelogs.index') }}",
+                data:{
+                    from_date: from_date, 
+                    to_date: to_date,
+                    client: client,
+                    job:job,
+                    assigned: assigned,
+                }
+            },
+            columns: [
+                {data: 'job_id', name: 'job_id'},
+                {data: 'company_name', name: 'company_name'},
+                {data: 'name', name: 'name'},
+                {data: 'with_lunch', name: 'with_lunch'},
+                {data: 'start_time', name: 'start_time'},
+                {data: 'end_time', name: 'end_time'},
+                {data: 'date', name: 'date'},
+                {data: 'timesheet_url', name: 'timesheet_url'},
+                {data: 'notes', name: 'notes'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            "columnDefs": [
+                { "width": "15%", "targets": [8] },
+                { "width": "12%", "targets": [ 9] },
+
+            ],
+            order: [[6, 'asc']]
+        });
+    }
+
+    $(".filter").click(function(){
+        var from_date = ($('input[name="daterange"]').data('daterangepicker').startDate.format('YYYY-MM-DD'));
+        var to_date = ($('input[name="daterange"]').data('daterangepicker').endDate.format('YYYY-MM-DD'));
+        var client = $('#client').val();
+        var job = $('#job').val();
+        var assigned = $('#assigned').val();
+
+        if(from_date != '' &&  to_date != '')
+        {
+            $('.data-table').DataTable().destroy();
+            load_data(from_date, to_date, client, job, assigned);
+        }
+        else
+        {
+            toastr.error('Both Date is required!');
+        }
+    });
+
+    $('.generate').click(function (e) {
+        var from_date = ($('input[name="daterange"]').data('daterangepicker').startDate.format('YYYY-MM-DD'));
+        var to_date = ($('input[name="daterange"]').data('daterangepicker').endDate.format('YYYY-MM-DD'));
+        var client = $('#client').val();
+        var job = $('#job').val();
+        var assigned = $('#assigned').val();
+
+        var uri = "/generateTimesheet?assigned="+ assigned +"&job="+job+"&from_date="+from_date+"&to_date="+to_date;
+        
+        var encoded = encodeURI(uri);
+        window.location.href=encoded;
+      
+    })
 
     $('#createNewTimeLog').click(function () {
         $('#saveBtn').val("create-timelog");
@@ -236,8 +340,9 @@
             success: function (data) {
                 $('#timelogForm').trigger("reset");
                 $('#ajaxModel').modal('hide');
-                table.draw();
+                $('.data-table').DataTable().draw();
                 $('#saveBtn').html('Save Changes');
+
                 toastr.success('Log saved successfully!');
             },
             error: function (data) {
@@ -261,7 +366,9 @@
                 url: "{{ route('timelogs.store') }}"+'/'+timelog,
 
                 success: function (data) {
-                    table.draw();
+                    // table.draw();
+                    $('.data-table').DataTable().draw();
+
                     toastr.success('Deleted successfully!');
 
                 },
