@@ -209,13 +209,13 @@ class InvoiceController extends Controller
                     ->make(true);
             } 
         }
-        $clients = Client::pluck('company_name', 'id');
-        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
+        $clients = Client::orderBy('company_name', 'asc')->pluck('company_name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->orderBy('name', 'asc')->pluck('name', 'id');
 
-        $jobs = Jobs::pluck('address', 'id');
-        $banks = BankDetails::pluck('name', 'id');
+        $jobs = Jobs::orderBy('id', 'asc')->pluck('address', 'id');
+        $banks = BankDetails::orderBy('name', 'asc')->pluck('name', 'id');
 
-        $filter_assigned = $filter->where('u.roles', 'subcontractor')->selectRaw('DISTINCT u.name, ja.assigned_id')->get();
+        $filter_assigned = $filter->where('u.roles', 'subcontractor')->selectRaw('DISTINCT u.name, ja.assigned_id')->orderBy('name', 'asc')->get();
         return view('invoices.index', compact('clients', 'jobs', 'filter_assigned', 'banks'));
 
     }
