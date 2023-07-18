@@ -50,7 +50,9 @@
             
         </div>
         <br/>
-        <a href="javascript:void(0)" class="btn btn-danger generate" id="generate_btn"><i class="fas fa-print"></i> Generate Invoice</a>
+            @if(auth()->user()->roles == 'admin')
+            <a href="javascript:void(0)" class="btn btn-danger generate" id="generate_btn"><i class="fas fa-print"></i> Generate Invoice</a>
+            @endif
         <a class="btn btn-success mt-4 mb-4" href="javascript:void(0)" id="createNewTimeLog"> Create New TimeLog</a>
         @endif
 
