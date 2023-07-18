@@ -31,7 +31,7 @@
                         <p>Calendar</p>
                     </a>
                 </li>
-                @if(auth()->user()->roles == 'admin')
+                @if(auth()->user()->roles == 'admin' || auth()->user()->roles == 'subadmin')
 
                 <li class="nav-item">
                     <a href="/jobs" class="nav-link  {{ request()->is('jobs') ? 'active' : '' }}">
@@ -40,7 +40,7 @@
                     </a>
                 </li>
                 @endif
-                @if(auth()->user()->roles != 'admin')
+                @if(auth()->user()->roles != 'admin' && auth()->user()->roles != 'subadmin')
                 <li class="nav-item">
                     <a href="/userjobs" class="nav-link  {{ request()->is('userjobs') ? 'active' : '' }}">
                         <i class="fas fa-briefcase nav-icon"></i>
@@ -61,7 +61,7 @@
                         <p>Time Logs</p>
                     </a>
                 </li>
-                @if(auth()->user()->roles != 'admin')
+                @if(auth()->user()->roles != 'admin' || auth()->user()->roles != 'subadmin')
                     <li class="nav-item">
                         <a href="/timesheet" class="nav-link  {{ request()->is('timesheet') ? 'active' : '' }}">
                             <i class="fas fa-file nav-icon"></i>
@@ -69,7 +69,7 @@
                         </a>
                     </li>
                 @endif
-                @if(auth()->user()->roles == 'admin')
+                @if(auth()->user()->roles == 'admin' || auth()->user()->roles == 'subadmin')
 
                 <li class="nav-item admin-only has-treeview {{ request()->is('fulltimetimesheet') ? ' menu-open' : '' }}">
                     <a class="nav-link {{ request()->is('timesheet') ? ' active' : '' }}" href="#">

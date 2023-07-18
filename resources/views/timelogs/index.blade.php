@@ -22,7 +22,7 @@
                 </select>
             </div>
         </div>
-        @if(auth()->user()->roles == 'admin')
+        @if(auth()->user()->roles == 'admin' || auth()->user()->roles == 'subadmin')
 
         <div class="row mt-3">
             <div class="col-lg-6">
@@ -283,7 +283,7 @@
     $('body').on('click', '.editTimeLog', function () {
         $('#job_id').attr('disabled', true); 
         $('#assigned_id').attr('disabled', true); 
-        if( '{{Auth::user()->roles}}' != 'admin' ) {
+        if( '{{Auth::user()->roles}}' != 'admin' && '{{Auth::user()->roles}}' != 'subadmin' ) {
             $('#assigned_id').attr('disabled', true); 
             $('#start_time').attr('disabled', true); 
             $('#end_time').attr('disabled', true); 
@@ -319,7 +319,7 @@
     $('#saveBtn').click(function (e) {
         $('#job_id').attr('disabled', false); 
         $('#assigned_id').attr('disabled', false); 
-        if( '{{Auth::user()->roles}}' != 'admin' ) {
+        if( '{{Auth::user()->roles}}' != 'admin' && '{{Auth::user()->roles}}' != 'subadmin' ) {
             $('#assigned_id').attr('disabled', false); 
             $('#start_time').attr('disabled', false); 
             $('#end_time').attr('disabled', false); 

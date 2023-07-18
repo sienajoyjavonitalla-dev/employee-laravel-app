@@ -22,7 +22,7 @@
                     </select>
                 </div>
             </div>
-            @if(auth()->user()->roles == 'admin')
+            @if(auth()->user()->roles == 'admin' || auth()->user()->roles == 'subadmin')
             <div class="row mt-3">
                 <div class="col-lg-6">
                     <strong>Client </strong>

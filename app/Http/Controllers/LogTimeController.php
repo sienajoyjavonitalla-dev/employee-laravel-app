@@ -44,7 +44,7 @@ class LogTimeController extends Controller
                 ->whereNotNull('tl.assigned_id')
                 ->whereNotNull('j.id');
                 
-            if(Auth::user()->roles != 'admin') {
+            if(Auth::user()->roles != 'admin' && Auth::user()->roles != 'subadmin') {
                 $data = $data->where('tl.assigned_id', Auth::user()->id);
             }
 
@@ -83,7 +83,7 @@ class LogTimeController extends Controller
                     ->addColumn('action', function($row){
                         $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editTimeLog">Edit</a>';
 
-                        if(Auth::user()->roles == 'admin') {
+                        if(Auth::user()->roles == 'admin' || Auth::user()->roles == 'subadmin') {
                             $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteTimeLog">Delete</a>';
 
                         }
@@ -121,7 +121,7 @@ class LogTimeController extends Controller
             ->whereNotNull('tl.end_time')
             ->whereNotNull('tl.assigned_id')
             ->whereNotNull('j.id');
-        if(Auth::user()->roles != 'admin') {
+        if(Auth::user()->roles != 'admin' && Auth::user()->roles != 'subadmin') {
             $data = $data->where('tl.assigned_id', Auth::user()->id);
         }
 

@@ -20,7 +20,7 @@ class UsersController extends Controller
     
     public function index(Request $request)
     {
-        if(Auth::user()->roles != 'admin')
+        if(Auth::user()->roles != 'admin' && Auth::user()->roles != 'subadmin')
         {
             return redirect('/timeclock');
         }

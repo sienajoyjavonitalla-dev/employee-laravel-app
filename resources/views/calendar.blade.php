@@ -16,6 +16,7 @@
                         </div>
                     </div>                    
                 </form>
+                @if(Auth::user()->roles == 'admin')
                 <div class="row ml-1">
                     <div class="col-sm-6 mt-4 mb-1">
                         <button id="calendar-note-dete" class="btn btn-danger calendar-note-btn btn-block float-left">Delete Note</button>
@@ -24,6 +25,7 @@
                         <button id="calendar-note-save" class="btn btn-info calendar-note-btn btn-block float-right">Save Note</button>
                     </div>
                 </div>
+                @endif
             </div>
         </div>
     </div>

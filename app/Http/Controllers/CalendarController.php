@@ -27,7 +27,7 @@ class CalendarController extends Controller
         $user = Auth::user();
         $events = [];
 
-        if($user->roles == 'admin')
+        if($user->roles == 'admin' || $user->roles == 'subadmin')
         {
             $appointments = Jobs::all();
         }
@@ -94,7 +94,7 @@ class CalendarController extends Controller
             ];
         }
 
-        if( Auth::user()->roles == 'admin' )
+        if( Auth::user()->roles == 'admin' || Auth::user()->roles == 'subadmin')
         {
             $calendarNotes = CalendarNote::all();
 
