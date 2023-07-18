@@ -778,10 +778,10 @@ class JobsController extends Controller
                 $jobAssignee->delete();
                 $user = User::find($jobAssignee->assigned_id);
 
-                Mail::to($user)->send(new JobCancelled(
-                    $id,
-                    $user->name
-                ));       
+                // Mail::to($user)->send(new JobCancelled(
+                //     $id,
+                //     $user->name
+                // ));       
             }
 
             $job = Jobs::find($id);
