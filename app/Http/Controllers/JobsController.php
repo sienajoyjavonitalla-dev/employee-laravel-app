@@ -74,9 +74,11 @@ class JobsController extends Controller
                             }
 
                         } 
+
+                        if( Auth::user()->roles == 'admin')
+                        {
                             $display .= '<a href="javascript:void(0)"  data-id="'.$row->id.'" data-toggle="tooltip" class="btn-xs assignBtn"><i class="fas fa-pen"></i></a>';
-
-
+                        }
                         
                         return $display;
                     })
