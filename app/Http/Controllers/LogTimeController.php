@@ -40,7 +40,6 @@ class LogTimeController extends Controller
                     $join->on('tl.assigned_id', '=', 'ja.assigned_id');
                 })
                 ->leftJoin('users as u', 'u.id', '=', 'tl.assigned_id')
-                ->whereNotNull('tl.end_time')
                 ->whereNotNull('tl.assigned_id')
                 ->whereNotNull('j.id');
                 
