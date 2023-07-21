@@ -14,6 +14,7 @@ use DataTables;
 use Carbon\Carbon;
 use PDF;
 use DB;
+use App\Models\AdminFootprint;
 use Illuminate\Support\Facades\Auth;
 
 class InvoiceController extends Controller
@@ -200,8 +201,8 @@ class InvoiceController extends Controller
                         return $u->name;
                     })
                     ->addColumn('action', function($row){
-                        $btn = '<a href="" data-toggle="tooltip" class="mr-1 btn btn-primary btn-sm">Edit</a>';
-                        $btn .= '<a href="" data-toggle="tooltip" class="btn btn-danger btn-sm">Delete</a>';
+                        // $btn = '<a href="" data-toggle="tooltip" class="mr-1 btn btn-primary btn-sm">Edit</a>';
+                        $btn= '<a href="" data-id="'.$row->id.'" data-toggle="tooltip" class="btn btn-danger btn-sm deleteInvoice">Delete</a>';
 
                         return $btn;
                     })
@@ -375,6 +376,29 @@ class InvoiceController extends Controller
         return $pdf->stream('pdf_view.pdf');
         // return view('invoices.pdf_view', compact('dataArr'));
 
+    }
+
+    public function delete($id)
+    {
+        DB::transaction(function() use ($id) {
+            $user = Auth::user();
+
+            $sub_invoice = SubcontractorInvoice::find($id);
+    
+            $footprint = "$user->name deleted subbies payable invoice $sub_invoice->invoice_id from the records";
+    
+            AdminFootprint::create([
+                'user_id' => $user->id,
+                'action_type' => 'delete',
+                'entity_id' => $sub_invoice->id,
+                'entity' => $sub_invoice->name,
+                'description' => $footprint
+            ]);
+
+            $sub_invoice->delete();
+        });
+
+        return response()->json(['success'=>'Subbies Invoice ID deleted successfully.']);
     }
 
     public function pdf()

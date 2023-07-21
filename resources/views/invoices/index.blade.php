@@ -277,6 +277,29 @@
         window.location.href=encoded;
       
     })
+
+    $('body').on('click', '.deleteInvoice', function (e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+
+        var response = confirm("Are You sure want to delete?");
+
+        if (response == true) {
+            var url = "{{ route('subinvoices.delete', ['id'=>':id']) }}";
+            url = url.replace(':id', id);
+            $.ajax({
+                type: "POST",
+                url: url,
+                success: function (data) {
+                    invoice_table.draw();
+                    toastr.success('Deleted successfully!');
+                },
+                error: function (data) {
+                    toastr.error('Error!');
+                }
+            });
+        }
+    });
   });
 
 </script>
