@@ -214,8 +214,9 @@ class InvoiceController extends Controller
 
         $jobs = Jobs::orderBy('id', 'asc')->pluck('address', 'id');
         $banks = BankDetails::orderBy('name', 'asc')->pluck('name', 'id');
-
-        $filter_assigned = $filter->where('u.roles', 'subcontractor')->selectRaw('DISTINCT u.name, ja.assigned_id')->orderBy('name', 'asc')->get();
+        
+        $filter_assigned = User::whereIn('roles', ['subcontractor'])->orderBy('name', 'asc')->pluck('name', 'id');
+        // $filter_assigned = User::where('u.roles', 'subcontractor')->selectRaw('DISTINCT u.name, ja.assigned_id')->orderBy('name', 'asc')->get();
         return view('invoices.index', compact('clients', 'jobs', 'filter_assigned', 'banks'));
 
     }
