@@ -285,7 +285,7 @@
         var response = confirm("Are You sure want to delete?");
 
         if (response == true) {
-            var url = "{{ route('subinvoices.delete', ['id'=>':id']) }}";
+            var url = "{{ route('subbies_invoice.delete', ['id'=>':id']) }}";
             url = url.replace(':id', id);
             $.ajax({
                 type: "POST",

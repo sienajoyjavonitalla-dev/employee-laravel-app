@@ -33,7 +33,7 @@ Route::resource('calendarnote', App\Http\Controllers\CalendarNoteContoller::clas
 Route::get('invoices', 'App\Http\Controllers\InvoiceController@index')->name('invoices.index');
 Route::get('subinvoices', 'App\Http\Controllers\InvoiceController@index')->name('subinvoices.index');
 Route::get('clients_invoice', 'App\Http\Controllers\InvoiceController@clients_invoice')->name('clients_invoice');
-Route::post('subinvoices/{id}/delete', 'App\Http\Controllers\InvoiceController@delete')->name('subinvoices.delete');
+Route::post('subbies_invoice/{id}/delete', 'App\Http\Controllers\InvoiceController@delete')->name('subbies_invoice.delete');
 
 Route::get('invoices/pdf', 'App\Http\Controllers\InvoiceController@pdf')->name('invoices.pdf');
 
