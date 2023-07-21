@@ -230,8 +230,8 @@ class JobsController extends Controller
             } 
         }
 
-        $clients = Client::pluck('company_name', 'id');
-        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
+        $clients = Client::orderBy('company_name')->pluck('company_name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->orderBy('name')->pluck('name', 'id');
 
         return view('jobs.index', compact('clients', 'assigned'));
 
@@ -256,8 +256,8 @@ class JobsController extends Controller
                     ->make(true);
         }
 
-        $clients = Client::pluck('company_name', 'id');
-        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
+        $clients = Client::orderBy('company_name')->pluck('company_name', 'id');
+        $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->orderBy('name')->pluck('name', 'id');
 
         return view('jobs.index', compact('clients', 'assigned'));
 

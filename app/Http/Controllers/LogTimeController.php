@@ -64,7 +64,7 @@ class LogTimeController extends Controller
             }
 
             $data = $data->selectRaw('tl.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.notes, tl.timesheet, tl.job_id, tl.start_time, tl.end_time, date, 
-            client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
+            client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('tl.job_id');
 
             return Datatables::of($data)
                     ->addIndexColumn()
