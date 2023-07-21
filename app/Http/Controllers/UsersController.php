@@ -68,6 +68,7 @@ class UsersController extends Controller
                 
                 $user = User::where('id', $request->user_id)->first();
                 $user->name = $request->name;
+                $user->abn = $request->abn;
                 $user->email = $request->email;
                 $user->roles = $request->roles;
 
@@ -85,6 +86,7 @@ class UsersController extends Controller
                 $user = User::create(
                 [
                     'name' => $request->name,
+                    'abn' => $request->abn,
                     'email' => $request->email,
                     'password' => Hash::make($request->password),
                     'roles' => $request->roles,

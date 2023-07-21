@@ -10,6 +10,7 @@
             <thead class="thead-light">
                 <tr>
                     <th>Name</th>
+                    <th>ABN</th>
                     <th>Email</th>
                     <th>Role</th>
                     <th>Rate</th>
@@ -40,6 +41,13 @@
                         <label for="name" class="col-sm-6 control-label">Name</label>
                         <div class="col-sm-12">
                             <input type="text" class="form-control" id="name" name="name" value="" maxlength="50" required="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="abn" class="col-sm-6 control-label">ABN</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="abn" name="abn" value="" maxlength="50" required="">
                         </div>
                     </div>
 
@@ -113,6 +121,7 @@
 
         columns: [
             {data: 'name', name: 'name'},
+            {data: 'abn', name: 'abn'},
             {data: 'email', name: 'email'},
             {data: 'roles', name: 'roles'},
             {data: 'rate_per_hour', name: 'rate_per_hour'},
@@ -144,6 +153,7 @@
 
           $('#user_id').val(data.id);
           $('#name').val(data.name);
+          $('#abn').val(data.abn);
           $('#email').val(data.email);
           $('#roles').val(data.roles);
           $('#rate_per_hour').val(data.rate_per_hour);
