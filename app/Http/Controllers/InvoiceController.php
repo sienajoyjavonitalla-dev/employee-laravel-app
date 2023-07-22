@@ -388,7 +388,7 @@ class InvoiceController extends Controller
             $user = Auth::user();
 
             $sub_invoice = SubcontractorInvoice::find($id);
-            $update_tl = TimeLog::where('subbies_invoice_id', $sub_invoice->invoice_id)->update(['subbies_invoice_id', null]);
+            $update_tl = TimeLog::where('subbies_invoice_id', $sub_invoice->invoice_id)->update(['subbies_invoice_id' => null]);
     
             $footprint = "$user->name deleted subbies payable invoice $sub_invoice->invoice_id from the records";
     
