@@ -585,7 +585,7 @@ class JobsController extends Controller
                 'LineItems'=> $line_items,
                 'Date'=> Carbon::today()->toDateString(),
                 'DueDate'=> Carbon::today()->toDateString(),
-                'Reference'=> $job_details->address,
+                'Reference'=> $job_details->po_number ?? '',
                 'Status'=> 'AUTHORISED'
               ]
             ]
