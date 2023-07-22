@@ -319,10 +319,14 @@ class InvoiceController extends Controller
         $data = DB::table('time_logs as tl')
             ->leftJoin('jobs as j', 'tl.job_id', '=', 'j.id')
             ->leftJoin('clients as c', 'j.client_id', '=', 'c.id')
-            ->leftJoin('job_assignee as ja', 'j.id', '=', 'ja.job_id')
-            ->leftJoin('users as u', 'u.id', '=', 'ja.assigned_id')
+            ->leftJoin('job_assignee as ja', function($join)
+            {
+                $join->on('tl.job_id', '=', 'ja.job_id');
+                $join->on('tl.assigned_id', '=', 'ja.assigned_id');
+            })
+            ->leftJoin('users as u', 'u.id', '=', 'tl.assigned_id')
             ->whereNotNull('tl.end_time')
-            ->whereNotNull('ja.assigned_id')
+            ->whereNotNull('tl.assigned_id')
             ->whereNotNull('j.id')
             ->whereNull('tl.subbies_invoice_id')
             ->where('u.roles', 'subcontractor');
@@ -384,6 +388,7 @@ class InvoiceController extends Controller
             $user = Auth::user();
 
             $sub_invoice = SubcontractorInvoice::find($id);
+            $update_tl = TimeLog::where('subbies_invoice_id', $sub_invoice->invoice_id)->update(['subbies_invoice_id', null]);
     
             $footprint = "$user->name deleted subbies payable invoice $sub_invoice->invoice_id from the records";
     
