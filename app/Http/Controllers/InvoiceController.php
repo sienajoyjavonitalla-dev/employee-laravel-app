@@ -213,7 +213,7 @@ class InvoiceController extends Controller
         $clients = Client::orderBy('company_name', 'asc')->pluck('company_name', 'id');
         $assigned = User::whereIn('roles', ['subcontractor', 'full-timer'])->orderBy('name', 'asc')->pluck('name', 'id');
 
-        $jobs = Jobs::orderBy('id', 'asc')->pluck('address', 'id');
+        $jobs = Jobs::orderBy('id', 'desc')->pluck('address', 'id');
         $banks = BankDetails::orderBy('name', 'asc')->pluck('name', 'id');
         
         $filter_assigned = User::whereIn('roles', ['subcontractor'])->orderBy('name', 'asc')->pluck('name', 'id');
