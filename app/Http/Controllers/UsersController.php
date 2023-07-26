@@ -78,6 +78,8 @@ class UsersController extends Controller
 
                 $user->rate_per_hour = $request->rate_per_hour;
                 $user->ot_rate_per_hour = $request->ot_rate_per_hour;
+                $user->travel_allowance = $request->travel_allowance;
+                $user->gst = $request->gst;
                 $user->save();
 
                 $action_type = "update";
@@ -91,7 +93,10 @@ class UsersController extends Controller
                     'password' => Hash::make($request->password),
                     'roles' => $request->roles,
                     'rate_per_hour' => $request->rate_per_hour,
-                    'ot_rate_per_hour' => $request->ot_rate_per_hour
+                    'ot_rate_per_hour' => $request->ot_rate_per_hour,
+                    'travel_allowance' => $request->travel_allowance,
+                    'gst' => $request->gst
+
                 ]);
 
                 $action_type = "create";

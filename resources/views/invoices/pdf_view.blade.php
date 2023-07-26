@@ -208,16 +208,20 @@ body {
                 <td>Travel Allowance</td>
                 <td>Per Day</td>
                 <td>{{$dataArr['data']->count()}}</td>
-                <td>50</td>
+                <td>{{$dataArr['first']->travel_allowance}}</td>
                 <td></td>
                 <td></td>
                 <td>GST</td>
-                <td>{{ $dataArr['data']->count() * 50 }}</td>
+                <td>{{ $dataArr['data']->count() * $dataArr['first']->travel_allowance }}</td>
             </tr>
         </table>
         @php
             $sub_ta = $subtotal + ($dataArr['data']->count() * 50);
-            $tax = $sub_ta *.1;
+            $tax = 0;
+
+            if($dataArr['first']->gst == 1) {
+                $tax = $sub_ta *.1;
+            }
         @endphp   
         <div class="box" > 
             <div class='notes-box'>

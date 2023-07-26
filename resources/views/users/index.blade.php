@@ -93,6 +93,25 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="travel_allowance" class="col-sm-6 control-label">Travel Allowance</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="travel_allowance" name="travel_allowance" value="" maxlength="50">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gst" class="col-sm-6 control-label">GST</label>
+                        <div class="col-sm-12">
+                            <select  class="form-control" name="gst" id="gst">
+                                <option value="">-- Select --</option>
+                                <option value="1"> Yes</option>
+                                <option value="0"> No</option>
+                            </select>
+                            <!-- <input type="text" class="form-control" id="roles" name="roles" value="" maxlength="50" required=""> -->
+                        </div>
+                    </div>
+
                     <div class="col-sm-offset-2 col-sm-10">
                         <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button>
                     </div>
@@ -158,6 +177,9 @@
           $('#roles').val(data.roles);
           $('#rate_per_hour').val(data.rate_per_hour);
           $('#ot_rate_per_hour').val(data.ot_rate_per_hour);
+          $('#travel_allowance').val(data.travel_allowance);
+          $('#gst').val(data.gst);
+
       })
 
     });

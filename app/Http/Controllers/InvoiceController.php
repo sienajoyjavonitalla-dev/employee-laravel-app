@@ -348,7 +348,7 @@ class InvoiceController extends Controller
         }
         
         $data = $data->selectRaw('j.id, tl.id as tl_id, j.address, j.po_number, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
-                    client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');// $this->convert_customer_data_to_html($data);
+                    client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, u.travel_allowance, gst, lunch_break')->orderBy('date');// $this->convert_customer_data_to_html($data);
         // dd($data->get());
         $data = $data->get();
         $first = $data->first();
