@@ -97,6 +97,7 @@ class LogTimeController extends Controller
             ->leftJoin('clients as c', 'c.id', '=', 'j.client_id')
             // ->where('j.status', '!=', 'complete')
             ->selectRaw('j.id, c.company_name, j.start_date_time, j.end_date_time')
+            ->orderBy('j.id', 'desc')
             ->get();
 
         $clients = Client::orderBy('company_name', 'asc')->pluck('company_name', 'id');
