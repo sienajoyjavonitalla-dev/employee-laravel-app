@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+
 @section('content')
 <div class="row">
     <div class="col-lg-12 align-items-center p-4">
@@ -61,6 +62,7 @@
         <table class="table table-bordered table-hover data-table">
             <thead class="thead-light">
                 <tr>
+                    <th></th>
                     <th>Job ID</th>
                     <th>Client</th>
                     <th>Assigned</th>
@@ -215,6 +217,12 @@
                 }
             },
             columns: [
+                {
+                    'className':      'details-control',
+                    'orderable':      false,
+                    'data':           null,
+                    'defaultContent': ''
+                },
                 {data: 'job_id', name: 'job_id'},
                 {data: 'company_name', name: 'company_name'},
                 {data: 'name', name: 'name'},
@@ -227,11 +235,11 @@
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
             "columnDefs": [
-                { "width": "15%", "targets": [8] },
-                { "width": "12%", "targets": [ 9] },
+                { "width": "15%", "targets": [9] },
+                { "width": "12%", "targets": [ 10] },
 
             ],
-            order: [[6, 'asc']]
+            order: [[7, 'asc']]
         });
     }
 
@@ -282,6 +290,34 @@
 
     });
 
+    function format(d) {
+    // `d` is the original data object for the row
+    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+            '<tr>'+
+                '<td>Subcontractor Invoice ID:</td>'+
+                '<td>'+d.subbies_invoice_id+'</td>'+
+            '</tr>'+
+            // '<tr>'+
+            //     '<td>Extra info:</td>'+
+            //     '<td>And any further details here (images etc)...</td>'+
+            // '</tr>'+
+        '</table>';
+    }
+    
+    // Add event listener for opening and closing details
+    $('.data-table tbody').on('click', 'td.details-control', function(){
+        var tr = $(this).closest('tr');
+        var row = $('.data-table').DataTable().row( tr );
+        if(row.child.isShown()){
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        } else {
+            // Open this row
+            row.child(format(row.data())).show();
+            tr.addClass('shown');
+        }
+    });
     $('body').on('click', '.editTimeLog', function () {
         $('#job_id').attr('disabled', true); 
         $('#assigned_id').attr('disabled', true); 

@@ -485,7 +485,7 @@ class JobsController extends Controller
                     ->where('client_id', $client_id)
                     ->where('tl.job_id', $job_id)
                     ->whereNotNull('tl.end_time')
-                    ->selectRaw('u.name, travel_allowance, date, jobs.id, title, po_number, 
+                    ->selectRaw('u.name, clients.travel_allowance, date, jobs.id, title, po_number, 
                         clients.address, assigned_id, job_id, tl.start_time, tl.end_time, tl.date, 
                         client_id, client_name, company_name, lunch_break, clients.rate_per_hour, clients.ot_rate_per_hour, 
                         TIMESTAMPDIFF(HOUR, tl.start_time, tl.end_time), jobs.address as job_address')
