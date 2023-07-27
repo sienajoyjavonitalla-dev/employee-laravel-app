@@ -687,44 +687,45 @@ class JobsController extends Controller
     }
 
     public function sendAttachments($job_id, $invoice_id) {
-        $a = XeroToken::latest()->first();
 
         // Path to the zip file
         $rarFilePath = public_path($job_id.'.zip');
-        $filename = $job_id.'.zip';
-        // $invoice_id = "2d916afe-5362-4cda-99bd-1ef05f7c5fec";
 
-        // Read the contents of the RAR file
-        $fileContents = file_get_contents($rarFilePath);
+        if(file_exists($rarFilePath)) {
+            $a = XeroToken::latest()->first();
 
-        $body = [
-            $fileContents
-        ];
+            $filename = $job_id.'.zip';
+            // $invoice_id = "2d916afe-5362-4cda-99bd-1ef05f7c5fec";
 
-        // Create a Guzzle HTTP client
-        $client = new GClient();
+            // Read the contents of the RAR file
+            $fileContents = file_get_contents($rarFilePath);
 
-        // Create a Guzzle HTTP request with the RAR file in the request body
-        $response = $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices/'.$invoice_id.'/Attachments/'.$filename,  [
-            'headers' => [
-                'Authorization' => 'Bearer '.$a->access_token,
-                'Content-Type' => 'application/octet-stream',
-                'xero-tenant-id' => env('XERO_TENANT_ID'),
-                'Accept' => 'application/json'
-            ],
-            'multipart' => [
-                [
-                    'name'     => $job_id,
-                    'filename' => $filename,
-                    'contents' => fopen( $rarFilePath, 'r' ),
+            $body = [
+                $fileContents
+            ];
+
+            // Create a Guzzle HTTP client
+            $client = new GClient();
+
+            // Create a Guzzle HTTP request with the RAR file in the request body
+            $response = $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices/'.$invoice_id.'/Attachments/'.$filename,  [
+                'headers' => [
+                    'Authorization' => 'Bearer '.$a->access_token,
+                    'Content-Type' => 'application/octet-stream',
+                    'xero-tenant-id' => env('XERO_TENANT_ID'),
+                    'Accept' => 'application/json'
+                ],
+                'multipart' => [
+                    [
+                        'name'     => $job_id,
+                        'filename' => $filename,
+                        'contents' => fopen( $rarFilePath, 'r' ),
+                    ]
                 ]
-            ]
-        ]);
+            ]);
+            $results = json_decode($response->getBody()->getContents());
 
-
-        $results = json_decode($response->getBody()->getContents());
-        
-
+        }
     }
 
     public function sendRequestWithRarFile()
