@@ -55,6 +55,7 @@ Route::get('subtimesheet', 'App\Http\Controllers\LogTimeController@timesheet')->
 
 Route::get('client/{client}/show_invoices', 'App\Http\Controllers\ClientsController@show_invoices')->name('client.show-invoices');
 Route::get('generate/invoice', 'App\Http\Controllers\JobsController@generateInvoice')->name('job.generate.invoice');
+Route::get('void/invoice', 'App\Http\Controllers\InvoiceController@voidInvoice')->name('invoice.void.invoice');
 
 # Jobs
 Route::post('assign', 'App\Http\Controllers\JobsController@store_assigned')->name('assign.store');

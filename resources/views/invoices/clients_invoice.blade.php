@@ -16,11 +16,11 @@
                 <table class="table table-bordered table-hover invoice-table">
                         <thead class="thead-light">
                             <tr>
+                                <th>Job</th>
                                 <th>ID</th>
                                 <th>Status</th>
                                 <th>URL</th>
-                                <th>Is Emailed?</th>
-                                <th>Job</th>
+                                <th>Created</th>
                                 <th width="280px">Action</th>
                             </tr>
                         </thead>
@@ -106,16 +106,18 @@
         serverSide: true,
         ajax: "{{ route('clients_invoice', ['name'=>'list']) }}",
         columns: [
+            {data: 'job_id', name: 'job_id'},
             {data: 'invoice_id', name: 'invoice_id'},
             {data: 'status', name: 'status'},
             {data: 'online_invoice_url', name: 'online_invoice_url'},
-            {data: 'emailed', name: 'emailed'},
-            {data: 'id', name: 'id'},
+            {data: 'created', name: 'created'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "columnDefs": [
+            { "width": "25%", "targets": [1] },
         ],
-        order: [[0, 'asc']]
+        order: [[4, 'desc']]
+
     });
 
     var table = $('.data-table').DataTable({
@@ -233,6 +235,40 @@
 
             }
         });
+    })
+
+    $('body').on('click', '.voidinvoice', function () {
+        
+        var invoice_id = $(this).attr('data-invoiceid');
+        var id = $(this).attr('data-id');
+        var response = confirm("Are You sure want to void the Invoice?");
+
+        if (response == true) {
+            var dataToSend = {
+                'invoice_id': invoice_id,
+                'id': id,
+            };
+
+            $.ajax({
+                url: "void/invoice",
+                type: "GET",
+                dataType: 'json',
+                data: dataToSend,
+                success: function (data) {
+                    if(data.success) {
+                        toastr.success(data.success, 'SUCCESS');
+                        window.location.reload();        
+                    } else {
+                        toastr.error(data.error, 'ERROR');
+                    }
+                },
+                error: function (data) {
+                    toastr.error('Error Saving!');
+
+                }
+            });
+        }
+        
     })
    
   });

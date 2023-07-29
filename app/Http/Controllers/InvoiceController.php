@@ -9,6 +9,8 @@ use App\Models\Invoice;
 use App\Models\User;
 use App\Models\BankDetails;
 use App\Models\TimeLog;
+use App\Models\XeroToken;
+use GuzzleHttp\Client as GClient;
 use App\Models\SubcontractorInvoice;
 use DataTables;
 use Carbon\Carbon;
@@ -274,13 +276,13 @@ class InvoiceController extends Controller
                     ->rawColumns(['action', 'assigned', 'invoice'])
                     ->make(true);
             } else {
-                $data = Invoice::where('job_id', '>', 0)->get();
+                $data = Invoice::where('job_id', '>', 0)->orderBy('created_at', 'desc')->get();
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('online_invoice_url', function($row){
 
                         if($row->invoice_url) 
-                            $url=$row->invoice_url;
+                            $url= '<a href="'.$row->invoice_url.'" target="_blank">'.$row->invoice_url.'</a>';
                         else {
                             $url = '<a href="" data-toggle="tooltip" class="btn btn-secondary btn-xs">Generate</a>';
                         }
@@ -295,6 +297,10 @@ class InvoiceController extends Controller
                         }
                         return $url;
                     })
+                    ->addColumn('created', function($row){
+
+                        return Carbon::parse($row->created_at)->format('Y-m-d');
+                    })
                     ->addColumn('action', function($row){
                         $btn='';
                         if($row->status != 'AUTHORISED') {
@@ -302,7 +308,7 @@ class InvoiceController extends Controller
                             $btn .= '<a href="" data-toggle="tooltip" class="mr-1 btn btn-primary btn-sm">Update</a>';
                         }
                         
-                        $btn .= '<a href="" data-toggle="tooltip" class="btn btn-danger btn-sm">Void</a>';
+                        $btn .= '<a href="javascript:void(0)" data-toggle="tooltip" class="btn btn-danger btn-sm voidinvoice" data-invoiceid="'.$row->invoice_id.'" data-id="'.$row->id.'" >Void</a>';
 
                         return $btn;
                     })
@@ -314,6 +320,40 @@ class InvoiceController extends Controller
         return view('invoices.clients_invoice');
 
     }
+
+    public function voidInvoice(Request $request) {
+        $body = [
+            'Invoices'=> [
+                [ 
+                'Status'=> 'VOIDED'
+                ]
+            ]
+        ];
+        $a = XeroToken::latest()->first();
+        // dd(json_encode($body));
+        $client = new GClient();
+        $response= $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices/'.$request->invoice_id, [
+            'headers' => [
+                'Authorization' => 'Bearer '.$a->access_token,
+                'Content-Type' => 'application/json',
+                'xero-tenant-id' => env('XERO_TENANT_ID'),
+                'Accept' => 'application/json'
+
+            ],
+            'json' => $body
+        ]);
+
+        $results = json_decode($response->getBody()->getContents());
+        if($response->getStatusCode() == 200) {
+            $del = Invoice::where('id', $request->id)->delete();
+            return response()->json(['success'=>'Invoice Voided Successfully.']);
+
+        } else {
+            return response()->json(['error'=>'Error void invoice. Contact Developer']);
+
+        }
+    }
+
     public function generatePDF(Request $request)
     {
         $data = DB::table('time_logs as tl')
