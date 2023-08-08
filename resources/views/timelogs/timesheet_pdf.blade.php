@@ -102,7 +102,7 @@ body {
     <span>
         <table id="timesheet">
             <tr>
-                <th>Operator</th>
+                <th style="width: 15%;">Operator</th>
                 <th style="width: 15%;">Date</th>
                 <th>Day</th>
                 <th>Start</th>
