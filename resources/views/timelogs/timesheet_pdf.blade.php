@@ -103,11 +103,13 @@ body {
         <table id="timesheet">
             <tr>
                 <th>Operator</th>
-                <th>Date</th>
+                <th style="width: 15%;">Date</th>
                 <th>Day</th>
                 <th>Start</th>
                 <th>Finish</th>
-                <th>Lunch</th>
+                <th style="width: 5%;">Lunch</th>
+                <th>Supervisor</th>
+                <th style="width: 30%;">Signature</th>
             </tr>
             @php
                 $subtotal = 0;
@@ -125,10 +127,12 @@ body {
                 <td>{{ $data->start_time }}</td>
                 <td>{{ $data->end_time }}</td>
                 <td>{{ $data->lunch_break ? 'Yes' : 'No' }}</td>
+                <td>{{ $data->authorized }}</td>
+                <td><img style="width: 30%;" src="{{$data->signature ? url('/signature/'.$data->signature.'') : ''}}" alt="Image"></td>
             </tr>
             @endforeach
         </table>
-        @php
+        <!-- @php
             $signature = '';
             $authorized = '';
             foreach ($dataArr['data'] as $data) {
@@ -143,7 +147,7 @@ body {
         <br/><br/>
         <h3>Client Signoff</h3>
         <h5>Site Supervisor Name: {{$authorized}}<br/>
-        Signature:</h5> <img src="{{$signature ? url('/signature/'.$signature.'') : ''}}" alt="Image">
+        Signature:</h5> <img src="{{$signature ? url('/signature/'.$signature.'') : ''}}" alt="Image"> -->
 
         <br/>
     </span> 
