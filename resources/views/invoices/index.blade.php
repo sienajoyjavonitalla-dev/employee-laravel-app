@@ -126,7 +126,7 @@
                     <div class="form-group">
                         <label for="invoice_id" class="col-sm-6 control-label">Invoice ID</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="invoice_id" name="invoice_id" value="{{rand(1000, 1000000)}}" >
+                            <input type="text" class="form-control" id="invoice_id" name="invoice_id" value="" >
                         </div>
                     </div>
 
@@ -253,9 +253,12 @@
     });
     $('.generate').click(function (e) {
 
-        if($('#assigned').val()) 
+        if($('#assigned').val()) {
             $('#generateModal').modal('show');
-        else 
+
+            let x = Math.floor((Math.random() * 100000) + 1);
+            $('#invoice_id').val(x);
+        } else 
             toastr.error('Please select a subcontractor!')
 
     });
