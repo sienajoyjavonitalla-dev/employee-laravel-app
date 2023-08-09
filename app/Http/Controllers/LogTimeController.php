@@ -460,8 +460,8 @@ class LogTimeController extends Controller
             'date' => $request->date,
             'timesheet' => $filename,
             'authorized' => $request->authorized,
-            'signature' => $signature
-
+            'signature' => $signature,
+            'notes' => $request->timelog_notes
 
         ]);
 

@@ -141,11 +141,18 @@
                             <input type="text" class="form-control" id="date" name="date" value="" required="">
                         </div>
                     </div>
+
                     <div class="form-group">
                         <label for="lunch_break" class="col-sm-6 control-label">Lunch Break</label>
                         <input class="form-check-input" type="checkbox" id="lunch_break" name="lunch_break" value=""  checked="false">
                     </div>
 
+                    <div class="form-group">
+                        <label for="timelog_notes" class="col-sm-6 control-label">Notes</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="timelog_notes" name="timelog_notes" value="" >
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="timesheet" class="col-sm-6 control-label">Timesheet</label>
                         <div class="col-sm-12">
@@ -342,6 +349,7 @@
           $('#existingTimesheet').val(data.timesheet);
           $('#authorized').val(data.authorized);
           $('#existingSignature').val(data.signature);
+          $('#timelog_notes').val(data.notes);
 
           if(data.lunch_break == 1) {
             $('#lunch_break').prop('checked',true);
@@ -355,8 +363,10 @@
 
       
     $('#saveBtn').click(function (e) {
+
         $('#job_id').attr('disabled', false); 
         $('#assigned_id').attr('disabled', false); 
+
         if( '{{Auth::user()->roles}}' != 'admin' && '{{Auth::user()->roles}}' != 'subadmin' ) {
             $('#assigned_id').attr('disabled', false); 
             $('#start_time').attr('disabled', false); 
