@@ -150,7 +150,7 @@
                     <div class="form-group">
                         <label for="timelog_notes" class="col-sm-6 control-label">Notes</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="timelog_notes" name="timelog_notes" value="" >
+                            <textarea class="form-control" id="timelog_notes" name="timelog_notes" rows="3" value="" ></textarea>
                         </div>
                     </div>
                     <div class="form-group">
