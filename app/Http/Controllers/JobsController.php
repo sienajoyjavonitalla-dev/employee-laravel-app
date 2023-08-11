@@ -361,6 +361,34 @@ class JobsController extends Controller
     {
         DB::transaction(function() use ($request) {
 
+            $filename = '';
+            $signature = '';
+            if($request->file('timesheet')){
+                $path = public_path().'/job_timesheets/'.$request->job_id;
+                
+                //delete the old file
+                if($request->id) {
+                        $j=Jobs::where('id', $request->id)->first();
+                    if($j->timesheet) {
+                        File::delete($path.'/'.$j->timesheet);
+                    }
+
+                }
+                //make a directory for the timesheets and save
+                if (!file_exists($path)) {
+                    mkdir($path, 0775, true);
+                }
+                $file= $request->file('timesheet');
+                $filename= date('YmdHi').$file->getClientOriginalName();
+                $file->move($path, $filename);
+
+            } else {
+                if($request->id) {
+                    $j=Jobs::where('id', $request->id)->first();
+                    $filename = $j->timesheet;
+                }
+            }
+
             $job_check = $request->job_id;
 
             $job = Jobs::updateOrCreate(
@@ -376,7 +404,8 @@ class JobsController extends Controller
                     'start_date_time' => $request->start_date_time,
                     'end_date_time' => $request->end_date_time,
                     'start_time' => $request->start_time,
-                    'end_time' => $request->end_time
+                    'end_time' => $request->end_time,
+                    'timesheet' => $filename
                 ]
             );
 
@@ -662,7 +691,7 @@ class JobsController extends Controller
                     
                 }
                 //send attachments to xero
-                $this->sendAttachments($job_id, $i->InvoiceID);
+                $this->sendAttachments($job_id, $i->InvoiceID, $job_details);
 
             }
 
@@ -686,15 +715,17 @@ class JobsController extends Controller
 
     }
 
-    public function sendAttachments($job_id, $invoice_id) {
+    public function sendAttachments($job_id, $invoice_id, $job_details) {
 
         // Path to the zip file
-        $rarFilePath = public_path($job_id.'.zip');
+        // $rarFilePath = public_path($job_id.'.zip');
+        $rarFilePath = public_path().'/job_timesheets/'.$job_id.'/'.$job_details->timesheet;
 
         if(file_exists($rarFilePath)) {
             $a = XeroToken::latest()->first();
 
-            $filename = $job_id.'.zip';
+            // $filename = $job_id.'.zip';
+            $filename = $job_details->timesheet;
             // $invoice_id = "2d916afe-5362-4cda-99bd-1ef05f7c5fec";
 
             // Read the contents of the RAR file

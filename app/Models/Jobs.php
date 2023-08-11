@@ -22,6 +22,7 @@ class Jobs extends Model
         'updated_at',
         'deleted_at',
         'start_time',
-        'end_time'
+        'end_time',
+        'timesheet'
     ];
 }

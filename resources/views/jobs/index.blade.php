@@ -89,6 +89,16 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="timesheet" class="col-sm-6 control-label">Timesheet</label>
+                        <div class="col-sm-12">
+                            <input type="file" class="form-control" id="timesheet" name="timesheet" value="" >
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-10">Uploaded file: <input type="text" disabled id="existingTimesheet" value=""></div>
+                    
+
                     <!-- <div class="form-group">
                         <label for="job_assignees" class="col-sm-6 control-label">Assign to</label>
                         <div class="col-sm-12">
@@ -296,6 +306,8 @@
           $('#end_date_time').val(data.end_date_time);
           $('#start_time').val(data.start_time);
           $('#end_time').val(data.end_time);
+          $('#existingTimesheet').val(data.timesheet);
+
       })
 
     });
@@ -397,28 +409,31 @@
     });
 
     $('#saveBtn').click(function (e) {
+        var formData = new FormData($('#jobForm')[0]);
 
         e.preventDefault();
 
         $(this).html('Saving..');
 
         $.ajax({
-          data: $('#jobForm').serialize(),
-          url: "{{ route('jobs.store') }}",
-          type: "POST",
-          dataType: 'json',
-          success: function (data) {
-            $('#jobForm').trigger("reset");
-            $('#ajaxModel').modal('hide');
-            table.draw();
-            $('#saveBtn').html('Save Changes');
-            toastr.success('Job saved successfully!');
-          },
-          error: function (data) {
-            $('#saveBtn').html('Save Changes');
-            toastr.error('Error Saving!');
+            data: formData,
+            url: "{{ route('jobs.store') }}",
+            type: "POST",
+            dataType: 'json',
+            processData: false,
+            contentType: false, 
+            success: function (data) {
+                $('#jobForm').trigger("reset");
+                $('#ajaxModel').modal('hide');
+                table.draw();
+                $('#saveBtn').html('Save Changes');
+                toastr.success('Job saved successfully!');
+            },
+            error: function (data) {
+                $('#saveBtn').html('Save Changes');
+                toastr.error('Error Saving!');
 
-          }
+            }
       });
     });
 
