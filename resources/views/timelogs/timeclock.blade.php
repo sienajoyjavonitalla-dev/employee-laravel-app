@@ -120,7 +120,7 @@
                     <div class="form-group">
                         <label for="notes" class="col-sm-6 control-label">Notes</label>
                         <div class="col-sm-12">
-                            <textarea id="notes" name="notes" class="form-control" value="{{$clock_in ? $clock_in->notes : '' }}"></textarea>
+                            <textarea id="notes" name="notes" class="form-control" value="{{$clock_in ? $clock_in->notes : '' }}">{{$clock_in ? $clock_in->notes : '' }}</textarea>
                         </div>
                     </div>
                     <div class="col-sm-10 mt-3 pt-5">
