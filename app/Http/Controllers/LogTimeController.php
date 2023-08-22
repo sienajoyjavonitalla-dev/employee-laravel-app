@@ -92,7 +92,7 @@ class LogTimeController extends Controller
                     ->rawColumns(['action', 'timesheet_url'])
                     ->make(true);
         }
-        $users = User::whereIn('roles', ['subcontractor', 'full-timer'])->pluck('name', 'id');
+        $users = User::whereIn('roles', ['subcontractor', 'full-timer'])->orderBy('name', 'asc')->pluck('name', 'id');
         $jobs = DB::table('jobs as j')
             ->leftJoin('clients as c', 'c.id', '=', 'j.client_id')
             // ->where('j.status', '!=', 'complete')
