@@ -87,6 +87,13 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="other_rate_per_hour" class="col-sm-6 control-label">Other Rate</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="other_rate_per_hour" name="other_rate_per_hour" value="" maxlength="50" >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="ot_rate_per_hour" class="col-sm-6 control-label">OT Rate</label>
                         <div class="col-sm-12">
                             <input type="text" class="form-control" id="ot_rate_per_hour" name="ot_rate_per_hour" value="" maxlength="50">
@@ -120,6 +127,55 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="manageFilesModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modelHeading">User Files</h4>
+            </div>
+
+            <div class="modal-body">
+                <form id="filesForm" name="filesForm" class="form-horizontal pb-1">
+                @csrf
+
+                    <div class="form-group">
+                        <input type="hidden" class="form-control" id="user_id" name="user_id" value="" >
+
+                        <label for="file" class="col-sm-6 control-label">File</label>
+                        <div class="col-sm-12">
+                            <input type="file" id="timesheet" name="timesheet" value="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" class="col-sm-6 control-label">Description</label>
+                        <div class="col-sm-12">
+                            <textarea id="description" name="description" class="form-control"></textarea>
+                        </div>
+                    </div>   
+
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Add</button>
+                    </div>
+                </form>
+
+                <table class="table table-bordered table-hover files-table" width="100%">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>File</th>
+                            <th>Description</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 @stop
 
 @section('scripts')
@@ -152,6 +208,30 @@
         order: [[1, 'asc']]
     });
 
+    $('body').on('click', '.manageFiles', function () {
+        $('#manageFilesModal').modal('show');
+        var user_id = $(this).data('id');
+        $('#user_id').val(user_id);
+
+        // var url = "{{ route('assign.index', ['job'=>':id']) }}";
+        // url = url.replace(':id', job_id);
+        // var assign_table = $('.assign-table').DataTable({
+        //     processing: true,
+        //     serverSide: true,
+        //     paging: false,
+        //     ajax: url,
+        //     columns: [
+        //         {data: 'name', name: 'name'},
+        //         {data: 'job_title', name: 'job_title'},
+        //         {data: 'action', name: 'action', orderable: false, searchable: false},
+        //     ],
+        //     "columnDefs": [
+        //     ]
+        // });
+        // assign_table.destroy();
+
+    });
+
     $('#createNewUser').click(function () {
         $('#saveBtn').val("create-user");
         $('#user_id').val('');
@@ -176,6 +256,7 @@
           $('#email').val(data.email);
           $('#roles').val(data.roles);
           $('#rate_per_hour').val(data.rate_per_hour);
+          $('#other_rate_per_hour').val(data.other_rate_per_hour);
           $('#ot_rate_per_hour').val(data.ot_rate_per_hour);
           $('#travel_allowance').val(data.travel_allowance);
           $('#gst').val(data.gst);

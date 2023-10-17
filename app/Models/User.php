@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'roles',
         'rate_per_hour',
+        'other_rate_per_hour',
         'ot_rate_per_hour',
         'travel_allowance',
         'gst'

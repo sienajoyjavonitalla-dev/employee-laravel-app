@@ -10,6 +10,7 @@ class Client extends Model
         'client_name',
         'address',
         'rate_per_hour',
+        'other_rate_per_hour',
         'ot_rate_per_hour',
         'abn',
         'company_name',

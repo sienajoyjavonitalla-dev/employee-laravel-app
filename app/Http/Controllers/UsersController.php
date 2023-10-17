@@ -32,8 +32,9 @@ class UsersController extends Controller
             return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row){
-                        $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editUser">Edit</a>';
-                        $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteUser">Delete</a>';
+                        $btn = '<a href="javascript:void(0)"  data-id="'.$row->id.'" data-toggle="tooltip" class="btn btn-info btn-sm manageFiles"><i class="fas fa-file"></i>  Files</a>';
+                        $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editUser"><i class="fas fa-pen"></i>  Edit</a>';
+                        $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteUser"><i class="fas fa-trash"></i>  Delete</a>';
 
                         return $btn;
                     })
@@ -77,6 +78,7 @@ class UsersController extends Controller
                 }
 
                 $user->rate_per_hour = $request->rate_per_hour;
+                $user->other_rate_per_hour = $request->other_rate_per_hour;
                 $user->ot_rate_per_hour = $request->ot_rate_per_hour;
                 $user->travel_allowance = $request->travel_allowance;
                 $user->gst = $request->gst;
@@ -93,6 +95,7 @@ class UsersController extends Controller
                     'password' => Hash::make($request->password),
                     'roles' => $request->roles,
                     'rate_per_hour' => $request->rate_per_hour,
+                    'other_rate_per_hour' => $request->other_rate_per_hour,
                     'ot_rate_per_hour' => $request->ot_rate_per_hour,
                     'travel_allowance' => $request->travel_allowance,
                     'gst' => $request->gst
