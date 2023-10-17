@@ -97,6 +97,13 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="other_rate_per_hour" class="col-sm-6 control-label">Other Rate</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="other_rate_per_hour" name="other_rate_per_hour" value="" required="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="ot_rate_per_hour" class="col-sm-6 control-label">OT Rate</label>
                         <div class="col-sm-12">
                             <input type="text" class="form-control" id="ot_rate_per_hour" name="ot_rate_per_hour" value="" required="">
@@ -177,6 +184,7 @@
           $('#client_name').val(data.client_name);
           $('#address').val(data.address);
           $('#rate_per_hour').val(data.rate_per_hour);
+          $('#other_rate_per_hour').val(data.other_rate_per_hour);
           $('#ot_rate_per_hour').val(data.ot_rate_per_hour);
           $('#abn').val(data.abn);
           $('#company_name').val(data.company_name);
