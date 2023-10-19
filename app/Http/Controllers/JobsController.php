@@ -100,6 +100,11 @@ class JobsController extends Controller
                 $data = DB::table('time_logs as tl')
                     ->leftJoin('jobs as jobs', 'job_id', '=', 'jobs.id')
                     ->leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id')
+                    ->leftJoin('job_assignee as ja', function($join)
+                    {
+                        $join->on('tl.job_id', '=', 'ja.job_id');
+                        $join->on('tl.assigned_id', '=', 'ja.assigned_id');
+                    })
                     ->whereNotNull('tl.end_time');
 
                 
@@ -111,7 +116,7 @@ class JobsController extends Controller
                     $data = $data->where('tl.job_id', $request->job_id);
                 }
 
-                $data = $data->selectRaw('jobs.id, title, po_number, assigned_id, job_id, tl.start_time, tl.end_time, date, client_id, company_name, rate_per_hour, ot_rate_per_hour, lunch_break');
+                $data = $data->selectRaw('jobs.id, ja.job_title, po_number, ja.assigned_id, tl.job_id, tl.start_time, tl.end_time, date, client_id, company_name, rate_per_hour, other_rate_per_hour, ot_rate_per_hour, lunch_break');
                 // dd($data->toSql());
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -146,7 +151,8 @@ class JobsController extends Controller
                             $total_hr = $total_hr - .5;
                         }
                         
-                        $rate = $row->rate_per_hour;
+                        $rate = strtolower($row->job_title) == 'operator' ? $row->other_rate_per_hour : $row->rate_per_hour;
+
                         $isWeekend = false;
                         if($row->date) {
                             $day = Carbon::createFromFormat('Y-m-d', $row->date );
@@ -197,7 +203,8 @@ class JobsController extends Controller
                         if($row->lunch_break) {
                             $total_hr = $total_hr - .5;
                         }
-                        $rate = $row->rate_per_hour;
+                        $rate = strtolower($row->job_title) == 'operator' ? $row->other_rate_per_hour : $row->rate_per_hour;
+                        
                         $isWeekend = false;
                         if($row->date) {
                             $day = Carbon::createFromFormat('Y-m-d', $row->date );
@@ -511,12 +518,17 @@ class JobsController extends Controller
         $timelogs = DB::table('time_logs as tl')->leftJoin('jobs as jobs', 'job_id', '=', 'jobs.id')
                     ->leftJoin('clients as clients', 'jobs.client_id', '=', 'clients.id')
                     ->leftJoin('users as u', 'tl.assigned_id', '=', 'u.id')
+                    ->leftJoin('job_assignee as ja', function($join)
+                    {
+                        $join->on('tl.job_id', '=', 'ja.job_id');
+                        $join->on('tl.assigned_id', '=', 'ja.assigned_id');
+                    })
                     ->where('client_id', $client_id)
                     ->where('tl.job_id', $job_id)
                     ->whereNotNull('tl.end_time')
-                    ->selectRaw('u.name, clients.travel_allowance, date, jobs.id, title, po_number, 
-                        clients.address, assigned_id, job_id, tl.start_time, tl.end_time, tl.date, 
-                        client_id, client_name, company_name, lunch_break, clients.rate_per_hour, clients.ot_rate_per_hour, 
+                    ->selectRaw('u.name, clients.travel_allowance, date, jobs.id, ja.job_title, po_number, 
+                        clients.address, tl.assigned_id, tl.job_id, tl.start_time, tl.end_time, tl.date, 
+                        client_id, client_name, company_name, lunch_break, clients.rate_per_hour, clients.other_rate_per_hour, clients.ot_rate_per_hour, 
                         TIMESTAMPDIFF(HOUR, tl.start_time, tl.end_time), jobs.address as job_address')
                     ->get();
         if($timelogs->count() == 0) {
@@ -541,7 +553,9 @@ class JobsController extends Controller
             if($tl->lunch_break) {
                 $total_hr = $total_hr - .5;
             }
-            $rate = $tl->rate_per_hour;
+            // $rate = $tl->rate_per_hour;
+            $rate = strtolower($tl->job_title) == 'operator' ? $tl->other_rate_per_hour : $tl->rate_per_hour;
+
             $isWeekend = false;
             if($tl->date) {
                 $day = Carbon::createFromFormat('Y-m-d', $tl->date );

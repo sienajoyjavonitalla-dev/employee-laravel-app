@@ -64,7 +64,7 @@ class LogTimeController extends Controller
             }
 
             $data = $data->selectRaw('tl.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.notes, tl.timesheet, tl.job_id, tl.start_time, tl.end_time, date, 
-            client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break, tl.subbies_invoice_id')->orderBy('tl.job_id');
+            client_id, company_name, u.rate_per_hour, u.other_rate_per_hour, u.ot_rate_per_hour, lunch_break, tl.subbies_invoice_id')->orderBy('tl.job_id');
 
             return Datatables::of($data)
                     ->addIndexColumn()
@@ -146,7 +146,7 @@ class LogTimeController extends Controller
         }
 
         $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.job_id, tl.start_time, tl.end_time, date, 
-                client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
+                client_id, company_name, u.rate_per_hour, u.other_rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
 
         if ($request->ajax()) {
                 
@@ -182,7 +182,9 @@ class LogTimeController extends Controller
                         if($row->lunch_break) {
                             $total_hr = $total_hr - .5;
                         }
-                        $rate = $row->rate_per_hour;
+
+                        $rate = strtolower($row->job_title) == 'operator' ? $row->other_rate_per_hour : $row->rate_per_hour;
+
                         $isWeekend = false;
                         if($row->date) {
                             $day = Carbon::createFromFormat('Y-m-d', $row->date );
@@ -234,7 +236,8 @@ class LogTimeController extends Controller
                             $total_hr = $total_hr - .5;
                         }  
                         
-                        $rate = $row->rate_per_hour;
+                        $rate = strtolower($row->job_title) == 'operator' ? $row->other_rate_per_hour : $row->rate_per_hour;
+                        
                         $isWeekend = false;
                         if($row->date) {
                             $day = Carbon::createFromFormat('Y-m-d', $row->date );
@@ -319,7 +322,7 @@ class LogTimeController extends Controller
             $data = $data->where('j.id', $request->job);
         }
         $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.authorized, tl.notes, tl.timesheet, tl.job_id, tl.start_time, tl.end_time, date, 
-            client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
+            client_id, company_name, u.rate_per_hour, u.other_rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
 
         // dd($data->get());
         $data = $data->get();
