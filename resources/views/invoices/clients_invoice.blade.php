@@ -192,7 +192,7 @@
             },
             columns: [
                 {data: 'employee', name: 'employee'},
-                {data: 'title', name: 'title'},
+                {data: 'job_title', name: 'job_title'},
                 {data: 'date', name: 'date'},
                 {data: 'hrs_worked', name: 'hrs_worked'},
                 {data: 'with_lunch', name: 'with_lunch'},

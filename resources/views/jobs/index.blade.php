@@ -151,7 +151,16 @@
                     <div class="form-group">
                         <label for="job_title" class="col-sm-6 control-label">Job Title</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="job_title" name="job_title" value="" >
+                            <!-- <input type="text" class="form-control" id="job_title" name="job_title" value="" > -->
+
+                            <select class="form-control" name="job_title" id="job_title" required="">
+                                <option value="">-- Select --</option>
+                                <option value="boiler maker">Boiler Maker</option>
+                                <option value="operator">Operator (applies 2nd rate)</option>
+                                <option value="dogman">Dogman</option>
+                                <option value="rigger">Rigger</option>
+                                <option value="spotter">Spotter</option>
+                            </select>
                         </div>
                     </div>
 

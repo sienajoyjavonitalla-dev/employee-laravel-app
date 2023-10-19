@@ -67,7 +67,7 @@ class InvoiceController extends Controller
         if ($request->ajax()) {
             if ($request->name == 'generate') {
                 $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.job_id, tl.start_time, tl.end_time, date, 
-                    client_id, company_name, u.rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date')->get();
+                    client_id, company_name, u.rate_per_hour, u.other_rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date')->get();
                 return Datatables::of($data)
                     ->addIndexColumn()
                     // ->addColumn('employee', function($row){
@@ -102,7 +102,7 @@ class InvoiceController extends Controller
                             $total_hr = $total_hr - .5;
                         }
                         
-                        $rate = $row->rate_per_hour;
+                        $rate = strtolower($row->job_title) == 'operator' ? $row->other_rate_per_hour : $row->rate_per_hour;
                         $isWeekend = false;
                         if($row->date) {
                             $day = Carbon::createFromFormat('Y-m-d', $row->date );
@@ -156,7 +156,8 @@ class InvoiceController extends Controller
                             $total_hr = $total_hr - .5;
                         }    
 
-                        $rate = $row->rate_per_hour;
+                        $rate = strtolower($row->job_title) == 'operator' ? $row->other_rate_per_hour : $row->rate_per_hour;
+
                         $isWeekend = false;
                         if($row->date) {
                             $day = Carbon::createFromFormat('Y-m-d', $row->date );
