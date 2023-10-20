@@ -57,6 +57,11 @@ Route::get('client/{client}/show_invoices', 'App\Http\Controllers\ClientsControl
 Route::get('generate/invoice', 'App\Http\Controllers\JobsController@generateInvoice')->name('job.generate.invoice');
 Route::get('void/invoice', 'App\Http\Controllers\InvoiceController@voidInvoice')->name('invoice.void.invoice');
 
+# User Files
+Route::post('storefiles', 'App\Http\Controllers\UsersController@store_user_files')->name('user-files.store');
+Route::get('userfiles/{user}', 'App\Http\Controllers\UsersController@user_files_index')->name('user-files.index');
+Route::post('userfiles/{file}/delete', 'App\Http\Controllers\UsersController@user_files_delete')->name('user-files.delete');
+
 # Jobs
 Route::post('assign', 'App\Http\Controllers\JobsController@store_assigned')->name('assign.store');
 Route::get('assign/{job}', 'App\Http\Controllers\JobsController@assigned_index')->name('assign.index');
