@@ -136,18 +136,18 @@
             </div>
 
             <div class="modal-body">
-                <form id="filesForm" name="filesForm" class="form-horizontal pb-1">
+                <form id="filesForm" name="filesForm" class="form-horizontal pb-1" enctype="multipart/form-data">
                 @csrf
 
                     <div class="form-group">
-                        <input type="hidden" class="form-control" id="user_id" name="user_id" value="" >
+                        <input type="hidden" class="form-control" id="file_user_id" name="file_user_id" value="" >
 
-                        <label for="file" class="col-sm-6 control-label">File</label>
+                        <label for="name" class="col-sm-6 control-label">Name</label>
                         <div class="col-sm-12">
-                            <input type="file" id="timesheet" name="timesheet" value="">
+                            <input type="text" class="form-control" id="name" name="name" value="">
                         </div>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="description" class="col-sm-6 control-label">Description</label>
                         <div class="col-sm-12">
@@ -155,16 +155,25 @@
                         </div>
                     </div>   
 
+                    <div class="form-group">
+                        <label for="image_path" class="col-sm-6 control-label">File</label>
+                        <div class="col-sm-12">
+                            <input type="file" id="image_path" name="image_path" value="">
+                        </div>
+                    </div>
+
+
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Add</button>
+                        <button type="submit" class="btn btn-primary" id="saveFilesBtn" value="create">Add</button>
                     </div>
                 </form>
 
                 <table class="table table-bordered table-hover files-table" width="100%">
                     <thead class="thead-light">
                         <tr>
-                            <th>File</th>
+                            <th>Name</th>
                             <th>Description</th>
+                            <th>File</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -211,25 +220,91 @@
     $('body').on('click', '.manageFiles', function () {
         $('#manageFilesModal').modal('show');
         var user_id = $(this).data('id');
-        $('#user_id').val(user_id);
+        $('#file_user_id').val(user_id);
+        var url = "{{ route('user-files.index', ['user'=>':id']) }}";
+        url = url.replace(':id', user_id);
 
-        // var url = "{{ route('assign.index', ['job'=>':id']) }}";
-        // url = url.replace(':id', job_id);
-        // var assign_table = $('.assign-table').DataTable({
-        //     processing: true,
-        //     serverSide: true,
-        //     paging: false,
-        //     ajax: url,
-        //     columns: [
-        //         {data: 'name', name: 'name'},
-        //         {data: 'job_title', name: 'job_title'},
-        //         {data: 'action', name: 'action', orderable: false, searchable: false},
-        //     ],
-        //     "columnDefs": [
-        //     ]
-        // });
-        // assign_table.destroy();
+        var files_table = $('.files-table').DataTable({
+            processing: true,
+            serverSide: true,
+            paging: false,
+            ajax: url,
+            columns: [
+                {data: 'name', name: 'name'},
+                {data: 'description', name: 'description'},
+                {data: 'image_path', name: 'image_path'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            "columnDefs": [
+            ]
+        });
+        files_table.destroy();
 
+    });
+
+    $('#saveFilesBtn').click(function (e) {
+
+        var formData = new FormData($('#filesForm')[0]);
+        e.preventDefault();
+        if( $('#file_user_id').val() == '' )
+        {
+            toastr.error('Cannot assign empty user.');
+            return;
+        }
+
+        $(this).html('Saving..');
+
+        $.ajax({
+            url: "{{ route('user-files.store') }}",
+            type: "POST",
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            data: formData,
+            success: function (data) {
+                // $('#filesForm').trigger("reset");
+                $('#filesForm')[0].reset();
+                $('#manageFilesModal').modal('hide');
+                $('#saveFilesBtn').html('Add');
+
+                if(data.success) {
+                    toastr.success('Added File successfully!');
+                } else {
+                    toastr.error('Error, Contact Developer!');
+                }
+                
+            },
+            error: function (data) {
+                console.log('Error:', data);
+                $('#saveFilesBtn').html('Add');
+                toastr.error('Error Saving!');
+
+            }
+        });
+    });
+
+    $('body').on('click', '.deleteUserFile', function () {
+
+        var id = $(this).data("id");
+
+        var response = confirm("Are You sure want to delete?");
+
+        if (response == true) {
+            var url = "{{ route('user-files.delete', ['file'=>':id']) }}";
+            url = url.replace(':id', id);
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                success: function (data) {
+                    $('#manageFilesModal').modal('hide');
+                    toastr.success('Deleted successfully!');
+                },
+                error: function (data) {
+                    toastr.error('Error!');
+                }
+            });
+        }
     });
 
     $('#createNewUser').click(function () {

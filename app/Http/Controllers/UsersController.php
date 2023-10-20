@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserFiles;
 use App\Models\JobAssignee;
 use App\Models\AdminFootprint;
 use DataTables;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class UsersController extends Controller
 {
@@ -116,6 +118,96 @@ class UsersController extends Controller
         });
 
         return response()->json(['success'=>'User saved successfully.']);
+    }
+
+    public function store_user_files(Request $request)
+    {
+        if($request->hasFile('image_path')) {
+            $path = public_path().'/user_files';
+           
+            //make a directory for the timesheets and save
+             if (!file_exists($path)) {
+                 mkdir($path, 0775, true);
+             }
+             $file= $request->file('image_path');
+             $userfilename= date('YmdHis').$file->getClientOriginalName();
+             $file->move($path, $userfilename);
+        } 
+        
+        // Save the record to the database
+        UserFiles::create([
+            'user_id' => $request->input('file_user_id'),
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'image_path' => $userfilename
+        ]);
+
+        $user = Auth::user();
+        $action_user = User::find($request->input('file_user_id'));
+        $footprint = "$user->name added file $userfilename to $action_user->name";
+
+        AdminFootprint::create([
+            'user_id' => $user->id,
+            'action_type' => 'add file',
+            'entity_id' => $action_user->id,
+            'entity' => $action_user->name,
+            'description' => $footprint
+        ]);
+        
+        return response()->json(['success'=>'File added successfully.']);
+
+    }
+
+    public function user_files_index(Request $request, User $user)
+    {
+        if ($request->ajax()) {
+
+            $data = UserFiles::leftJoin('users as u', 'user_files.user_id', '=', 'u.id')
+                ->where('user_id', $user->id)
+                ->selectRaw('user_files.id, user_files.name, description, image_path')
+                ->get();
+
+            return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('image_path', function($row){
+
+                        return "<a href=".url('user_files/'.$row->image_path)." target='_blank'><img src=".url('user_files/'.$row->image_path)." width='50' height='50'></a>";
+                    })
+                    ->addColumn('action', function($row){
+                        $btn = ' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteUserFile">Delete</a>';
+
+                        return $btn;
+                    })
+                    ->rawColumns(['action', 'image_path'])
+                    ->make(true);
+        }
+
+        return view('users.index');
+
+    }
+
+    public function user_files_delete(Request $request, UserFiles $file)
+    {
+
+        $d = UserFiles::find($file->id);
+        $d->delete();
+        
+        File::delete('user_files/'.$d->image_path);
+       
+        $action_user = User::find($d->user_id);
+        $user = Auth::user();
+
+        $footprint = "$user->name deleted the file of $action_user->name with name $d->name";
+
+        AdminFootprint::create([
+            'user_id' => $user->id,
+            'action_type' => 'delete',
+            'entity_id' => $action_user->id,
+            'entity' => $action_user->name,
+            'description' => $footprint
+        ]);
+
+        return response()->json(['success'=>'Deleted successfully.']);
     }
 
     public function edit($id)
