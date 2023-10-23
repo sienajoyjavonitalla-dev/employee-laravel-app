@@ -129,9 +129,15 @@ class UsersController extends Controller
              if (!file_exists($path)) {
                  mkdir($path, 0775, true);
              }
-             $file= $request->file('image_path');
-             $userfilename= date('YmdHis').$file->getClientOriginalName();
-             $file->move($path, $userfilename);
+            $file= $request->file('image_path');
+             
+            $originalFilename = $file->getClientOriginalName();
+
+            // Remove spaces from the original filename
+            $originalFilenameWithoutSpaces = str_replace(' ', '', $originalFilename);
+             
+            $userfilename = date('YmdHis') . $originalFilenameWithoutSpaces;
+            $file->move($path, $userfilename);
         } 
         
         // Save the record to the database
