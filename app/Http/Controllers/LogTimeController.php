@@ -394,7 +394,7 @@ class LogTimeController extends Controller
                 mkdir($path, 0775, true);
             }
             $file= $request->file('timesheet');
-            $filename= date('YmdHi').$file->getClientOriginalName();
+            $filename= date('YmdHis').$file->getClientOriginalName();
             $file->move($path, $filename);
 
             // zip files
@@ -517,6 +517,25 @@ class LogTimeController extends Controller
                 if($request->authorized) {
                     $found_tl->authorized = $request->authorized;
                 }
+
+                if($request->file('timesheet')){
+                    $path = public_path().'/timesheets/'.$request->job_id;
+                    
+                    //delete the old file
+                    if($found_tl->timesheet) {
+                        File::delete($path.'/'.$found_tl->timesheet);
+                    }
+
+                    //make a directory for the timesheets and save
+                    if (!file_exists($path)) {
+                        mkdir($path, 0775, true);
+                    }
+
+                    $file= $request->file('timesheet');
+                    $filename= date('YmdHis').$file->getClientOriginalName();
+                    $file->move($path, $filename);
+                    $found_tl->timesheet = $filename;
+                } 
            
                 $found_tl->lunch_break = $request->lunch_break;
                 $found_tl->notes = $request->notes;
@@ -546,6 +565,27 @@ class LogTimeController extends Controller
                 if($request->authorized) {
                     $found_tl->authorized = $request->authorized;
                 }
+
+                //timesheet
+                if($request->file('timesheet')){
+                    $path = public_path().'/timesheets/'.$request->job_id;
+                    
+                    //delete the old file
+                    if($found_tl->timesheet) {
+                        File::delete($path.'/'.$found_tl->timesheet);
+                    }
+
+                    //make a directory for the timesheets and save
+                    if (!file_exists($path)) {
+                        mkdir($path, 0775, true);
+                    }
+
+                    $file= $request->file('timesheet');
+                    $filename= date('YmdHis').$file->getClientOriginalName();
+                    $file->move($path, $filename);
+                    $found_tl->timesheet = $filename;
+         
+                } 
                
                 $found_tl->lunch_break = $request->lunch_break;
                 $found_tl->notes = $request->notes;

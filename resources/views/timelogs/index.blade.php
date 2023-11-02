@@ -154,7 +154,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="timesheet" class="col-sm-6 control-label">Timesheet</label>
+                        <label for="timesheet" class="col-sm-6 control-label">Attachment</label>
                         <div class="col-sm-12">
                             <input type="file" id="timesheet" name="timesheet" value="">
                         </div>

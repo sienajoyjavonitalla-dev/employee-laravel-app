@@ -123,6 +123,20 @@
                             <textarea id="notes" name="notes" class="form-control" value="{{$clock_in ? $clock_in->notes : '' }}">{{$clock_in ? $clock_in->notes : '' }}</textarea>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="timesheet" class="col-sm-6 control-label">Timesheet</label>
+                        <div class="col-sm-12">
+                            <input type="file" class="form-control" id="timesheet" name="timesheet" value="" >
+                        </div>
+                    </div>
+                   
+                    @if($clock_in->timesheet)
+                        <div class="form-group col-sm-10">Uploaded file: 
+                            <a href="{{url('timesheets/'.$clock_in->job_id.'/'.$clock_in->timesheet)}}" target='_blank'>{{$clock_in->timesheet}}</a>
+                        </div>
+                    @else
+                        No attachments for this job yet.
+                    @endif
                     <div class="col-sm-10 mt-3 pt-5">
                         <!-- <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save</button> -->
                     </div>
@@ -230,7 +244,6 @@
 
 
         $('#saveBtn').click(function (e) {
-
             e.preventDefault(); 
             var formData = new FormData($('#timelogForm')[0]);
 
