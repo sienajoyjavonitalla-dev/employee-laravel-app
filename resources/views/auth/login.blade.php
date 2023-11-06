@@ -30,16 +30,17 @@
 
                             <div class="col-md-8">
                                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
-
                                 @error('password')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
+                                <input type="checkbox" id="showPassword"> Show Password
+
                             </div>
                         </div>
 
-                        <div class="row pt-2 pl-1">
+                        <!-- <div class="row pt-2 pl-1">
                             <div class="col-md-6"></div>
                             <div class="col-md-6">
                                 <div class="form-check">
@@ -50,7 +51,7 @@
                                     </label>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
 
                         <div class="row mt-4">
                             <div class="col-md-4">
@@ -76,4 +77,17 @@
         </div>
     </div>
 </div>
+@endsection
+@section('scripts')
+<script>
+    $(document).ready(function() {
+        $('#showPassword').change(function() {
+            if ($(this).is(':checked')) {
+                $('#password').attr('type', 'text');
+            } else {
+                $('#password').attr('type', 'password');
+            }
+        });
+    });
+</script>
 @endsection
