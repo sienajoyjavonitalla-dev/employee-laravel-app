@@ -136,8 +136,44 @@
                         </li>
                     </ul>
                 </li>
+
+                <li class="nav-item admin-only has-treeview {{ (request()->is('banks') || request()->is('users') || request()->is('footprints')) ? ' menu-open' : '' }}">
+                    <a class="nav-link {{ (request()->is('banks') || request()->is('users') || request()->is('footprints'))? ' active' : '' }}" href="#">
+                        <i class="fa-fw fas fa-user-ninja"></i>
+                        <p>
+                            <span> Admin </span>
+                            <i class="right fa fa-plus"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview pl-4">
+                        <li class="nav-item admin-only">
+                            <a href="/users" class="nav-link  {{ request()->is('users') ? 'active' : '' }}">
+                                <i class="fas fa-users nav-icon"></i>
+                                <p>Users</p>
+                            </a>
+                        </li>
+                        <li class="nav-item admin-only">
+                            <a href="/banks" class="nav-link  {{ request()->is('banks') ? 'active' : '' }}">
+                                <i class="fas fa-landmark nav-icon"></i>
+                                <p>Bank Details</p>
+                            </a>
+                        </li>
+                        <li class="nav-item admin-only">
+                            <a href="/footprints" class="nav-link  {{ request()->is('footprints') ? 'active' : '' }}">
+                                <i class="fas fa-database nav-icon"></i>
+                                <p>Footprints</p>
+                            </a>
+                        </li>
+                        <li class="nav-item admin-only">
+                            <a href="/notes" class="nav-link  {{ request()->is('notes') ? 'active' : '' }}">
+                                <i class="fas fa-database nav-icon"></i>
+                                <p>Sticky Notes</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 
-                <li class="nav-item admin-only">
+                <!-- <li class="nav-item admin-only">
                     <a href="/banks" class="nav-link  {{ request()->is('banks') ? 'active' : '' }}">
                         <i class="fas fa-landmark nav-icon"></i>
                         <p>Bank Details</p>
@@ -156,7 +192,7 @@
                         <i class="fas fa-database nav-icon"></i>
                         <p>Footprints</p>
                     </a>
-                </li>
+                </li> -->
 
                 @endif
 

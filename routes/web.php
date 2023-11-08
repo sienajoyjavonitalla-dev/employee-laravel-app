@@ -89,3 +89,6 @@ Route::post('pusher/broadcast', 'App\Http\Controllers\PusherController@broadcast
 Route::get('footprints', 'App\Http\Controllers\AdminFootprintController@index')->name('admin.footprint');
 
 Route::get('/testpostmark', 'App\Http\Controllers\AdminFootprintController@testPostmark');
+
+#notes
+Route::resource('notes', App\Http\Controllers\NoteController::class);
