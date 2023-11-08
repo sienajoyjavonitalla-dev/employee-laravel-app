@@ -166,7 +166,7 @@
                         </li>
                         <li class="nav-item admin-only">
                             <a href="/notes" class="nav-link  {{ request()->is('notes') ? 'active' : '' }}">
-                                <i class="fas fa-database nav-icon"></i>
+                                <i class="fas fa-thumbtack nav-icon"></i>
                                 <p>Sticky Notes</p>
                             </a>
                         </li>
