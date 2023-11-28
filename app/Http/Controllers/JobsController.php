@@ -116,7 +116,7 @@ class JobsController extends Controller
                     $data = $data->where('tl.job_id', $request->job_id);
                 }
 
-                $data = $data->selectRaw('jobs.id, ja.job_title, po_number, ja.assigned_id, tl.job_id, tl.start_time, tl.end_time, date, client_id, company_name, rate_per_hour, other_rate_per_hour, ot_rate_per_hour, lunch_break');
+                $data = $data->selectRaw('jobs.id, ja.job_title, po_number, tl.assigned_id, tl.job_id, tl.start_time, tl.end_time, date, client_id, company_name, rate_per_hour, other_rate_per_hour, ot_rate_per_hour, lunch_break');
                 // dd($data->toSql());
                 return Datatables::of($data)
                     ->addIndexColumn()
