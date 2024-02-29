@@ -216,7 +216,7 @@ body {
             </tr>
         </table>
         @php
-            $sub_ta = $subtotal + ($dataArr['data']->count() * 50);
+            $sub_ta = $subtotal + ($dataArr['data']->count() * $dataArr['first']->travel_allowance);
             $tax = 0;
 
             if($dataArr['first']->gst == 1) {
