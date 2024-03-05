@@ -109,6 +109,14 @@
                             <input type="text" class="form-control" id="ot_rate_per_hour" name="ot_rate_per_hour" value="" required="">
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="other_ot_rate_per_hour" class="col-sm-6 control-label">Other OT Rate</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="other_ot_rate_per_hour" name="other_ot_rate_per_hour" value="" required="">
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="holiday_rate" class="col-sm-6 control-label">Holiday Rate</label>
                         <div class="col-sm-12">
@@ -186,6 +194,7 @@
           $('#rate_per_hour').val(data.rate_per_hour);
           $('#other_rate_per_hour').val(data.other_rate_per_hour);
           $('#ot_rate_per_hour').val(data.ot_rate_per_hour);
+          $('#other_ot_rate_per_hour').val(data.other_ot_rate_per_hour);
           $('#abn').val(data.abn);
           $('#company_name').val(data.company_name);
           $('#travel_allowance').val(data.travel_allowance);

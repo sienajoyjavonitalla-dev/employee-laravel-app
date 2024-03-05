@@ -101,6 +101,13 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="other_ot_rate_per_hour" class="col-sm-6 control-label">Other OT Rate</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="other_ot_rate_per_hour" name="other_ot_rate_per_hour" value="" maxlength="50" >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="travel_allowance" class="col-sm-6 control-label">Travel Allowance</label>
                         <div class="col-sm-12">
                             <input type="text" class="form-control" id="travel_allowance" name="travel_allowance" value="" maxlength="50">
@@ -333,6 +340,7 @@
           $('#rate_per_hour').val(data.rate_per_hour);
           $('#other_rate_per_hour').val(data.other_rate_per_hour);
           $('#ot_rate_per_hour').val(data.ot_rate_per_hour);
+          $('#other_ot_rate_per_hour').val(data.other_ot_rate_per_hour);
           $('#travel_allowance').val(data.travel_allowance);
           $('#gst').val(data.gst);
 

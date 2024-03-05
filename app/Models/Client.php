@@ -12,6 +12,7 @@ class Client extends Model
         'rate_per_hour',
         'other_rate_per_hour',
         'ot_rate_per_hour',
+        'other_ot_rate_per_hour',
         'abn',
         'company_name',
         'travel_allowance',

@@ -286,6 +286,7 @@ class ClientsController extends Controller
                         'rate_per_hour' => $request->rate_per_hour,
                         'other_rate_per_hour' => $request->other_rate_per_hour,
                         'ot_rate_per_hour' => $request->ot_rate_per_hour,
+                        'other_ot_rate_per_hour' => $request->other_ot_rate_per_hour,
                         'company_name' => $request->company_name,
                         'travel_allowance' => $request->travel_allowance,
                         'holiday_rate' => $request->holiday_rate
