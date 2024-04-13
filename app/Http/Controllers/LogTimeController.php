@@ -63,7 +63,11 @@ class LogTimeController extends Controller
                 $data = $data->where('j.id', $request->job);
             }
 
-            $data = $data->selectRaw('tl.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.notes, tl.timesheet, tl.job_id, tl.start_time, tl.end_time, date, 
+            if ($request->filled('type')) {
+                $data = $data->where('j.type', $request->type);
+            }
+
+            $data = $data->selectRaw('tl.id, j.address, j.type, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.notes, tl.timesheet, tl.job_id, tl.start_time, tl.end_time, date, 
             client_id, company_name, u.rate_per_hour, u.other_rate_per_hour, u.ot_rate_per_hour, lunch_break, tl.subbies_invoice_id')->orderBy('tl.job_id');
 
             return Datatables::of($data)
@@ -321,8 +325,13 @@ class LogTimeController extends Controller
         if ($request->filled('job')) {
             $data = $data->where('j.id', $request->job);
         }
-        $data = $data->selectRaw('j.id, j.address, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.authorized, tl.notes, tl.timesheet, tl.job_id, tl.start_time, tl.end_time, date, 
-            client_id, company_name, u.rate_per_hour, u.other_rate_per_hour, u.ot_rate_per_hour, lunch_break')->orderBy('date');
+
+        if ($request->filled('type')) {
+            $data = $data->where('j.type', $request->type);
+        }
+
+        $data = $data->selectRaw('j.id, j.address, j.description, ja.job_title, ja.assigned_id, u.name, tl.signature, tl.authorized, tl.notes, tl.timesheet, tl.job_id, tl.start_time, tl.end_time, date, 
+            client_id, company_name, u.rate_per_hour, u.other_rate_per_hour, u.ot_rate_per_hour, lunch_break, type, u.abn')->orderBy('date');
 
         // dd($data->get());
         $data = $data->get();
@@ -331,11 +340,18 @@ class LogTimeController extends Controller
             'first' => $first,
             'data' => $data,
         );
-        
         $pdf = \App::make('dompdf.wrapper');
-        $pdf =PDF::loadView('timelogs.timesheet_pdf',compact('dataArr'));
-        return $pdf->stream('timesheet.pdf');
-        // return view('timelogs.timesheet_pdf', compact('dataArr'));
+        
+        if($request->type == 'mobile') {
+            $pdf =PDF::loadView('timelogs.mobile_timesheet_pdf',compact('dataArr'));
+            $view = 'timelogs.mobile_timesheet_pdf';
+        } else {
+            $pdf =PDF::loadView('timelogs.timesheet_pdf',compact('dataArr'));
+            $view = 'timelogs.timesheet_pdf';
+        }
+
+        // return $pdf->stream('timesheet.pdf');
+        return view($view, compact('dataArr'));
 
     }
     public function signature()

@@ -55,6 +55,16 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="type" class="col-sm-6 control-label">Type</label>
+                        <div class="col-sm-12">
+                            <select class="form-control" name="type" id="type" required="">
+                                <option value="tower">Tower</option>
+                                <option value="mobile">Mobile</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label class="col-sm-6 control-label">Description</label>
                         <div class="col-sm-12">
                             <textarea id="description" name="description" class="form-control"></textarea>
@@ -316,7 +326,7 @@
           $('#start_time').val(data.start_time);
           $('#end_time').val(data.end_time);
           $('#existingTimesheet').val(data.timesheet);
-
+          $('#type').val(data.type);
       })
 
     });

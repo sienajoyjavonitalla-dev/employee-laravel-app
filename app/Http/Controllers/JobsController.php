@@ -412,7 +412,8 @@ class JobsController extends Controller
                     'end_date_time' => $request->end_date_time,
                     'start_time' => $request->start_time,
                     'end_time' => $request->end_time,
-                    'timesheet' => $filename
+                    'timesheet' => $filename,
+                    'type' => $request->type
                 ]
             );
 

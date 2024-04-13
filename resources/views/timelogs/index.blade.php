@@ -50,9 +50,26 @@
             </div>
             
         </div>
+
+        <div class="row mt-3">
+            <div class="col-lg-6">
+                <strong>Job Type </strong>
+                <select name="type" id="type">
+                    <option value="tower">Tower</option>
+                    <option value="mobile">Mobile</option>
+                </select>
+            </div>
+            <div class="col-lg-6">
+            </div>
+            
+        </div>
         <br/>
             @if(auth()->user()->roles == 'admin')
             <a href="javascript:void(0)" class="btn btn-danger generate" id="generate_btn"><i class="fas fa-print"></i> Generate Timesheet</a>
+            <!-- <a href="javascript:void(0)" style="display: none;" class="btn btn-warning generate-docket" id="generate_docket_btn"><i class="fas fa-print"></i> Generate Docket</a> -->
+            <button type="button" style="display: none;"  class="btn btn-warning generate-docket" id="generate_docket_btn" data-toggle="modal" data-target="#infoModal">
+                <i class="fas fa-print"></i> Generate Docket
+            </button>
             @endif
         <a class="btn btn-success mt-4 mb-4" href="javascript:void(0)" id="createNewTimeLog"> Create New TimeLog</a>
         @endif
@@ -185,11 +202,36 @@
         </div>
     </div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="infoModalLabel">Instructions</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ol>
+            <li>Ensure that all start time and end time of operator and dogmen are the same.</li>
+            <li>It is recommended to use Google Chrome as your browser.</li>
+            <li>If you wish to save the page, press <strong>CTRL+P</strong>, then select 'Save as PDF' as the destination, and click Save.</li>
+        </ol>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="okButton">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
 @stop
 
 @section('scripts')
 <script type="text/javascript">
   $(function () {
+    $("#type").val("tower");
 
     $.ajaxSetup({
           headers: {
@@ -204,9 +246,9 @@
 
     load_data($('input[name="daterange"]').data('daterangepicker').startDate.format('YYYY-MM-DD'), 
         $('input[name="daterange"]').data('daterangepicker').endDate.format('YYYY-MM-DD'), 
-        null,null,null);
+        null,null,null, 'tower');
 
-    function load_data(from_date, to_date, client, job, assigned) {
+    function load_data(from_date, to_date, client, job, assigned, type) {
 
         var table = $('.data-table').DataTable({
             processing: true,
@@ -221,6 +263,7 @@
                     client: client,
                     job:job,
                     assigned: assigned,
+                    type:type
                 }
             },
             columns: [
@@ -256,6 +299,7 @@
         var client = $('#client').val();
         var job = $('#job').val();
         var assigned = $('#assigned').val();
+        var type = $('#type').val();
 
         if(from_date != '' &&  to_date != '')
         {
@@ -279,6 +323,38 @@
         
         var encoded = encodeURI(uri);
         window.location.href=encoded;
+      
+    })
+
+    $("#type").change(function() {
+        var selectedValue = $(this).val();
+        var docket_btn = $("#generate_docket_btn");
+
+        // If 'Mobile' is selected, hide the div; otherwise, show it
+        if (selectedValue === "mobile") {
+            docket_btn.show();
+        } else {
+            docket_btn.hide();
+        }
+
+        $(".filter").click();
+    });
+
+    $('#okButton').click(function (e) {
+        
+        var from_date = ($('input[name="daterange"]').data('daterangepicker').startDate.format('YYYY-MM-DD'));
+        var to_date = ($('input[name="daterange"]').data('daterangepicker').endDate.format('YYYY-MM-DD'));
+        var client = $('#client').val();
+        var job = $('#job').val();
+        var assigned = $('#assigned').val();
+        var type = $('#type').val();
+
+        var uri = "/generateTimesheet?assigned="+ assigned +"&job="+job+"&from_date="+from_date+"&to_date="+to_date+"&type="+type;
+        
+        var encoded = encodeURI(uri);
+        window.location.href=encoded;
+           
+        
       
     })
 
