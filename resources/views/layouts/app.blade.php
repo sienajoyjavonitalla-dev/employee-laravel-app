@@ -37,8 +37,22 @@
             @elseif(Session::has('success'))
                 toastr.success('{{ Session::get('success') }}');
             @endif
-        });
 
+            // Sidebar submenu toggle: submenus start open; click parent to collapse/expand
+            $(document).on('click', '.main-sidebar .has-treeview > .nav-link', function(e) {
+                if (this.getAttribute('href') === '#' || this.getAttribute('href') === '') {
+                    e.preventDefault();
+                    $(this).closest('.has-treeview').toggleClass('menu-closed');
+                }
+            });
+
+            // Pushmenu (hamburger): collapse/expand sidebar
+            // We toggle the body class directly to avoid relying on AdminLTE init.
+            $(document).on('click', '[data-widget="pushmenu"]', function(e) {
+                e.preventDefault();
+                $('body').toggleClass('sidebar-collapse');
+            });
+        });
     </script>
     @yield('scripts')
 
@@ -47,16 +61,13 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
-    <!-- Styles -->
+    <!-- Styles: AdminLTE before app.css so sidebar/navbar styles aren't overridden by Bootstrap 5 -->
+    <link rel="stylesheet" href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/adminlte/dist/css/adminlte.min.css') }}">
     <link href="{{ asset('css/app.css?v=').time() }}" rel="stylesheet">
     <link href="{{ asset('css/custom.css?v=').time() }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.0/css/toastr.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('vendor/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('vendor/adminlte/dist/css/adminlte.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('vendor/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('vendor/adminlte/dist/css/adminlte.min.css') }}">
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" /> -->
     <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet">
@@ -80,56 +91,64 @@
     @yield('styles')
 
 </head>
-<body class="wrapper">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
+    <div class="wrapper">
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+            </ul>
 
-    <!-- Navbar -->
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-            </li>
-        </ul>
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Messages Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#">
+                        <i class="far fa-comments"></i>
+                        <span class="badge badge-danger navbar-badge"></span>
+                    </a>
+                </li>
+                <!-- Notifications Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#">
+                        <i class="far fa-bell"></i>
+                        <span class="badge badge-warning navbar-badge"></span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.navbar -->
 
-        <!-- Right navbar links -->
-        <ul class="navbar-nav ml-auto">
-            <!-- Messages Dropdown Menu -->
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="far fa-comments"></i>
-                    <span class="badge badge-danger navbar-badge"></span>
-                </a>
-            </li>
-            <!-- Notifications Dropdown Menu -->
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="far fa-bell"></i>
-                    <span class="badge badge-warning navbar-badge"></span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-    <!-- /.navbar -->
-
-
-    <div id="app">
         @guest
-        <main class="">
-            @yield('content')
-        </main>
+        <div class="content-wrapper" style="margin-left: 0;">
+            <div class="content-header"></div>
+            <div class="content">
+                <div class="container-fluid">
+                    @yield('content')
+                </div>
+            </div>
+        </div>
         @else
-        
         @include('layouts.menu')
-        
 
-        <main class="content-wrapper">
-          @yield('content_header')
-
-          @yield('content')
-        </main>
+        <div class="content-wrapper">
+            @hasSection('content_header')
+            <div class="content-header">
+                @yield('content_header')
+            </div>
+            @endif
+            <div class="content">
+                <div class="container-fluid">
+                    @yield('content')
+                </div>
+            </div>
+        </div>
         @endguest
-
     </div>
-    
+    <!-- ./wrapper -->
+
     @stack('scripts')
 </body>
 

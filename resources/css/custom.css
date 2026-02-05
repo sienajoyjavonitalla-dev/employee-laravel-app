@@ -1,3 +1,191 @@
+/* AdminLTE navbar & layout fixes (Bootstrap 4/5 compatibility) */
+.wrapper {
+    position: relative;
+    overflow-x: hidden;
+}
+
+.main-header.navbar {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100%;
+    min-height: 57px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.main-header .navbar-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.main-header .navbar-nav.ml-auto {
+    margin-left: auto !important;
+}
+
+.main-header .navbar-nav .nav-link {
+    padding: 0.5rem 0.75rem;
+}
+
+.content-wrapper {
+    min-height: calc(100vh - 57px);
+    margin-left: 250px;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+.sidebar-mini .content-wrapper {
+    margin-left: 250px;
+}
+
+/* Pushmenu collapse (mini sidebar icons-only) */
+body.sidebar-collapse .main-sidebar {
+    width: 4.6rem !important;
+}
+
+body.sidebar-collapse .content-wrapper {
+    margin-left: 4.6rem !important;
+}
+
+body.sidebar-collapse .main-sidebar .nav-sidebar .nav-link {
+    justify-content: center;
+}
+
+body.sidebar-collapse .main-sidebar .nav-sidebar .nav-link p,
+body.sidebar-collapse .main-sidebar .nav-treeview,
+body.sidebar-collapse .main-sidebar .user-panel .info {
+    display: none !important;
+}
+
+body.sidebar-collapse .main-sidebar .brand-link {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+}
+
+@media (max-width: 991.98px) {
+    .content-wrapper {
+        margin-left: 0;
+    }
+}
+
+/* Sidebar: force AdminLTE sidebar layout (fixes Bootstrap 5 overrides) */
+.main-sidebar {
+    position: fixed !important;
+    top: 57px !important;
+    left: 0 !important;
+    z-index: 1030 !important;
+    width: 250px !important;
+    min-height: calc(100vh - 57px) !important;
+    background-color: #343a40 !important;
+    transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+    box-shadow: 3px 0 6px rgba(0, 0, 0, .1);
+}
+
+.main-sidebar .brand-link {
+    display: block;
+    padding: 1rem;
+    color: #fff;
+    text-decoration: none;
+}
+
+.main-sidebar .brand-link:hover {
+    color: rgba(255, 255, 255, .8);
+}
+
+.main-sidebar .sidebar {
+    height: calc(100vh - 57px - 52px);
+    overflow-y: auto;
+    padding-bottom: 1rem;
+}
+
+.main-sidebar .nav-sidebar {
+    flex-direction: column !important;
+}
+
+.main-sidebar .nav-sidebar .nav-item {
+    width: 100%;
+    display: block;
+}
+
+.main-sidebar .nav-sidebar .nav-link {
+    display: flex !important;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    color: rgba(255, 255, 255, .8);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+}
+
+.main-sidebar .nav-sidebar .nav-link:hover,
+.main-sidebar .nav-sidebar .nav-link.active {
+    color: #fff;
+    background: rgba(255, 255, 255, .1);
+}
+
+.main-sidebar .nav-sidebar .nav-link.active {
+    border-left-color: #007bff;
+}
+
+.main-sidebar .nav-sidebar .nav-link p {
+    margin: 0 0 0 0.5rem;
+    flex: 1;
+    display: inline-block;
+}
+
+.main-sidebar .nav-sidebar .nav-icon {
+    width: 1.6rem;
+    text-align: center;
+}
+
+/* Treeview submenus: vertical list, indented */
+.main-sidebar .nav-treeview {
+    display: block !important;
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.main-sidebar .nav-treeview .nav-item {
+    display: block !important;
+}
+
+.main-sidebar .nav-treeview .nav-link {
+    padding-left: 2rem;
+    color: #fff !important;
+}
+
+.main-sidebar .nav-treeview .nav-link p {
+    color: #fff !important;
+}
+
+/* Submenus open by default; only hide when parent has .menu-closed (toggled on click) */
+.main-sidebar .has-treeview>.nav-treeview {
+    display: block !important;
+}
+
+.main-sidebar .has-treeview.menu-closed>.nav-treeview {
+    display: none !important;
+}
+
+.main-sidebar .has-treeview>.nav-link {
+    cursor: pointer;
+}
+
+.main-sidebar .nav-treeview .nav-link {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.main-sidebar .user-panel {
+    border-bottom: 1px solid #4b545c;
+    padding: 0.75rem 1rem;
+}
+
+.main-sidebar .user-panel .info a {
+    color: rgba(255, 255, 255, .8);
+    text-decoration: none;
+}
+
 .fc-event-main {
     padding: 2px;
     overflow: hidden;
@@ -23,11 +211,12 @@
     margin-left: 0.5em;
 }
 
-.invoice-link > a, .invoice-link > a:hover{
+.invoice-link>a,
+.invoice-link>a:hover {
     color: #FFF;
 }
 
-.row{
+.row {
     width: 98%;
 }
 

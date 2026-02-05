@@ -19,7 +19,7 @@
             @endif
         </div>
     </div>
-    <div class="row" style="width: 100%;">
+    <div class="row justify-content-center w-100">
         <!-- <div class="form-group">
             <label for="job" class="col-sm-6 control-label">Select a Job to Clock In</label>
             <div class="col-sm-12">
@@ -31,7 +31,7 @@
                 </select>
             </div>
         </div> -->
-        <div class="input-group mb-3">
+        <div class="input-group mb-3 w-50">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1">Select a Job</span>
             </div>

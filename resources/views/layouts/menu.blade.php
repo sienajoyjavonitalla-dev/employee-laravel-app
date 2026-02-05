@@ -1,10 +1,11 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar main-sidebar-custom sidebar-dark-primary elevation-4 sidebar-wrapper">
     <!-- Brand Logo -->
-    <a href="/timeclock" class="brand-link">
-        <img src="favicon.ico" alt="uprise Logo" class="brand-image img-circle">
-        <span class="brand-text font-weight-light">Uprise Rigging Pty Ltd.</span>
-    </a>
+    <div class="d-flex">
+        <a href="/timeclock" class="text-center">
+            <img src="favicon.ico" alt="uprise Logo" class="brand-image img-circle w-50">
+        </a>
+    </div>
 
     <!-- Sidebar -->
     <div class="sidebar">

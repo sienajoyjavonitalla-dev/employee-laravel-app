@@ -251,6 +251,11 @@ class ClientsController extends Controller
             }
 
             $a = XeroToken::latest()->first();
+            if (!$a || empty($a->access_token)) {
+                return response()->json([
+                    'error' => 'Xero is not connected. Please connect your Xero account first.'
+                ], 422);
+            }
             // dd(json_encode($body));
             $gclient = new GClient();
             $response= $gclient->request('POST', 'https://api.xero.com/api.xro/2.0/Contacts', [
