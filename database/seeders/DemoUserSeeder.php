@@ -15,11 +15,8 @@ class DemoUserSeeder extends Seeder
      */
     public function run()
     {
-        User::query()->delete();
-
-        User::create([
+        $attrs = [
             'name' => 'Demo Admin',
-            'email' => 'siena@admin.com',
             'password' => Hash::make('admin123'),
             'roles' => 'admin',
             'abn' => null,
@@ -29,6 +26,11 @@ class DemoUserSeeder extends Seeder
             'other_ot_rate_per_hour' => null,
             'travel_allowance' => null,
             'gst' => null,
-        ]);
+        ];
+
+        User::updateOrCreate(
+            ['email' => 'siena@admin.com'],
+            $attrs
+        );
     }
 }

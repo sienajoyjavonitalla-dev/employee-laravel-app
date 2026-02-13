@@ -56,11 +56,9 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        // Ensure demo user exists (e.g. if seed failed on first cold start)
+        // Ensure demo user exists with correct password (siena@admin.com / admin123)
         try {
-            if (\App\Models\User::where('email', 'siena@admin.com')->doesntExist()) {
-                \Artisan::call('db:seed', ['--class' => 'DemoUserSeeder', '--force' => true]);
-            }
+            \Artisan::call('db:seed', ['--class' => 'DemoUserSeeder', '--force' => true]);
         } catch (\Throwable $e) {
             report($e);
         }
