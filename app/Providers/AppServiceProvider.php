@@ -41,15 +41,28 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $dbPath = env('DB_DATABASE');
-        if (env('DB_CONNECTION') === 'sqlite' && $dbPath === '/tmp/database.sqlite' && ! file_exists($dbPath)) {
+        if (env('DB_CONNECTION') !== 'sqlite' || $dbPath !== '/tmp/database.sqlite') {
+            return;
+        }
+
+        if (! file_exists($dbPath)) {
             @touch($dbPath);
             try {
                 \Artisan::call('migrate', ['--force' => true]);
                 \Artisan::call('db:seed', ['--class' => 'DemoUserSeeder', '--force' => true]);
             } catch (\Throwable $e) {
-                // Log but do not break the request (e.g. first deploy before migrations)
                 report($e);
             }
+            return;
+        }
+
+        // Ensure demo user exists (e.g. if seed failed on first cold start)
+        try {
+            if (\App\Models\User::where('email', 'siena@admin.com')->doesntExist()) {
+                \Artisan::call('db:seed', ['--class' => 'DemoUserSeeder', '--force' => true]);
+            }
+        } catch (\Throwable $e) {
+            report($e);
         }
     }
 }
