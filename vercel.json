@@ -8,11 +8,6 @@
     { "src": "/(css|js|images|fonts)/(.*)", "dest": "public/$1/$2" },
     { "src": "/(.*)", "dest": "api/index.php" }
   ],
-  "functions": {
-    "api/index.php": {
-      "excludeFiles": "{tests,node_modules,.git,storage/logs,storage/framework/cache,storage/framework/sessions,storage/framework/views}/**"
-    }
-  },
   "env": {
     "COMPOSER_NO_DEV": "1",
     "APP_ENV": "production",
