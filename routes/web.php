@@ -18,7 +18,7 @@ use App\Http\Controllers\LogTimeController;
 |
 */
 
-Route::redirect('/', '/login');
+Route::redirect('/', '/home');
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
