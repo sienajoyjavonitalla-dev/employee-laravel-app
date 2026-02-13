@@ -10,12 +10,11 @@
         "guzzlehttp/guzzle": "^7.7",
         "jeroennoten/laravel-adminlte": "^3.9",
         "laravel/framework": "^8.75",
-        "laravel/sanctum": "^2.11",
-        "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
         "yajra/laravel-datatables-oracle": "^9.21"
     },
     "require-dev": {
+        "laravel/tinker": "^2.5",
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
