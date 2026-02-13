@@ -10,8 +10,6 @@ use App\Models\AdminFootprint;
 use DataTables;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use GuzzleHttp\Client as GClient;
-use App\Models\XeroToken;
 
 class ClientsController extends Controller
 {
@@ -186,126 +184,43 @@ class ClientsController extends Controller
             }
             $action_type = "";
 
-            if( $isCreate ) {
-                $body = [
-                    'Contacts'=> [
-                      [ 
-                        'ContactStatus' => 'ACTIVE',
-                        'Name'=> $request->company_name,
-                        'IsCustomer' =>  'true',
-                        'Addresses'=> [
-                            [
-                                'AddressType'=> 'POBOX',
-                                'AddressLine1'=> $request->POBOX_AddressLine1,
-                                'City'=> $request->POBOX_City,
-                                'Region'=> $request->POBOX_Region,
-                                'PostalCode'=>$request->POBOX_PostalCode,
-                                'Country'=>$request->POBOX_Country,
-
-                            ]
-                        ],
-                        'Phones'=> [
-                            [
-                                'PhoneType'=> 'DEFAULT',
-                                'PhoneNumber'=> $request->PhoneNumber,
-                                'PhoneAreaCode'=> $request->PhoneAreaCode
-                            ]
-                        ]
-                      ]
-                    ]
-                ];
+            if ( $isCreate ) {
                 $action_type = "create";
                 $footprint = "$user->name created client $request->client_name";
             } else {
-                $cl = Client::where('id', $request->client_id)->first();
-                $body = [
-                    'Contacts'=> [
-                      [ 
-                        'ContactID' => $cl->ContactID,
-                        'ContactStatus' => 'ACTIVE',
-                        'Name'=> $request->company_name,
-                        'IsCustomer' =>  'true',
-                        'Addresses'=> [
-                            [
-                                'AddressType'=> 'POBOX',
-                                'AddressLine1'=> $request->POBOX_AddressLine1,
-                                'City'=> $request->POBOX_City,
-                                'Region'=> $request->POBOX_Region,
-                                'PostalCode'=>$request->POBOX_PostalCode,
-                                'Country'=>$request->POBOX_Country,
-
-                            ]
-                        ],
-                        'Phones'=> [
-                            [
-                                'PhoneType'=> 'DEFAULT',
-                                'PhoneNumber'=> $request->PhoneNumber,
-                                'PhoneAreaCode'=> $request->PhoneAreaCode
-                            ]
-                        ]
-                      ]
-                    ]
-                ];
                 $action_type = "update";
                 $footprint = "$user->name updated client $request->client_name";
             }
 
-            $a = XeroToken::latest()->first();
-            if (!$a || empty($a->access_token)) {
-                return response()->json([
-                    'error' => 'Xero is not connected. Please connect your Xero account first.'
-                ], 422);
-            }
-            // dd(json_encode($body));
-            $gclient = new GClient();
-            $response= $gclient->request('POST', 'https://api.xero.com/api.xro/2.0/Contacts', [
-                'headers' => [
-                    'Authorization' => 'Bearer '.$a->access_token,
-                    'Content-Type' => 'application/json',
-                    'xero-tenant-id' => env('XERO_TENANT_ID'),
-                    'Accept' => 'application/json'
-    
-                ],
-                'json' => $body
+            $client = Client::updateOrCreate(
+                ['id' => $request->client_id],
+                [
+                    'ContactStatus' => 'ACTIVE',
+                    'client_name' => $request->client_name,
+                    'Name' => $request->company_name,
+                    'POBOX_AddressLine1' => $request->POBOX_AddressLine1,
+                    'POBOX_City' => $request->POBOX_City,
+                    'POBOX_Region' => $request->POBOX_Region,
+                    'POBOX_PostalCode' => $request->POBOX_PostalCode,
+                    'POBOX_Country' => $request->POBOX_Country,
+                    'PhoneNumber' => $request->PhoneNumber,
+                    'PhoneAreaCode' => $request->PhoneAreaCode,
+                    'rate_per_hour' => $request->rate_per_hour,
+                    'other_rate_per_hour' => $request->other_rate_per_hour,
+                    'ot_rate_per_hour' => $request->ot_rate_per_hour,
+                    'other_ot_rate_per_hour' => $request->other_ot_rate_per_hour,
+                    'company_name' => $request->company_name,
+                    'travel_allowance' => $request->travel_allowance,
+                    'holiday_rate' => $request->holiday_rate
+                ]
+            );
+            AdminFootprint::create([
+                'user_id' => $user->id,
+                'action_type' => $action_type,
+                'entity_id' => $client->id,
+                'entity' => $client->company_name,
+                'description' => $footprint
             ]);
-    
-            $results = json_decode($response->getBody()->getContents());
-
-            if($response->getStatusCode() == 200) {
-                foreach($results->Contacts as $i) {
-                    $client = Client::updateOrCreate([
-                        'id' => $request->client_id
-                    ],
-                    [
-                        'ContactID' => $i->ContactID,
-                        'ContactStatus' => 'ACTIVE',
-                        'client_name' => $request->client_name,
-                        'Name' => $request->company_name,
-                        'POBOX_AddressLine1' => $request->POBOX_AddressLine1,
-                        'POBOX_City' => $request->POBOX_City,
-                        'POBOX_Region' => $request->POBOX_Region,
-                        'POBOX_PostalCode' => $request->POBOX_PostalCode,
-                        'POBOX_Country' => $request->POBOX_Country,
-                        'PhoneNumber' => $request->PhoneNumber,
-                        'PhoneAreaCode' => $request->PhoneAreaCode,
-                        'rate_per_hour' => $request->rate_per_hour,
-                        'other_rate_per_hour' => $request->other_rate_per_hour,
-                        'ot_rate_per_hour' => $request->ot_rate_per_hour,
-                        'other_ot_rate_per_hour' => $request->other_ot_rate_per_hour,
-                        'company_name' => $request->company_name,
-                        'travel_allowance' => $request->travel_allowance,
-                        'holiday_rate' => $request->holiday_rate
-                    ]);
-                }
-                AdminFootprint::create([
-                    'user_id' => $user->id,
-                    'action_type' => $action_type,
-                    'entity_id' => $client->id,
-                    'entity' => $client->company_name,
-                    'description' => $footprint
-                ]);
-            }
-            
         });
 
         return response()->json(['success'=>'Client saved successfully.']);

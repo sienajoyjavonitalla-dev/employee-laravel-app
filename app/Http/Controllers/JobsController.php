@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Jobs;
 use App\Models\Appointment;
-use App\Models\XeroToken;
 use App\Models\AdminFootprint;
 use DataTables;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +14,6 @@ use App\Models\LineItem;
 use App\Models\User;
 use App\Models\JobAssignee;
 use Carbon\Carbon;
-use GuzzleHttp\Client as GClient;
-use GuzzleHttp\TransferStats;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\JobCancelled;
@@ -619,193 +616,67 @@ class JobsController extends Controller
             ]);
         }
 
-        $body = [
-            'Invoices'=> [
-              [ 
-                'Type'=> 'ACCREC',
-                'Contact'=> [
-                  'ContactID'=> $client_details->ContactID
-                ],
-                'LineItems'=> $line_items,
-                'Date'=> Carbon::today()->toDateString(),
-                'DueDate'=> Carbon::today()->toDateString(),
-                'Reference'=> $job_details->po_number ?? '',
-                'Status'=> 'AUTHORISED'
-              ]
+        $subtotal = 0;
+        foreach ($line_items as $li) {
+            $subtotal += $li->LineAmount;
+        }
+        $local_invoice_id = 'local-' . $job_id . '-' . time();
+        $date_string = Carbon::today()->toDateString();
+
+        Invoice::updateOrCreate(
+            ['invoice_id' => $local_invoice_id],
+            [
+                'job_id' => $job_id,
+                'client_id' => $client_id,
+                'type' => 'ACCREC',
+                'invoice_number' => 'INV-' . $job_id . '-' . time(),
+                'amount_due' => $subtotal,
+                'amount_paid' => 0,
+                'date_string' => $date_string,
+                'duedate_string' => $date_string,
+                'status' => 'AUTHORISED',
+                'subtotal' => $subtotal,
+                'TotalTax' => 0,
+                'Total' => $subtotal,
+                'currency_code' => 'AUD',
+                'updated_date_utc' => now()->toIso8601String(),
+                'fully_paid_date_utc' => ''
             ]
-          ];
-        $a = XeroToken::latest()->first();
-        // dd(json_encode($body));
-        $client = new GClient();
-        $response= $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices', [
-            'headers' => [
-                'Authorization' => 'Bearer '.$a->access_token,
-                'Content-Type' => 'application/json',
-                'xero-tenant-id' => env('XERO_TENANT_ID'),
-                'Accept' => 'application/json'
+        );
 
-            ],
-            'json' => $body
-        ]);
-
-        $results = json_decode($response->getBody()->getContents());
-
-        if($response->getStatusCode() == 200) {
-            foreach($results->Invoices as $i) {
-
-                Invoice::updateOrCreate(['invoice_id' => $i->InvoiceID],
-                [
-                    'job_id' => $job_id,
-                    'client_id' => $client_id,
-                    'type' => $i->Type,
-                    'invoice_number' => $i->InvoiceNumber,
-                    'amount_due' => $i->AmountDue,
-                    'amount_paid' => $i->AmountPaid,
-                    'date_string' => $i->DateString,
-                    'duedate_string' => $i->DueDateString,
-                    'branding_theme_id' => $i->BrandingThemeID,
-                    'status' => $i->Status,
-                    'subtotal' => $i->SubTotal,
-                    'TotalTax' => $i->TotalTax,
-                    'Total' => $i->Total,
-                    'currency_code' => $i->CurrencyCode,
-                    'updated_date_utc' => $i->UpdatedDateUTC,
-                    'fully_paid_date_utc' => $i->FullyPaidOnDate ?? ''
-                ]);
-
-                foreach($results->Invoices[0]->LineItems as $l) {
-                    LineItem::updateOrCreate(['invoice_id' => $i->InvoiceID],
-                        [
-                            'job_id' => $job_id,
-                            'LineItemID' => $l->LineItemID,
-                            'Description'=> $l->Description,
-                            'UnitAmount'=> $l->UnitAmount,
-                            'TaxType'=> $l->TaxType ?? '',
-                            'TaxAmount'=> $l->TaxAmount,
-                            'LineAmount'=> $l->LineAmount,
-                            'Quantity'=> $l->Quantity
-                        ]
-                    );
-                }
-                $online_url_response= $client->request('GET', 'https://api.xero.com/api.xro/2.0/Invoices/'.$i->InvoiceID.'/OnlineInvoice', [
-                    'headers' => [
-                        'Authorization' => 'Bearer '.$a->access_token,
-                        'Content-Type' => 'application/json',
-                        'xero-tenant-id' => env('XERO_TENANT_ID'),
-                        'Accept' => 'application/json'
-        
-                    ]
-                ]);
-        
-                $res = json_decode($online_url_response->getBody()->getContents());
-                if($online_url_response->getStatusCode() == 200) {
-                    foreach($res->OnlineInvoices as $r) {
-                        Invoice::where('invoice_id', $i->InvoiceID)
-                            ->update(['invoice_url' => $r->OnlineInvoiceUrl]);
-                    }
-                    
-                }
-                //send attachments to xero
-                $this->sendAttachments($job_id, $i->InvoiceID, $job_details);
-
-            }
-
-            $user = Auth::user();
-
-            $footprint = "$user->name generated an invoice for job #$job_details->id";
-
-            AdminFootprint::create([
-                'user_id' => $user->id,
-                'action_type' => 'create',
-                'entity_id' => $job_details->id,
-                'description' => $footprint
+        foreach ($line_items as $idx => $l) {
+            LineItem::create([
+                'job_id' => $job_id,
+                'invoice_id' => $local_invoice_id,
+                'LineItemID' => $local_invoice_id . '-line-' . $idx,
+                'Description' => $l->Description,
+                'UnitAmount' => $l->UnitAmount,
+                'TaxType' => $l->TaxType ?? '',
+                'TaxAmount' => $l->TaxAmount ?? 0,
+                'LineAmount' => $l->LineAmount,
+                'Quantity' => $l->Quantity
             ]);
-
-            return response()->json(['success'=>'Invoice created successfully.']);
-
-        } else {
-            return response()->json(['error'=>'Error Creating Invoice']);
-
         }
 
+        $user = Auth::user();
+        $footprint = "$user->name generated an invoice for job #$job_details->id";
+        AdminFootprint::create([
+            'user_id' => $user->id,
+            'action_type' => 'create',
+            'entity_id' => $job_details->id,
+            'description' => $footprint
+        ]);
+
+        return response()->json(['success'=>'Invoice created successfully.']);
     }
 
     public function sendAttachments($job_id, $invoice_id, $job_details) {
-
-        // Path to the zip file
-        // $rarFilePath = public_path($job_id.'.zip');
-        $rarFilePath = public_path().'/job_timesheets/'.$job_id.'/'.$job_details->timesheet;
-
-        if(file_exists($rarFilePath)) {
-            $a = XeroToken::latest()->first();
-
-            // $filename = $job_id.'.zip';
-            $filename = $job_details->timesheet;
-            // $invoice_id = "2d916afe-5362-4cda-99bd-1ef05f7c5fec";
-
-            // Read the contents of the RAR file
-            $fileContents = file_get_contents($rarFilePath);
-
-            $body = [
-                $fileContents
-            ];
-
-            // Create a Guzzle HTTP client
-            $client = new GClient();
-
-            // Create a Guzzle HTTP request with the RAR file in the request body
-            $response = $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices/'.$invoice_id.'/Attachments/'.$filename,  [
-                'headers' => [
-                    'Authorization' => 'Bearer '.$a->access_token,
-                    'Content-Type' => 'application/octet-stream',
-                    'xero-tenant-id' => env('XERO_TENANT_ID'),
-                    'Accept' => 'application/json'
-                ],
-                'multipart' => [
-                    [
-                        'name'     => $job_id,
-                        'filename' => $filename,
-                        'contents' => fopen( $rarFilePath, 'r' ),
-                    ]
-                ]
-            ]);
-            $results = json_decode($response->getBody()->getContents());
-
-        }
+        // Xero removed: attachment upload disabled for demo
     }
 
     public function sendRequestWithRarFile()
     {
-        $a = XeroToken::latest()->first();
-
-        // Path to the RAR file
-
-        $rarFilePath = public_path('img\uprisee.rar');
-        $filename = 'uprisee.rar';
-        $invoice_id = "2d916afe-5362-4cda-99bd-1ef05f7c5fec";
-
-        // Read the contents of the RAR file
-        $fileContents = file_get_contents($rarFilePath);
-
-        $body = [
-            $fileContents
-          ];
-
-        // Create a Guzzle HTTP client
-        $client = new GClient();
-
-        // Create a Guzzle HTTP request with the RAR file in the request body
-        $request = $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices/'.$invoice_id.'/Attachments/'.$filename,  [
-            'headers' => [
-                'Authorization' => 'Bearer '.$a->access_token,
-                'Content-Type' => 'application/octet-stream',
-                'xero-tenant-id' => env('XERO_TENANT_ID'),
-                'Accept' => 'application/json'
-            ],
-            'form_params' => $body]);
-
-        $results = json_decode($response->getBody()->getContents());
-        dd($results);
+        // Xero removed: no-op for demo
     }
 
     public function edit($id)

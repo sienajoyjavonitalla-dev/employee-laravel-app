@@ -74,12 +74,6 @@ Route::get('userjobs', 'App\Http\Controllers\JobsController@user_jobs')->name('u
 Route::get('generatePDF', 'App\Http\Controllers\InvoiceController@generatePDF')->name('invoices.generate.pdf');
 Route::get('generateTimesheet', 'App\Http\Controllers\LogTimeController@generateTimesheet')->name('timelogs.generate.timesheet');
 
-# Xero
-Route::get('xero/authorize', 'App\Http\Controllers\XeroController@get_started')->name('xero.get_started');
-Route::get('xero/callback', 'App\Http\Controllers\XeroController@callback')->name('xero.callback');
-Route::get('xero/connections', 'App\Http\Controllers\XeroController@connections')->name('xero.connections');
-Route::get('xero/get_invoices', 'App\Http\Controllers\XeroController@get_invoices')->name('xero.get_invoices');
-
 # Pusher
 Route::get('pusher', 'App\Http\Controllers\PusherController@index')->name('pusher');
 Route::post('pusher/receive', 'App\Http\Controllers\PusherController@receive')->name('pusher.receive');

@@ -9,8 +9,6 @@ use App\Models\Invoice;
 use App\Models\User;
 use App\Models\BankDetails;
 use App\Models\TimeLog;
-use App\Models\XeroToken;
-use GuzzleHttp\Client as GClient;
 use App\Models\SubcontractorInvoice;
 use DataTables;
 use Carbon\Carbon;
@@ -323,36 +321,8 @@ class InvoiceController extends Controller
     }
 
     public function voidInvoice(Request $request) {
-        $body = [
-            'Invoices'=> [
-                [ 
-                'Status'=> 'VOIDED'
-                ]
-            ]
-        ];
-        $a = XeroToken::latest()->first();
-        // dd(json_encode($body));
-        $client = new GClient();
-        $response= $client->request('POST', 'https://api.xero.com/api.xro/2.0/Invoices/'.$request->invoice_id, [
-            'headers' => [
-                'Authorization' => 'Bearer '.$a->access_token,
-                'Content-Type' => 'application/json',
-                'xero-tenant-id' => env('XERO_TENANT_ID'),
-                'Accept' => 'application/json'
-
-            ],
-            'json' => $body
-        ]);
-
-        $results = json_decode($response->getBody()->getContents());
-        if($response->getStatusCode() == 200) {
-            $del = Invoice::where('id', $request->id)->delete();
-            return response()->json(['success'=>'Invoice Voided Successfully.']);
-
-        } else {
-            return response()->json(['error'=>'Error void invoice. Contact Developer']);
-
-        }
+        Invoice::where('id', $request->id)->update(['status' => 'VOIDED']);
+        return response()->json(['success'=>'Invoice Voided Successfully.']);
     }
 
     public function generatePDF(Request $request)
