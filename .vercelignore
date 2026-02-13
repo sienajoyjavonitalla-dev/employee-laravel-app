@@ -9,3 +9,9 @@ storage/framework/sessions/*
 storage/framework/views/*
 bootstrap/cache/*
 !.gitignore
+/tests
+/phpunit.xml
+/.phpunit.result.cache
+database/*.sqlite
+database/*.sqlite-journal
+.git
