@@ -13,7 +13,6 @@ use App\Models\User;
 use DB;
 use App\Models\Client;
 use Illuminate\Support\Facades\File; 
-use PDF;
 
 class LogTimeController extends Controller
 {
@@ -340,17 +339,7 @@ class LogTimeController extends Controller
             'first' => $first,
             'data' => $data,
         );
-        $pdf = \App::make('dompdf.wrapper');
-        
-        if($request->type == 'mobile') {
-            $pdf =PDF::loadView('timelogs.mobile_timesheet_pdf',compact('dataArr'));
-            $view = 'timelogs.mobile_timesheet_pdf';
-        } else {
-            $pdf =PDF::loadView('timelogs.timesheet_pdf',compact('dataArr'));
-            $view = 'timelogs.timesheet_pdf';
-        }
-
-        // return $pdf->stream('timesheet.pdf');
+        $view = ($request->type == 'mobile') ? 'timelogs.mobile_timesheet_pdf' : 'timelogs.timesheet_pdf';
         return view($view, compact('dataArr'));
 
     }

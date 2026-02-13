@@ -12,7 +12,6 @@ use App\Models\TimeLog;
 use App\Models\SubcontractorInvoice;
 use DataTables;
 use Carbon\Carbon;
-use PDF;
 use DB;
 use App\Models\AdminFootprint;
 use Illuminate\Support\Facades\Auth;
@@ -386,10 +385,7 @@ class InvoiceController extends Controller
         }
 
 
-        $pdf = \App::make('dompdf.wrapper');
-        $pdf =PDF::loadView('invoices.pdf_view',compact('dataArr'));
-        return $pdf->stream('pdf_view.pdf');
-        // return view('invoices.pdf_view', compact('dataArr'));
+        return view('invoices.pdf_view', compact('dataArr'));
 
     }
 
@@ -419,9 +415,7 @@ class InvoiceController extends Controller
 
     public function pdf()
     {
-        $pdf = \App::make('dompdf.wrapper');
-        $pdf->loadHTML($this->convert_customer_data_to_html($req));
-        return $pdf->stream();
+        return response('<p>PDF export disabled for demo. Use browser Print to PDF if needed.</p>', 200, ['Content-Type' => 'text/html']);
     }
 
     public function convert_customer_data_to_html($data)
