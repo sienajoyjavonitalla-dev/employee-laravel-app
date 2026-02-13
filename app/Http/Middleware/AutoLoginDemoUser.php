@@ -21,9 +21,13 @@ class AutoLoginDemoUser
             return $next($request);
         }
 
-        $user = User::where('email', 'siena@admin.com')->first();
-        if ($user) {
-            Auth::login($user);
+        try {
+            $user = User::where('email', 'siena@admin.com')->first();
+            if ($user) {
+                Auth::login($user);
+            }
+        } catch (\Throwable $e) {
+            report($e);
         }
 
         return $next($request);
